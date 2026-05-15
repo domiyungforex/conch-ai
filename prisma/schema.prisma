@@ -1,0 +1,222 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum MemoryCategory {
+  EPISODIC
+  SEMANTIC
+  PREFERENCE
+  PROCEDURAL
+}
+
+enum AgentStatus {
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum PermissionLevel {
+  READ
+  WRITE
+  ADMIN
+}
+
+enum ApiKeyScope {
+  FULL
+  MEMORY_READ
+  MEMORY_WRITE
+  CHAT
+}
+
+model User {
+  id            String    @id @default(cuid())
+  clerkId       String    @unique
+  email         String    @unique
+  name          String?
+  avatarUrl     String?
+  plan          String    @default("free")
+  planExpiresAt DateTime?
+  onboarded     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  memories         Memory[]
+  conversations    Conversation[]
+  agents           Agent[]
+  permissions      Permission[]    @relation("GrantedTo")
+  grantedPerms     Permission[]    @relation("GrantedBy")
+  wallet           Wallet?
+  reputation       Reputation?
+  sharedContexts   SharedContext[] @relation("ContextOwner")
+  receivedContexts SharedContext[] @relation("ContextReceiver")
+  apiKeys          ApiKey[]
+
+  @@index([clerkId])
+  @@index([email])
+}
+
+model Memory {
+  id           String         @id @default(cuid())
+  userId       String
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content      String         @db.Text
+  category     MemoryCategory @default(SEMANTIC)
+  tags         String[]       @default([])
+  pineconeId   String?        @unique
+  importance   Float          @default(0.5)
+  accessCount  Int            @default(0)
+  lastAccessed DateTime?
+  source       String?
+  agentId      String?
+  agent        Agent?         @relation(fields: [agentId], references: [id])
+  isArchived   Boolean        @default(false)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([userId])
+  @@index([userId, category])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([pineconeId])
+}
+
+model Conversation {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  agentId   String?
+  agent     Agent?    @relation(fields: [agentId], references: [id])
+  title     String    @default("New Conversation")
+  summary   String?   @db.Text
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  messages Message[]
+
+  @@index([userId])
+  @@index([userId, updatedAt(sort: Desc)])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String
+  content        String       @db.Text
+  tokensUsed     Int?
+  memoryIds      String[]     @default([])
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId])
+  @@index([conversationId, createdAt])
+}
+
+model Agent {
+  id           String      @id @default(cuid())
+  userId       String
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String
+  description  String?
+  systemPrompt String      @db.Text
+  avatarUrl    String?
+  status       AgentStatus @default(ACTIVE)
+  memoryScope  String      @default("user")
+  modelId      String      @default("gpt-4o")
+  temperature  Float       @default(0.7)
+  maxTokens    Int         @default(2000)
+  metadata     Json?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  memories      Memory[]
+  conversations Conversation[]
+
+  @@index([userId])
+  @@index([userId, status])
+}
+
+model Permission {
+  id           String          @id @default(cuid())
+  grantedToId  String
+  grantedTo    User            @relation("GrantedTo", fields: [grantedToId], references: [id])
+  grantedById  String
+  grantedBy    User            @relation("GrantedBy", fields: [grantedById], references: [id])
+  resourceType String
+  resourceId   String
+  level        PermissionLevel @default(READ)
+  expiresAt    DateTime?
+  createdAt    DateTime        @default(now())
+
+  @@unique([grantedToId, resourceType, resourceId])
+  @@index([grantedToId])
+  @@index([grantedById])
+}
+
+model Wallet {
+  id           String    @id @default(cuid())
+  userId       String    @unique
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  address      String    @unique
+  chainId      Int       @default(8453)
+  ensName      String?
+  badgeMinted  Boolean   @default(false)
+  badgeTokenId String?
+  verifiedAt   DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([address])
+}
+
+model Reputation {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  score       Float    @default(0)
+  memoryCount Int      @default(0)
+  shareCount  Int      @default(0)
+  agentCount  Int      @default(0)
+  chatCount   Int      @default(0)
+  level       String   @default("novice")
+  updatedAt   DateTime @updatedAt
+}
+
+model SharedContext {
+  id          String    @id @default(cuid())
+  ownerId     String
+  owner       User      @relation("ContextOwner", fields: [ownerId], references: [id])
+  receiverId  String?
+  receiver    User?     @relation("ContextReceiver", fields: [receiverId], references: [id])
+  name        String
+  description String?
+  memoryIds   String[]  @default([])
+  isPublic    Boolean   @default(false)
+  shareToken  String    @unique @default(cuid())
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([ownerId])
+  @@index([shareToken])
+}
+
+model ApiKey {
+  id         String      @id @default(cuid())
+  userId     String
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name       String
+  keyHash    String      @unique
+  keyPrefix  String
+  scope      ApiKeyScope @default(FULL)
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  isRevoked  Boolean     @default(false)
+  createdAt  DateTime    @default(now())
+
+  @@index([userId])
+  @@index([keyHash])
+}
