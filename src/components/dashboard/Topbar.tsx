@@ -10,16 +10,18 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { MobileSidebar } from "./MobileSidebar";
 
 const breadcrumbMap: Record<string, string> = {
-  "/dashboard": "Dashboard",
-  "/chat": "AI Chat",
-  "/memory": "Memory",
-  "/agents": "Agents",
-  "/wallet": "Wallet",
-  "/settings": "Settings",
-  "/settings/profile": "Profile",
-  "/settings/notifications": "Notifications",
-  "/settings/api-keys": "API Keys",
-  "/settings/privacy": "Privacy",
+  "/dashboard":             "Dashboard",
+  "/chat":                  "AI Chat",
+  "/memory":                "Memory",
+  "/agents":                "Agents",
+  "/shared":                "Shared Contexts",
+  "/reputation":            "Reputation",
+  "/wallet":                "Wallet",
+  "/settings":              "Settings",
+  "/settings/profile":      "Profile",
+  "/settings/notifications":"Notifications",
+  "/settings/api-keys":     "API Keys",
+  "/settings/privacy":      "Privacy",
 };
 
 export function Topbar() {

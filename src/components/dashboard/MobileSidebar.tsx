@@ -3,47 +3,62 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
-import { LayoutDashboard, MessageSquare, Brain, Bot, Wallet, Settings } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Brain, Bot, Share2, Star, Wallet, Settings } from "lucide-react";
 import { Logo } from "@/components/shared/Logo";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/chat", icon: MessageSquare, label: "Chat" },
-  { href: "/memory", icon: Brain, label: "Memory" },
-  { href: "/agents", icon: Bot, label: "Agents" },
-  { href: "/wallet", icon: Wallet, label: "Wallet" },
-  { href: "/settings", icon: Settings, label: "Settings" },
+  { href: "/dashboard",   icon: LayoutDashboard, label: "Dashboard",       section: "WORKSPACE" },
+  { href: "/chat",        icon: MessageSquare,   label: "Chat",            section: "WORKSPACE" },
+  { href: "/memory",      icon: Brain,           label: "Memory",          section: "WORKSPACE" },
+  { href: "/agents",      icon: Bot,             label: "Agents",          section: "WORKSPACE" },
+  { href: "/shared",      icon: Share2,          label: "Shared Contexts", section: "SOCIAL" },
+  { href: "/reputation",  icon: Star,            label: "Reputation",      section: "SOCIAL" },
+  { href: "/wallet",      icon: Wallet,          label: "Wallet",          section: "SETTINGS" },
+  { href: "/settings",    icon: Settings,        label: "Settings",        section: "SETTINGS" },
 ];
 
 export function MobileSidebar() {
   const pathname = usePathname();
+  let lastSection: string | null = null;
 
   return (
     <div className="flex flex-col h-full">
       <div className="px-4 py-5 border-b border-white/8">
         <Logo size="sm" />
       </div>
-      <nav className="flex-1 px-2 py-4 space-y-1">
-        {navItems.map(({ href, icon: Icon, label }) => {
+      <nav className="flex-1 px-2 py-4 overflow-y-auto">
+        {navItems.map(({ href, icon: Icon, label, section }) => {
           const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
+          const showDivider = section !== lastSection;
+          lastSection = section;
+
           return (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
-                active ? "bg-violet-600/20 text-violet-300" : "text-slate-400 hover:text-white hover:bg-white/5"
+            <div key={href}>
+              {showDivider && (
+                <p className="px-3 pt-3 pb-1 text-[10px] font-semibold text-slate-600 uppercase tracking-widest">
+                  {section}
+                </p>
               )}
-            >
-              <Icon className={cn("h-5 w-5", active ? "text-violet-400" : "text-slate-500")} />
-              <span>{label}</span>
-            </Link>
+              <Link
+                href={href}
+                className={cn(
+                  "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
+                  active ? "bg-violet-600/20 text-violet-300" : "text-slate-400 hover:text-white hover:bg-white/5"
+                )}
+              >
+                <Icon className={cn("h-5 w-5 shrink-0", active ? "text-violet-400" : "text-slate-500")} />
+                <span>{label}</span>
+              </Link>
+            </div>
           );
         })}
       </nav>
       <div className="px-4 py-3 border-t border-white/8 flex items-center gap-3">
-        <UserButton appearance={{ elements: { avatarBox: "w-8 h-8" } }} />
+        <div className="relative">
+          <UserButton appearance={{ elements: { avatarBox: "w-8 h-8" } }} />
+          <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-background pointer-events-none" />
+        </div>
         <span className="text-sm text-slate-400">Account</span>
       </div>
     </div>

@@ -231,3 +231,78 @@ body {
 .prose-conch ol { list-style: decimal; padding-left: 1.5rem; }
 .prose-conch li { margin: 0.25rem 0; }
 .prose-conch h1, .prose-conch h2, .prose-conch h3 { color: #f8fafc; font-weight: 600; margin: 1rem 0 0.5rem; }
+
+/* ─── Cinematic upgrade additions ─────────────────────────────────── */
+
+@keyframes neural-pulse {
+  0% { stroke-dashoffset: 100; opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+@keyframes particle-drift {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: var(--opacity-base, 0.4);
+  }
+  33% {
+    transform: translate(var(--drift-x, 6px), var(--drift-y, -8px)) scale(1.3);
+    opacity: calc(var(--opacity-base, 0.4) + 0.3);
+  }
+  66% {
+    transform: translate(calc(var(--drift-x, 6px) * -0.6), calc(var(--drift-y, -8px) * 0.4)) scale(0.85);
+    opacity: calc(var(--opacity-base, 0.4) + 0.1);
+  }
+}
+
+@keyframes magnetic-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(124, 58, 237, 0.35), 0 0 60px rgba(124, 58, 237, 0.1); }
+  50%       { box-shadow: 0 0 40px rgba(124, 58, 237, 0.65), 0 0 90px rgba(124, 58, 237, 0.2); }
+}
+
+@keyframes scroll-bounce {
+  0%, 100% { transform: translateY(0);   opacity: 0.4; }
+  50%       { transform: translateY(7px); opacity: 0.9; }
+}
+
+/* Neural connection lines (SVG paths) */
+.neural-line {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: neural-pulse 2.5s ease-in-out infinite;
+}
+.neural-line--delayed {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: neural-pulse 2.5s ease-in-out 1.2s infinite;
+}
+
+/* Floating particles */
+.particle {
+  position: absolute;
+  border-radius: 9999px;
+  background: rgba(124, 58, 237, 0.55);
+  animation: particle-drift var(--duration, 6s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  pointer-events: none;
+}
+
+/* Primary CTA glow pulse */
+.glow-pulse {
+  animation: magnetic-glow 2.5s ease-in-out infinite;
+}
+
+/* Scroll indicator */
+.animate-scroll-bounce {
+  animation: scroll-bounce 1.8s ease-in-out infinite;
+}
+
+/* Memory node hover (class-based for non-Framer elements) */
+.memory-node-hover {
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+.memory-node-hover:hover {
+  box-shadow: 0 0 28px rgba(124, 58, 237, 0.45);
+  transform: translateY(-2px) scale(1.03);
+}
