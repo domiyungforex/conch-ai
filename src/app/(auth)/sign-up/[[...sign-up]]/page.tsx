@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useAuth, SignUp } from "@clerk/nextjs";
+import { SignUp } from "@clerk/nextjs";
 
 const APPEARANCE = {
   elements: {
@@ -23,16 +22,6 @@ const APPEARANCE = {
 };
 
 export default function SignUpPage() {
-  const { isLoaded } = useAuth();
-  const [timedOut, setTimedOut] = useState(false);
-
-  useEffect(() => {
-    const t = setTimeout(() => setTimedOut(true), 3500);
-    return () => clearTimeout(t);
-  }, []);
-
-  const showFallback = timedOut && !isLoaded;
-
   return (
     <div className="min-h-screen mesh-gradient flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -49,21 +38,7 @@ export default function SignUpPage() {
           <p className="text-slate-400 mt-1">Own your AI memory. Forever.</p>
         </div>
 
-        {showFallback ? (
-          <div className="glass border border-white/10 rounded-2xl p-8 text-center space-y-4">
-            <p className="text-slate-300 text-sm">
-              Auth is not configured for this domain.
-            </p>
-            <a
-              href="https://conchportal.com/sign-up"
-              className="inline-block text-violet-400 hover:text-violet-300 text-sm underline transition-colors"
-            >
-              Sign up at conchportal.com →
-            </a>
-          </div>
-        ) : (
-          <SignUp appearance={APPEARANCE} forceRedirectUrl="/dashboard" />
-        )}
+        <SignUp appearance={APPEARANCE} forceRedirectUrl="/dashboard" />
       </div>
     </div>
   );
