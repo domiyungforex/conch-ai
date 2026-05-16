@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useClerk, SignUp } from "@clerk/nextjs";
+import { useAuth, SignUp } from "@clerk/nextjs";
 
 const APPEARANCE = {
   elements: {
@@ -23,7 +23,7 @@ const APPEARANCE = {
 };
 
 export default function SignUpPage() {
-  const { loaded } = useClerk();
+  const { isLoaded } = useAuth();
   const [timedOut, setTimedOut] = useState(false);
 
   useEffect(() => {
@@ -31,7 +31,7 @@ export default function SignUpPage() {
     return () => clearTimeout(t);
   }, []);
 
-  const showFallback = timedOut && !loaded;
+  const showFallback = timedOut && !isLoaded;
 
   return (
     <div className="min-h-screen mesh-gradient flex items-center justify-center p-4">
