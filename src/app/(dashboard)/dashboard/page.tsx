@@ -59,15 +59,26 @@ export default async function DashboardPage() {
         recentConversations={recentConversations}
       />
     );
-  } catch {
+  } catch (err) {
+    const code = (err as { code?: string })?.code;
+    const isNoTable = code === "P2021" || code === "P1017" ||
+      String(err).includes("does not exist") || String(err).includes("relation");
+    const isNoConn = code === "P1001" || code === "P1000";
+
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center gap-4">
         <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-2xl">🗄️</div>
-        <h2 className="text-lg font-semibold text-white">Database not connected</h2>
+        <h2 className="text-lg font-semibold text-white">
+          {isNoTable ? "Database tables missing" : isNoConn ? "Cannot reach database" : "Database error"}
+        </h2>
         <p className="text-sm text-slate-400 max-w-sm">
-          Add your Supabase <code className="text-violet-400">DATABASE_URL</code> and{" "}
-          <code className="text-violet-400">DIRECT_URL</code> to Vercel environment variables,
-          then redeploy.
+          {isNoTable ? (
+            <>Run <code className="text-violet-400">node_modules/.bin/prisma db push</code> in your terminal to create the tables, then refresh.</>
+          ) : isNoConn ? (
+            <>Check that <code className="text-violet-400">DATABASE_URL</code> and <code className="text-violet-400">DIRECT_URL</code> are set correctly in Vercel, then redeploy.</>
+          ) : (
+            <>{String(err).slice(0, 120)}</>
+          )}
         </p>
       </div>
     );
