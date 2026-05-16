@@ -41,7 +41,7 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
           Good {getTimeOfDay()},{" "}
           <span className="gradient-text">{firstName}</span> 👋
         </h1>
-        <p className="text-slate-400 mt-1">Here's what's happening with your AI memory.</p>
+        <p className="text-slate-400 mt-1">Here&apos;s what&apos;s happening with your AI memory.</p>
       </motion.div>
 
       {/* Stats */}
