@@ -298,6 +298,17 @@ body {
   animation: scroll-bounce 1.8s ease-in-out infinite;
 }
 
+/* Importance dot tiers */
+.importance-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+}
+.importance-dot--low    { background: rgba(124,58,237,0.35); box-shadow: 0 0 4px  rgba(124,58,237,0.15); }
+.importance-dot--medium { background: rgba(124,58,237,0.55); box-shadow: 0 0 6px  rgba(124,58,237,0.35); }
+.importance-dot--high   { background: rgba(124,58,237,0.75); box-shadow: 0 0 9px  rgba(124,58,237,0.55); }
+.importance-dot--max    { background: rgba(124,58,237,0.95); box-shadow: 0 0 13px rgba(124,58,237,0.75); }
+
 /* Memory node hover (class-based for non-Framer elements) */
 .memory-node-hover {
   transition: box-shadow 0.3s ease, transform 0.3s ease;
