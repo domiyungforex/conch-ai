@@ -62,7 +62,7 @@ export default function SignUpPage() {
             </a>
           </div>
         ) : (
-          <SignUp appearance={APPEARANCE} />
+          <SignUp appearance={APPEARANCE} forceRedirectUrl="/dashboard" />
         )}
       </div>
     </div>

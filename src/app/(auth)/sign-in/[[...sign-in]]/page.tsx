@@ -63,7 +63,7 @@ export default function SignInPage() {
             </a>
           </div>
         ) : (
-          <SignIn appearance={APPEARANCE} />
+          <SignIn appearance={APPEARANCE} forceRedirectUrl="/dashboard" />
         )}
       </div>
     </div>
