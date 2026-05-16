@@ -16,6 +16,21 @@ interface UseChatOptions {
   onConversationCreated?: (id: string) => void;
 }
 
+async function extractErrorMessage(res: Response): Promise<string> {
+  try {
+    const data = await res.clone().json();
+    if (typeof data?.error === "string") return data.error;
+  } catch {
+    // not JSON
+  }
+  switch (res.status) {
+    case 401: return "You need to sign in to continue.";
+    case 429: return "Too many messages. Please wait a moment before trying again.";
+    case 503: return "AI service is temporarily unavailable. Please try again shortly.";
+    default:  return "Something went wrong. Please try again.";
+  }
+}
+
 export function useChat({ conversationId, agentId, onConversationCreated }: UseChatOptions = {}) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -42,7 +57,10 @@ export function useChat({ conversationId, agentId, onConversationCreated }: UseC
         signal: abortRef.current.signal,
       });
 
-      if (!res.ok) throw new Error("Chat request failed");
+      if (!res.ok) {
+        const errorText = await extractErrorMessage(res);
+        throw new Error(errorText);
+      }
 
       const newConvId = res.headers.get("X-Conversation-Id");
       if (newConvId && !conversationId && onConversationCreated) {
@@ -53,7 +71,7 @@ export function useChat({ conversationId, agentId, onConversationCreated }: UseC
       const decoder = new TextDecoder();
       let accumulated = "";
 
-      if (!reader) throw new Error("No response body");
+      if (!reader) throw new Error("No response from AI. Please try again.");
 
       while (true) {
         const { done, value } = await reader.read();
@@ -87,7 +105,7 @@ export function useChat({ conversationId, agentId, onConversationCreated }: UseC
         const errorMsg: ChatMessage = {
           id: crypto.randomUUID(),
           role: "assistant",
-          content: "Sorry, something went wrong. Please try again.",
+          content: (err as Error).message || "Something went wrong. Please try again.",
           createdAt: new Date(),
         };
         setMessages((prev) => [...prev, errorMsg]);

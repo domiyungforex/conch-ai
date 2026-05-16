@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { streamText } from "ai";
 import { openai as aiSdkOpenai } from "@ai-sdk/openai";
 import { prisma } from "@/lib/prisma";
@@ -32,9 +32,29 @@ export async function POST(req: Request) {
 
   const { conversationId, agentId, message } = parsed.data;
 
-  const user = await prisma.user.findUnique({ where: { clerkId } });
+  let user = await prisma.user.findUnique({ where: { clerkId } });
+
+  // Webhook may have missed — attempt fallback creation from Clerk session
   if (!user) {
-    return new Response(JSON.stringify({ error: "User not found" }), { status: 404 });
+    try {
+      const clerkUser = await currentUser();
+      if (clerkUser) {
+        const email = clerkUser.emailAddresses[0]?.emailAddress ?? "";
+        const name = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") || null;
+        await prisma.user.upsert({
+          where: { clerkId },
+          create: { clerkId, email, name, avatarUrl: clerkUser.imageUrl ?? null, reputation: { create: {} } },
+          update: { email, name, avatarUrl: clerkUser.imageUrl ?? null },
+        });
+        user = await prisma.user.findUnique({ where: { clerkId } });
+      }
+    } catch (err) {
+      console.error("[chat] fallback user creation failed:", err);
+    }
+  }
+
+  if (!user) {
+    return new Response(JSON.stringify({ error: "Account setup in progress. Please refresh and try again." }), { status: 503 });
   }
 
   let agent = null;
@@ -77,32 +97,42 @@ export async function POST(req: Request) {
     .slice(-19)
     .map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
 
-  const result = streamText({
-    model: aiSdkOpenai(agent?.modelId ?? "gpt-4o"),
-    system: systemPrompt,
-    messages: [...history, { role: "user", content: message }],
-    maxTokens: agent?.maxTokens ?? 2000,
-    temperature: agent?.temperature ?? 0.7,
-    onFinish: async ({ text, usage }) => {
-      await prisma.message.create({
-        data: {
-          conversationId: conversation.id,
-          role: "assistant",
-          content: text,
-          tokensUsed: usage?.totalTokens ?? null,
-          memoryIds: memories.map((m) => m.id),
-        },
-      });
-      await prisma.conversation.update({
-        where: { id: conversation.id },
-        data: { updatedAt: new Date() },
-      });
-      await prisma.reputation.updateMany({
-        where: { userId: user.id },
-        data: { chatCount: { increment: 1 } },
-      });
-    },
-  });
+  let result;
+  try {
+    result = streamText({
+      model: aiSdkOpenai(agent?.modelId ?? "gpt-4o"),
+      system: systemPrompt,
+      messages: [...history, { role: "user", content: message }],
+      maxTokens: agent?.maxTokens ?? 2000,
+      temperature: agent?.temperature ?? 0.7,
+      onFinish: async ({ text, usage }) => {
+        await prisma.message.create({
+          data: {
+            conversationId: conversation.id,
+            role: "assistant",
+            content: text,
+            tokensUsed: usage?.totalTokens ?? null,
+            memoryIds: memories.map((m) => m.id),
+          },
+        });
+        await prisma.conversation.update({
+          where: { id: conversation.id },
+          data: { updatedAt: new Date() },
+        });
+        await prisma.reputation.updateMany({
+          where: { userId: user!.id },
+          data: { chatCount: { increment: 1 } },
+        });
+      },
+    });
+  } catch (err) {
+    console.error("[chat] streamText init failed:", err);
+    const isKeyMissing = String(err).includes("API key") || String(err).includes("401");
+    return new Response(
+      JSON.stringify({ error: isKeyMissing ? "AI service not configured. Check OPENAI_API_KEY." : "AI service unavailable. Please try again." }),
+      { status: 503 }
+    );
+  }
 
   const response = result.toDataStreamResponse();
   const newHeaders = new Headers(response.headers);

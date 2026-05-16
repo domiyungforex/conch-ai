@@ -71,8 +71,8 @@ export function Footer() {
           </p>
           <div className="flex items-center gap-1 text-xs text-slate-600">
             <span>Built on</span>
-            <span className="gradient-text font-semibold mx-1">Base Chain</span>
-            <span>with ♥ for the AI-native generation</span>
+            <span className="gradient-text font-semibold mx-1">DOMIYUNG</span>
+            <span>with ♥ for the CONCH</span>
           </div>
         </div>
       </div>

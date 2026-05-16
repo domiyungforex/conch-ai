@@ -1,7 +1,8 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { DashboardHome } from "@/components/dashboard/DashboardHome";
+import { SetupRetry } from "@/components/dashboard/SetupRetry";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -11,7 +12,7 @@ export default async function DashboardPage() {
   if (!clerkId) redirect("/sign-in");
 
   try {
-    const user = await prisma.user.findUnique({
+    let user = await prisma.user.findUnique({
       where: { clerkId },
       include: {
         reputation: true,
@@ -19,17 +20,43 @@ export default async function DashboardPage() {
       },
     });
 
+    // Webhook may have missed — attempt fallback creation from Clerk session data
     if (!user) {
-      return (
-        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-2xl">⚙️</div>
-          <h2 className="text-lg font-semibold text-white">Setting up your account…</h2>
-          <p className="text-sm text-slate-400 max-w-sm">
-            Your profile is being created. This takes a few seconds after your first sign-in.
-            Refresh the page in a moment.
-          </p>
-        </div>
-      );
+      try {
+        const clerkUser = await currentUser();
+        if (clerkUser) {
+          const email = clerkUser.emailAddresses[0]?.emailAddress ?? "";
+          const name = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") || null;
+          const avatarUrl = clerkUser.imageUrl ?? null;
+
+          await prisma.user.upsert({
+            where: { clerkId },
+            create: {
+              clerkId,
+              email,
+              name,
+              avatarUrl,
+              reputation: { create: {} },
+            },
+            update: { email, name, avatarUrl },
+          });
+
+          // Re-fetch with full includes
+          user = await prisma.user.findUnique({
+            where: { clerkId },
+            include: {
+              reputation: true,
+              _count: { select: { memories: true, conversations: true, agents: true } },
+            },
+          });
+        }
+      } catch (fallbackErr) {
+        console.error("[dashboard] fallback user creation failed:", fallbackErr);
+      }
+    }
+
+    if (!user) {
+      return <SetupRetry />;
     }
 
     const [recentMemories, recentConversations] = await Promise.all([
@@ -67,13 +94,15 @@ export default async function DashboardPage() {
 
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-2xl">🗄️</div>
+        <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-2xl">
+          <span className="text-red-400 text-lg font-bold">!</span>
+        </div>
         <h2 className="text-lg font-semibold text-white">
           {isNoTable ? "Database tables missing" : isNoConn ? "Cannot reach database" : "Database error"}
         </h2>
         <p className="text-sm text-slate-400 max-w-sm">
           {isNoTable ? (
-            <>Run <code className="text-violet-400">node_modules/.bin/prisma db push</code> in your terminal to create the tables, then refresh.</>
+            <>Run <code className="text-violet-400">node_modules/.bin/prisma db push</code> to create the tables, then refresh.</>
           ) : isNoConn ? (
             <>Check that <code className="text-violet-400">DATABASE_URL</code> and <code className="text-violet-400">DIRECT_URL</code> are set correctly in Vercel, then redeploy.</>
           ) : (

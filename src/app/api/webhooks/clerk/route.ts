@@ -37,15 +37,26 @@ export async function POST(req: Request) {
     const email = email_addresses[0]?.email_address ?? "";
     const name = [first_name, last_name].filter(Boolean).join(" ") || null;
 
-    await prisma.user.create({
-      data: {
-        clerkId: id,
-        email,
-        name,
-        avatarUrl: image_url ?? null,
-        reputation: { create: {} },
-      },
-    });
+    try {
+      await prisma.user.upsert({
+        where: { clerkId: id },
+        create: {
+          clerkId: id,
+          email,
+          name,
+          avatarUrl: image_url ?? null,
+          reputation: { create: {} },
+        },
+        update: {
+          email,
+          name,
+          avatarUrl: image_url ?? null,
+        },
+      });
+    } catch (err) {
+      console.error("[webhook] user.created failed:", err);
+      return new Response("Database error", { status: 500 });
+    }
   }
 
   if (event.type === "user.updated") {
@@ -53,16 +64,26 @@ export async function POST(req: Request) {
     const email = email_addresses[0]?.email_address ?? "";
     const name = [first_name, last_name].filter(Boolean).join(" ") || null;
 
-    await prisma.user.updateMany({
-      where: { clerkId: id },
-      data: { email, name, avatarUrl: image_url ?? null },
-    });
+    try {
+      await prisma.user.updateMany({
+        where: { clerkId: id },
+        data: { email, name, avatarUrl: image_url ?? null },
+      });
+    } catch (err) {
+      console.error("[webhook] user.updated failed:", err);
+      return new Response("Database error", { status: 500 });
+    }
   }
 
   if (event.type === "user.deleted") {
     const { id } = event.data;
     if (id) {
-      await prisma.user.deleteMany({ where: { clerkId: id } });
+      try {
+        await prisma.user.deleteMany({ where: { clerkId: id } });
+      } catch (err) {
+        console.error("[webhook] user.deleted failed:", err);
+        return new Response("Database error", { status: 500 });
+      }
     }
   }
 
