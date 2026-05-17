@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,23 +8,52 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, AlertCircle } from "lucide-react";
 
 export default function ProfilePage() {
   const { user, isLoaded } = useUser();
-  const [firstName, setFirstName] = useState(user?.firstName ?? "");
-  const [lastName, setLastName] = useState(user?.lastName ?? "");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!isLoaded) return <div className="flex items-center justify-center h-40"><LoadingSpinner /></div>;
+  // Sync form fields once Clerk user data is available.
+  // useState initial values are frozen at first render (when user is undefined),
+  // so this effect is necessary to populate fields after auth resolves.
+  useEffect(() => {
+    if (isLoaded && user) {
+      setFirstName(user.firstName ?? "");
+      setLastName(user.lastName ?? "");
+    }
+  }, [isLoaded, user?.id]); // user.id stabilizes the dep — avoids re-running on re-renders
+
+  if (!isLoaded) {
+    return (
+      <div className="flex items-center justify-center h-40">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-40 gap-3 text-slate-400">
+        <AlertCircle className="w-5 h-5 text-red-400" />
+        <span className="text-sm">Session not found. Please sign in again.</span>
+      </div>
+    );
+  }
 
   const handleSave = async () => {
     setSaving(true);
+    setError(null);
     try {
-      await user?.update({ firstName, lastName });
+      await user.update({ firstName: firstName.trim(), lastName: lastName.trim() });
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      setError((err as Error)?.message ?? "Failed to save. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -36,29 +65,42 @@ export default function ProfilePage() {
         <h2 className="text-base font-semibold text-white mb-6">Profile Information</h2>
         <div className="flex items-start gap-6 mb-6">
           <Avatar className="w-16 h-16">
-            <AvatarImage src={user?.imageUrl} alt={user?.fullName ?? ""} />
-            <AvatarFallback className="bg-gradient-to-br from-violet-600 to-indigo-600 text-white text-xl font-bold">
-              {user?.firstName?.[0] ?? "U"}
+            <AvatarImage src={user.imageUrl} alt={user.fullName ?? ""} />
+            <AvatarFallback className="bg-linear-to-br from-violet-600 to-indigo-600 text-white text-xl font-bold">
+              {user.firstName?.[0] ?? "U"}
             </AvatarFallback>
           </Avatar>
           <div>
-            <p className="text-sm font-medium text-white">{user?.fullName}</p>
-            <p className="text-xs text-slate-400 mt-0.5">{user?.primaryEmailAddress?.emailAddress}</p>
+            <p className="text-sm font-medium text-white">{user.fullName}</p>
+            <p className="text-xs text-slate-400 mt-0.5">{user.primaryEmailAddress?.emailAddress}</p>
             <p className="text-xs text-slate-600 mt-2">To update your profile photo, use the account button in the sidebar.</p>
           </div>
         </div>
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <Label className="text-slate-300 mb-1.5 block">First Name</Label>
-            <Input value={firstName} onChange={(e) => setFirstName(e.target.value)}
-              className="bg-white/5 border-white/10 text-white" />
+            <Input
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              className="bg-white/5 border-white/10 text-white"
+            />
           </div>
           <div>
             <Label className="text-slate-300 mb-1.5 block">Last Name</Label>
-            <Input value={lastName} onChange={(e) => setLastName(e.target.value)}
-              className="bg-white/5 border-white/10 text-white" />
+            <Input
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              className="bg-white/5 border-white/10 text-white"
+            />
           </div>
         </div>
+
+        {error && (
+          <p className="flex items-center gap-1.5 text-sm text-red-400 mt-3">
+            <AlertCircle className="w-4 h-4 shrink-0" /> {error}
+          </p>
+        )}
+
         <div className="flex items-center gap-3 mt-6">
           <Button onClick={handleSave} disabled={saving}>
             {saving ? "Saving…" : "Save Changes"}
@@ -75,7 +117,7 @@ export default function ProfilePage() {
         <h2 className="text-base font-semibold text-white mb-2">Email Address</h2>
         <p className="text-sm text-slate-400 mb-4">Your primary email for account communications.</p>
         <p className="text-sm font-mono text-white bg-white/5 rounded-xl px-4 py-2.5 border border-white/8">
-          {user?.primaryEmailAddress?.emailAddress}
+          {user.primaryEmailAddress?.emailAddress}
         </p>
       </GlassCard>
     </div>

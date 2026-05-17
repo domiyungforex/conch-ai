@@ -20,36 +20,51 @@ export default async function DashboardPage() {
       },
     });
 
-    // Webhook may have missed — attempt fallback creation from Clerk session data
+    // Webhook may have missed — attempt fallback creation from Clerk session data.
+    // Two-tier fallback: first try currentUser() for full profile data, then
+    // fall back to a minimal record keyed only on clerkId so the user is never
+    // permanently stuck. The webhook will fill in email/name/avatar later.
     if (!user) {
+      let email = `${clerkId}@pending.conch`;
+      let name: string | null = null;
+      let avatarUrl: string | null = null;
+
       try {
         const clerkUser = await currentUser();
         if (clerkUser) {
-          const email = clerkUser.emailAddresses[0]?.emailAddress ?? "";
-          const name = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") || null;
-          const avatarUrl = clerkUser.imageUrl ?? null;
-
-          await prisma.user.upsert({
-            where: { clerkId },
-            create: {
-              clerkId,
-              email,
-              name,
-              avatarUrl,
-              reputation: { create: {} },
-            },
-            update: { email, name, avatarUrl },
-          });
-
-          // Re-fetch with full includes
-          user = await prisma.user.findUnique({
-            where: { clerkId },
-            include: {
-              reputation: true,
-              _count: { select: { memories: true, conversations: true, agents: true } },
-            },
-          });
+          email = clerkUser.emailAddresses[0]?.emailAddress ?? email;
+          name = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") || null;
+          avatarUrl = clerkUser.imageUrl ?? null;
         }
+      } catch (clerkErr) {
+        console.error("[dashboard] currentUser() failed, using minimal fallback:", clerkErr);
+      }
+
+      try {
+        await prisma.user.upsert({
+          where: { clerkId },
+          create: {
+            clerkId,
+            email,
+            name,
+            avatarUrl,
+            reputation: { create: {} },
+          },
+          update: {
+            // Only overwrite if we have real data (not the placeholder email)
+            ...(email.endsWith("@pending.conch") ? {} : { email }),
+            ...(name !== null ? { name } : {}),
+            ...(avatarUrl !== null ? { avatarUrl } : {}),
+          },
+        });
+
+        user = await prisma.user.findUnique({
+          where: { clerkId },
+          include: {
+            reputation: true,
+            _count: { select: { memories: true, conversations: true, agents: true } },
+          },
+        });
       } catch (fallbackErr) {
         console.error("[dashboard] fallback user creation failed:", fallbackErr);
       }

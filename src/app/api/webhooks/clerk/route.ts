@@ -65,9 +65,18 @@ export async function POST(req: Request) {
     const name = [first_name, last_name].filter(Boolean).join(" ") || null;
 
     try {
-      await prisma.user.updateMany({
+      // Upsert instead of updateMany: handles the race condition where
+      // user.updated fires before user.created has been processed.
+      await prisma.user.upsert({
         where: { clerkId: id },
-        data: { email, name, avatarUrl: image_url ?? null },
+        create: {
+          clerkId: id,
+          email,
+          name,
+          avatarUrl: image_url ?? null,
+          reputation: { create: {} },
+        },
+        update: { email, name, avatarUrl: image_url ?? null },
       });
     } catch (err) {
       console.error("[webhook] user.updated failed:", err);

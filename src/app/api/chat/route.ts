@@ -41,20 +41,35 @@ export async function POST(req: Request) {
 
   let user = await prisma.user.findUnique({ where: { clerkId } });
 
-  // Webhook may have missed — attempt fallback creation from Clerk session
+  // Webhook may have missed — two-tier fallback: try currentUser() first,
+  // then create a minimal record so the user is never permanently blocked.
   if (!user) {
+    let email = `${clerkId}@pending.conch`;
+    let name: string | null = null;
+    let avatarUrl: string | null = null;
+
     try {
       const clerkUser = await currentUser();
       if (clerkUser) {
-        const email = clerkUser.emailAddresses[0]?.emailAddress ?? "";
-        const name = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") || null;
-        await prisma.user.upsert({
-          where: { clerkId },
-          create: { clerkId, email, name, avatarUrl: clerkUser.imageUrl ?? null, reputation: { create: {} } },
-          update: { email, name, avatarUrl: clerkUser.imageUrl ?? null },
-        });
-        user = await prisma.user.findUnique({ where: { clerkId } });
+        email = clerkUser.emailAddresses[0]?.emailAddress ?? email;
+        name = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") || null;
+        avatarUrl = clerkUser.imageUrl ?? null;
       }
+    } catch (clerkErr) {
+      console.error("[chat] currentUser() failed, using minimal fallback:", clerkErr);
+    }
+
+    try {
+      await prisma.user.upsert({
+        where: { clerkId },
+        create: { clerkId, email, name, avatarUrl, reputation: { create: {} } },
+        update: {
+          ...(email.endsWith("@pending.conch") ? {} : { email }),
+          ...(name !== null ? { name } : {}),
+          ...(avatarUrl !== null ? { avatarUrl } : {}),
+        },
+      });
+      user = await prisma.user.findUnique({ where: { clerkId } });
     } catch (err) {
       console.error("[chat] fallback user creation failed:", err);
     }
@@ -129,9 +144,10 @@ export async function POST(req: Request) {
           where: { id: conversation.id },
           data: { updatedAt: new Date() },
         });
-        await prisma.reputation.updateMany({
+        await prisma.reputation.upsert({
           where: { userId: user!.id },
-          data: { chatCount: { increment: 1 } },
+          create: { userId: user!.id, chatCount: 1 },
+          update: { chatCount: { increment: 1 } },
         });
       },
     });

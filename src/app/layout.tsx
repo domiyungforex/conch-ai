@@ -33,8 +33,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ClerkProvider
-          clerkJSUrl="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
-          proxyUrl="https://conchportal.com/api/clerk-proxy"
+          proxyUrl={
+            process.env.NEXT_PUBLIC_APP_URL
+              ? `${process.env.NEXT_PUBLIC_APP_URL}/api/clerk-proxy`
+              : undefined
+          }
         >
           <Web3Provider>
             {children}
