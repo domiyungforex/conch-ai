@@ -43,7 +43,7 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
     staleTime: 30_000,
   });
 
-  const { messages, input, setInput, isLoading, streamingContent, sendMessage, stop, loadMessages } = useChat({
+  const { messages, input, setInput, isLoading, streamingContent, sendMessage, stop, loadMessages, retryLast } = useChat({
     conversationId: id,
     agentId,
     onConversationCreated: (newId) => router.replace(`/chat/${newId}`),
@@ -118,7 +118,7 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
             )}
 
             {!loadingConv && !convError && messages.map((msg) => (
-              <ChatMessage key={msg.id} message={msg} />
+              <ChatMessage key={msg.id} message={msg} onRetry={msg.isError ? retryLast : undefined} />
             ))}
 
             {isLoading && (

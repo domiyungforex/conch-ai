@@ -15,6 +15,13 @@ export async function POST(req: Request) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
+  if (!process.env.OPENAI_API_KEY) {
+    return new Response(
+      JSON.stringify({ error: "AI service is not configured. Please contact support." }),
+      { status: 503 }
+    );
+  }
+
   const rateCheck = checkRateLimit(`chat:${clerkId}`, 30, 60_000);
   if (!rateCheck.success) return rateLimitResponse(rateCheck.resetAt);
 
@@ -105,6 +112,9 @@ export async function POST(req: Request) {
       messages: [...history, { role: "user", content: message }],
       maxTokens: agent?.maxTokens ?? 2000,
       temperature: agent?.temperature ?? 0.7,
+      onError: ({ error }) => {
+        console.error("[chat] stream error:", error);
+      },
       onFinish: async ({ text, usage }) => {
         await prisma.message.create({
           data: {

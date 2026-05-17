@@ -2,9 +2,10 @@
 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Brain } from "lucide-react";
+import { Brain, RefreshCw, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import type { ChatMessage as ChatMessageType } from "@/hooks/useChat";
 
@@ -12,13 +13,15 @@ interface Props {
   message: ChatMessageType;
   isStreaming?: boolean;
   streamingContent?: string;
+  onRetry?: () => void;
 }
 
-export function ChatMessage({ message, isStreaming, streamingContent }: Props) {
+export function ChatMessage({ message, isStreaming, streamingContent, onRetry }: Props) {
   const isUser = message.role === "user";
   const content = isStreaming ? streamingContent ?? "" : message.content;
   const hasMemories = !isUser && message.memoryIds && message.memoryIds.length > 0;
   const memoryCount = message.memoryIds?.length ?? 0;
+  const isError = !isUser && message.isError === true;
 
   return (
     <div className={cn("flex gap-3 max-w-3xl", isUser ? "ml-auto flex-row-reverse" : "mr-auto")}>
@@ -41,6 +44,8 @@ export function ChatMessage({ message, isStreaming, streamingContent }: Props) {
             "rounded-2xl px-4 py-3 text-sm leading-relaxed",
             isUser
               ? "bg-violet-600/30 border border-violet-500/30 text-white rounded-tr-sm"
+              : isError
+              ? "glass border border-red-500/30 text-slate-300 rounded-tl-sm border-l-2 border-l-red-500/50"
               : "glass border border-white/8 text-slate-100 rounded-tl-sm border-l-2 border-l-violet-500/50"
           )}
         >
@@ -68,6 +73,25 @@ export function ChatMessage({ message, isStreaming, streamingContent }: Props) {
 
         <div className="flex items-center gap-2 px-1">
           <span className="text-xs text-slate-600">{formatRelativeTime(message.createdAt)}</span>
+
+          {isError && onRetry && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onRetry}
+              className="h-6 px-2 text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 gap-1"
+            >
+              <RefreshCw className="w-3 h-3" />
+              Retry
+            </Button>
+          )}
+
+          {isError && !onRetry && (
+            <span className="flex items-center gap-1 text-xs text-red-400">
+              <AlertCircle className="w-3 h-3" />
+              Error
+            </span>
+          )}
 
           {hasMemories && (
             <motion.div

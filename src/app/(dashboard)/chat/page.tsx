@@ -17,7 +17,7 @@ export default function ChatPage() {
   const [agentId, setAgentId] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  const { messages, input, setInput, isLoading, streamingContent, sendMessage, stop } = useChat({
+  const { messages, input, setInput, isLoading, streamingContent, sendMessage, stop, retryLast } = useChat({
     agentId,
     onConversationCreated: (id) => router.replace(`/chat/${id}`),
   });
@@ -76,6 +76,7 @@ export default function ChatPage() {
               key={msg.id}
               message={msg}
               isStreaming={isLoading && i === messages.length - 1 && msg.role === "user" ? false : undefined}
+              onRetry={msg.isError ? retryLast : undefined}
             />
           ))}
 
