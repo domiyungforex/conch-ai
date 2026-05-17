@@ -14,7 +14,11 @@ interface EmptyStateProps {
 }
 
 function isLucideIcon(icon: unknown): icon is LucideIcon {
-  return typeof icon === "function";
+  // Modern lucide-react icons are React.forwardRef objects (typeof === "object"),
+  // not plain functions. Accept both so the icon is called as <IconComponent />.
+  if (typeof icon === "function") return true;
+  if (typeof icon === "object" && icon !== null && "$$typeof" in icon) return true;
+  return false;
 }
 
 function isActionObject(action: unknown): action is { label: string; onClick: () => void } {
