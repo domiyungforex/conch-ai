@@ -14,15 +14,21 @@ export default function PrivacyPage() {
   const [publicProfile, setPublicProfile] = useState(false);
 
   const handleExport = async () => {
-    const res = await fetch("/api/memory");
-    const data = await res.json();
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `conch-memories-${Date.now()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    try {
+      const res = await fetch("/api/memory");
+      if (!res.ok) throw new Error("Export failed");
+      const data = await res.json();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `conch-memories-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("[export]", err);
+      alert("Export failed. Please try again.");
+    }
   };
 
   return (
@@ -50,7 +56,7 @@ export default function PrivacyPage() {
 
       <GlassCard className="p-6 border-red-500/20">
         <div className="flex items-start gap-3 mb-4">
-          <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+          <AlertTriangle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
           <div>
             <h2 className="text-base font-semibold text-white">Danger Zone</h2>
             <p className="text-sm text-slate-400 mt-0.5">These actions are permanent and cannot be undone.</p>

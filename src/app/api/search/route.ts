@@ -22,31 +22,43 @@ export async function POST(req: Request) {
 
   const { query, topK, category, minScore } = parsed.data;
 
-  const queryVector = await generateEmbedding(query);
-  const index = getPineconeIndex();
+  let queryVector: number[];
+  try {
+    queryVector = await generateEmbedding(query);
+  } catch (err) {
+    console.error("[search] embedding failed:", err);
+    return new Response(JSON.stringify({ error: "Search unavailable. Please try again." }), { status: 503 });
+  }
 
-  const filter: Record<string, string> = { userId: user.id };
-  if (category) filter.category = category;
+  try {
+    const index = getPineconeIndex();
 
-  const pineconeResults = await index.query({
-    vector: queryVector,
-    topK,
-    filter,
-    includeMetadata: true,
-  });
+    const filter: Record<string, string> = { userId: user.id };
+    if (category) filter.category = category;
 
-  const relevant = pineconeResults.matches.filter((m) => (m.score ?? 0) >= minScore);
-  if (relevant.length === 0) return Response.json({ results: [] });
+    const pineconeResults = await index.query({
+      vector: queryVector,
+      topK,
+      filter,
+      includeMetadata: true,
+    });
 
-  const ids = relevant.map((m) => m.id);
-  const memories = await prisma.memory.findMany({
-    where: { pineconeId: { in: ids }, isArchived: false, userId: user.id },
-  });
+    const relevant = pineconeResults.matches.filter((m) => (m.score ?? 0) >= minScore);
+    if (relevant.length === 0) return Response.json({ results: [] });
 
-  const scoreMap = new Map(relevant.map((m) => [m.id, m.score ?? 0]));
-  const results = memories
-    .map((m) => ({ memory: m, score: scoreMap.get(m.pineconeId!) ?? 0 }))
-    .sort((a, b) => b.score - a.score);
+    const ids = relevant.map((m) => m.id);
+    const memories = await prisma.memory.findMany({
+      where: { pineconeId: { in: ids }, isArchived: false, userId: user.id },
+    });
 
-  return Response.json({ results });
+    const scoreMap = new Map(relevant.map((m) => [m.id, m.score ?? 0]));
+    const results = memories
+      .map((m) => ({ memory: m, score: scoreMap.get(m.pineconeId!) ?? 0 }))
+      .sort((a, b) => b.score - a.score);
+
+    return Response.json({ results });
+  } catch (err) {
+    console.error("[search] vector search failed:", err);
+    return new Response(JSON.stringify({ error: "Search unavailable. Please try again." }), { status: 503 });
+  }
 }

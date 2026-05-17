@@ -1,11 +1,21 @@
 const rateMap = new Map<string, { count: number; resetAt: number }>();
 
+// Prune entries that have already passed their reset window.
+// Called on every check so the map never accumulates unbounded stale entries.
+function pruneExpired(now: number) {
+  for (const [k, v] of rateMap) {
+    if (v.resetAt < now) rateMap.delete(k);
+  }
+}
+
 export function checkRateLimit(
   key: string,
   limit: number,
   windowMs: number
 ): { success: boolean; remaining: number; resetAt: number } {
   const now = Date.now();
+  pruneExpired(now);
+
   const entry = rateMap.get(key);
 
   if (!entry || entry.resetAt < now) {

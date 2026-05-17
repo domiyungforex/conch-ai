@@ -17,8 +17,12 @@ import type { ApiKeyPublic, ApiKeyCreated } from "@/types/api";
 
 async function fetchKeys(): Promise<ApiKeyPublic[]> {
   const res = await fetch("/api/api-keys");
-  if (!res.ok) throw new Error("Failed");
-  return res.json();
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { error?: string }).error ?? "Failed to fetch API keys");
+  }
+  const data = await res.json();
+  return Array.isArray(data.apiKeys) ? data.apiKeys : [];
 }
 
 async function createKey(data: { name: string; scope: string }): Promise<ApiKeyCreated> {
@@ -26,8 +30,12 @@ async function createKey(data: { name: string; scope: string }): Promise<ApiKeyC
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Failed");
-  return res.json();
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { error?: string }).error ?? "Failed to create API key");
+  }
+  const body = await res.json();
+  return { ...body.apiKey, fullKey: body.fullKey };
 }
 
 async function revokeKey(id: string): Promise<void> {

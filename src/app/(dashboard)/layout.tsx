@@ -3,9 +3,9 @@ import { Topbar } from "@/components/dashboard/Topbar";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: "#0a0a0f" }}>
+    <div className="flex h-screen overflow-hidden bg-background">
       {/* Sidebar — hidden on mobile */}
-      <div className="hidden md:flex flex-shrink-0">
+      <div className="hidden md:flex shrink-0">
         <Sidebar />
       </div>
 
