@@ -12,9 +12,9 @@ import type { WalletPublic } from "@/types/api";
 
 async function fetchWallet(): Promise<WalletPublic | null> {
   const res = await fetch("/api/wallet");
-  if (res.status === 404) return null;
-  if (!res.ok) throw new Error("Failed");
-  return res.json();
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data.wallet ?? null;
 }
 
 async function verifyWallet(data: { address: string; signature: string; message: string }): Promise<WalletPublic> {
@@ -24,11 +24,13 @@ async function verifyWallet(data: { address: string; signature: string; message:
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Failed to verify wallet");
-  return res.json();
+  const body = await res.json();
+  return body.wallet;
 }
 
 async function unlinkWallet(): Promise<void> {
-  await fetch("/api/wallet", { method: "DELETE" });
+  const res = await fetch("/api/wallet", { method: "DELETE" });
+  if (!res.ok) throw new Error("Failed to unlink wallet");
 }
 
 function truncateAddress(addr: string) {

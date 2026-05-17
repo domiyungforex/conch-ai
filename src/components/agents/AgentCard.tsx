@@ -17,12 +17,15 @@ const statusConfig = {
   ARCHIVED: { label: "Archived", color: "text-slate-400", bg: "bg-slate-500/15 border-slate-500/30" },
 } as const;
 
-const gradients = [
-  "from-violet-500 to-indigo-500",
-  "from-cyan-500 to-blue-500",
-  "from-emerald-500 to-teal-500",
-  "from-rose-500 to-pink-500",
-  "from-amber-500 to-orange-500",
+const DEFAULT_STATUS = { label: "Active", color: "text-emerald-300", bg: "bg-emerald-500/15 border-emerald-500/30" };
+
+// Complete, non-composed class strings so Tailwind v4 scanner includes them.
+const avatarClasses = [
+  "bg-linear-to-br from-violet-600 to-indigo-500",
+  "bg-linear-to-br from-cyan-500 to-blue-600",
+  "bg-linear-to-br from-emerald-500 to-teal-600",
+  "bg-linear-to-br from-rose-500 to-pink-600",
+  "bg-linear-to-br from-amber-500 to-orange-600",
 ];
 
 interface Props {
@@ -33,21 +36,33 @@ interface Props {
 }
 
 export function AgentCard({ agent, onEdit, onToggleStatus, onDelete }: Props) {
-  const statusCfg = statusConfig[agent.status as keyof typeof statusConfig] ?? statusConfig.ACTIVE;
-  const gradient = gradients[agent.name.charCodeAt(0) % gradients.length];
+  if (!agent?.id) return null;
+
+  const statusKey = agent.status as keyof typeof statusConfig;
+  const statusCfg = statusConfig[statusKey] ?? DEFAULT_STATUS;
+  const nameStr = typeof agent.name === "string" && agent.name.length > 0 ? agent.name : "Agent";
+  const avatarClass = avatarClasses[nameStr.charCodeAt(0) % avatarClasses.length];
+  const initial = nameStr[0].toUpperCase();
+  const description = typeof agent.description === "string" ? agent.description : null;
+  const systemPrompt = typeof agent.systemPrompt === "string" ? agent.systemPrompt : null;
+  const modelId = typeof agent.modelId === "string" ? agent.modelId : null;
+  const temperature = typeof agent.temperature === "number" ? agent.temperature : 0.7;
+  const maxTokens = typeof agent.maxTokens === "number" ? agent.maxTokens : 2000;
 
   return (
     <GlassCard className="p-5 flex flex-col gap-4 group hover:bg-white/6 transition-colors">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
-          <div className={cn("w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center text-white font-bold text-sm shadow-lg", gradient)}>
-            {agent.name[0].toUpperCase()}
+          <div
+            className={cn("w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg shrink-0", avatarClass)}
+          >
+            {initial}
           </div>
           <div>
-            <h3 className="font-semibold text-white leading-tight">{agent.name}</h3>
-            {agent.modelId && (
-              <span className="text-xs text-slate-500 font-mono">{agent.modelId}</span>
+            <h3 className="font-semibold text-white leading-tight">{nameStr}</h3>
+            {modelId && (
+              <span className="text-xs text-slate-500 font-mono">{modelId}</span>
             )}
           </div>
         </div>
@@ -84,14 +99,14 @@ export function AgentCard({ agent, onEdit, onToggleStatus, onDelete }: Props) {
       </div>
 
       {/* Description */}
-      {agent.description && (
-        <p className="text-sm text-slate-400 leading-relaxed line-clamp-2">{agent.description}</p>
+      {description && (
+        <p className="text-sm text-slate-400 leading-relaxed line-clamp-2">{description}</p>
       )}
 
       {/* System prompt preview */}
-      {agent.systemPrompt && (
+      {systemPrompt && (
         <p className="text-xs text-slate-600 line-clamp-2 font-mono bg-white/3 rounded-lg px-3 py-2 border border-white/5">
-          {agent.systemPrompt}
+          {systemPrompt}
         </p>
       )}
 
@@ -106,7 +121,7 @@ export function AgentCard({ agent, onEdit, onToggleStatus, onDelete }: Props) {
           {agent._count?.memories ?? 0} memories
         </div>
         <div className="ml-auto">
-          T: {agent.temperature} · {agent.maxTokens} tok
+          T: {temperature.toFixed(1)} · {maxTokens} tok
         </div>
       </div>
     </GlassCard>

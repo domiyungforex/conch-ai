@@ -3,6 +3,17 @@ import { prisma } from "@/lib/prisma";
 import { WalletLinkSchema } from "@/lib/validators";
 import { verifyMessage } from "viem";
 
+export async function DELETE() {
+  const { userId: clerkId } = await auth();
+  if (!clerkId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+
+  const user = await prisma.user.findUnique({ where: { clerkId } });
+  if (!user) return new Response(JSON.stringify({ error: "User not found" }), { status: 404 });
+
+  await prisma.wallet.deleteMany({ where: { userId: user.id } });
+  return new Response(null, { status: 204 });
+}
+
 export async function GET() {
   const { userId: clerkId } = await auth();
   if (!clerkId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });

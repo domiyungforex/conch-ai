@@ -26,6 +26,7 @@ export const AgentCreateSchema = z.object({
   name: z.string().min(1).max(100),
   description: z.string().max(500).optional(),
   systemPrompt: z.string().min(1).max(4000),
+  modelId: z.string().max(100).optional(),
   memoryScope: z.enum(["user", "agent", "global"]).default("user"),
   temperature: z.number().min(0).max(2).default(0.7),
   maxTokens: z.number().min(100).max(4000).default(2000),

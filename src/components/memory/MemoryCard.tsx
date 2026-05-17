@@ -32,15 +32,22 @@ export function MemoryCard({ memory, onEdit, onArchive, onDelete }: Props) {
 
   if (!memory?.id) return null;
 
-  const cfg = categoryConfig[memory.category] ?? DEFAULT_CFG;
-  const importance = typeof memory.importance === "number" ? memory.importance : 0.5;
+  const cfg = (typeof memory.category === "string" && categoryConfig[memory.category]) ? categoryConfig[memory.category] : DEFAULT_CFG;
+  const rawImportance = typeof memory.importance === "number" ? memory.importance : parseFloat(String(memory.importance));
+  const importance = isNaN(rawImportance) ? 0.5 : Math.max(0, Math.min(1, rawImportance));
   const importancePct = Math.round(importance * 100);
   const importanceTier =
     importance >= 0.75 ? "max" :
     importance >= 0.5  ? "high" :
     importance >= 0.25 ? "medium" : "low";
-  const tags: string[] = Array.isArray(memory.tags) ? memory.tags : [];
-  const content = memory.content ?? "";
+
+  // Tags must be an array of primitives — filter out any non-string values defensively.
+  const rawTags = Array.isArray(memory.tags) ? memory.tags : [];
+  const tags = rawTags
+    .filter((t) => t !== null && t !== undefined)
+    .map((t) => String(t));
+
+  const content = typeof memory.content === "string" ? memory.content : String(memory.content ?? "");
   const createdAt = memory.createdAt ? new Date(memory.createdAt) : new Date();
 
   return (
@@ -102,9 +109,9 @@ export function MemoryCard({ memory, onEdit, onArchive, onDelete }: Props) {
       {/* Tags */}
       {tags.length > 0 && (
         <div className="flex flex-wrap gap-1">
-          {tags.slice(0, 4).map((tag) => (
+          {tags.slice(0, 4).map((tag, i) => (
             <span
-              key={tag}
+              key={`${tag}-${i}`}
               className="text-xs px-2 py-0.5 rounded-full bg-white/5 border border-white/8 text-slate-400"
             >
               {tag}

@@ -62,10 +62,8 @@ export function useChat({ conversationId, agentId, onConversationCreated }: UseC
         throw new Error(errorText);
       }
 
+      // Capture conversation ID but don't navigate yet — wait until stream finishes.
       const newConvId = res.headers.get("X-Conversation-Id");
-      if (newConvId && !conversationId && onConversationCreated) {
-        onConversationCreated(newConvId);
-      }
 
       const reader = res.body?.getReader();
       const decoder = new TextDecoder();
@@ -82,15 +80,35 @@ export function useChat({ conversationId, agentId, onConversationCreated }: UseC
 
         for (const line of lines) {
           if (line.startsWith("0:")) {
+            // Text delta chunk
             try {
               const text = JSON.parse(line.slice(2));
-              accumulated += text;
-              setStreamingContent(accumulated);
+              if (typeof text === "string") {
+                accumulated += text;
+                setStreamingContent(accumulated);
+              }
             } catch {
-              // Skip malformed chunks
+              // skip malformed chunk
+            }
+          } else if (line.startsWith("3:")) {
+            // Error chunk from AI SDK
+            try {
+              const errText = JSON.parse(line.slice(2));
+              const msg = typeof errText === "string"
+                ? errText
+                : "AI service returned an error. Please try again.";
+              throw new Error(msg);
+            } catch (e) {
+              if (e instanceof Error) throw e;
+              throw new Error("AI service returned an error. Please try again.");
             }
           }
         }
+      }
+
+      // If we got an empty response, show a safe fallback instead of blank bubble.
+      if (!accumulated.trim()) {
+        accumulated = "I wasn't able to generate a response. Please try again.";
       }
 
       const assistantMsg: ChatMessage = {
@@ -100,6 +118,12 @@ export function useChat({ conversationId, agentId, onConversationCreated }: UseC
         createdAt: new Date(),
       };
       setMessages((prev) => [...prev, assistantMsg]);
+
+      // Navigate only AFTER the stream is fully consumed so the assistant
+      // message is already persisted to DB before the new page fetches it.
+      if (newConvId && !conversationId && onConversationCreated) {
+        onConversationCreated(newConvId);
+      }
     } catch (err) {
       if ((err as Error).name !== "AbortError") {
         const errorMsg: ChatMessage = {
