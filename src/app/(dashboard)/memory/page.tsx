@@ -47,7 +47,7 @@ export default function MemoryPage() {
       });
       if (!res.ok) {
         setSearchError(true);
-        toast({ title: "Search failed", description: "Could not perform semantic search. Try again.", variant: "error" });
+toast({ title: "Search failed", description: "Could not perform semantic search. Try again.", variant: "destructive" });
         return;
       }
       const data = await res.json();
@@ -58,7 +58,7 @@ export default function MemoryPage() {
       setSearchQuery(search);
     } catch {
       setSearchError(true);
-      toast({ title: "Search failed", description: "Network error. Please try again.", variant: "error" });
+toast({ title: "Search failed", description: "Network error. Please try again.", variant: "destructive" });
     } finally {
       setSearching(false);
     }
@@ -73,13 +73,13 @@ export default function MemoryPage() {
 
   const handleArchive = (id: string) => {
     archive.mutate(id, {
-      onError: () => toast({ title: "Archive failed", description: "Could not archive this memory.", variant: "error" }),
+onError: () => toast({ title: "Archive failed", description: "Could not archive this memory.", variant: "destructive" }),
     });
   };
 
   const handleDelete = (id: string) => {
     remove.mutate(id, {
-      onError: () => toast({ title: "Delete failed", description: "Could not delete this memory.", variant: "error" }),
+onError: () => toast({ title: "Delete failed", description: "Could not delete this memory.", variant: "destructive" }),
     });
   };
 
