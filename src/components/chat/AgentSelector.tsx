@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Bot, ChevronDown } from "lucide-react";
+import { Bot } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -11,10 +11,15 @@ import {
 } from "@/components/ui/select";
 import type { Agent } from "@prisma/client";
 
+interface AgentListResponse {
+  agents: Agent[];
+}
+
 async function fetchAgents(): Promise<Agent[]> {
   const res = await fetch("/api/agents");
-  if (!res.ok) throw new Error("Failed to fetch agents");
-  return res.json();
+  if (!res.ok) return [];
+  const data: AgentListResponse = await res.json();
+  return Array.isArray(data.agents) ? data.agents : [];
 }
 
 interface Props {
@@ -23,11 +28,15 @@ interface Props {
 }
 
 export function AgentSelector({ value, onChange }: Props) {
-  const { data: agents = [] } = useQuery({
+  const { data } = useQuery({
     queryKey: ["agents"],
     queryFn: fetchAgents,
     staleTime: 60_000,
+    retry: 1,
   });
+
+  const agents: Agent[] = Array.isArray(data) ? data : [];
+  const activeAgents = agents.filter((a) => a?.status === "ACTIVE");
 
   return (
     <Select
@@ -43,22 +52,22 @@ export function AgentSelector({ value, onChange }: Props) {
       <SelectContent>
         <SelectItem value="default">
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-gradient-to-br from-violet-500 to-indigo-500" />
+            <div className="w-4 h-4 rounded-full bg-linear-to-br from-violet-500 to-indigo-500" />
             Default Conch
           </div>
         </SelectItem>
-        {agents
-          .filter((a) => a.status === "ACTIVE")
-          .map((agent) => (
-            <SelectItem key={agent.id} value={agent.id}>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
-                  <span className="text-[8px] font-bold text-white">{agent.name[0]}</span>
-                </div>
-                {agent.name}
+        {activeAgents.map((agent) => (
+          <SelectItem key={agent.id} value={agent.id}>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full bg-linear-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
+                <span className="text-[8px] font-bold text-white">
+                  {(agent.name ?? "A")[0].toUpperCase()}
+                </span>
               </div>
-            </SelectItem>
-          ))}
+              {agent.name}
+            </div>
+          </SelectItem>
+        ))}
       </SelectContent>
     </Select>
   );

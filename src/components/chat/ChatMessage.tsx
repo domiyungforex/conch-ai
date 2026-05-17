@@ -20,9 +20,6 @@ export function ChatMessage({ message, isStreaming, streamingContent }: Props) {
   const hasMemories = !isUser && message.memoryIds && message.memoryIds.length > 0;
   const memoryCount = message.memoryIds?.length ?? 0;
 
-  // Split streaming content into words for fade-in effect
-  const streamWords = isStreaming && content ? content.split(" ") : null;
-
   return (
     <div className={cn("flex gap-3 max-w-3xl", isUser ? "ml-auto flex-row-reverse" : "mr-auto")}>
       {/* Avatar */}
@@ -51,25 +48,19 @@ export function ChatMessage({ message, isStreaming, streamingContent }: Props) {
             <p className="whitespace-pre-wrap">{content}</p>
           ) : (
             <div className="prose-conch">
-              {isStreaming && streamWords ? (
-                <p>
-                  {streamWords.map((word, i) => (
-                    <motion.span
-                      key={i}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.15 }}
-                      className="inline"
-                    >
-                      {word}{" "}
-                    </motion.span>
-                  ))}
+              {isStreaming ? (
+                <motion.p
+                  key="streaming"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.2 }}
+                  className="whitespace-pre-wrap"
+                >
+                  {content}
                   <span className="inline-block w-0.5 h-4 bg-violet-400 ml-0.5 align-middle animate-pulse" />
-                </p>
+                </motion.p>
               ) : content ? (
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
-              ) : isStreaming ? (
-                <span className="inline-block w-0.5 h-4 bg-violet-400 ml-0.5 align-middle animate-pulse" />
               ) : null}
             </div>
           )}

@@ -52,10 +52,9 @@ export function ChatInput({ value, onChange, onSubmit, onStop, isLoading, placeh
         disabled={disabled || isLoading}
         rows={1}
         className={cn(
-          "w-full bg-transparent text-white placeholder:text-slate-500 resize-none outline-none text-sm leading-relaxed min-h-[24px]",
+          "w-full bg-transparent text-white placeholder:text-slate-500 resize-none outline-none text-sm leading-relaxed min-h-[24px] max-h-40",
           (disabled || isLoading) && "opacity-50 cursor-not-allowed"
         )}
-        style={{ maxHeight: "160px" }}
       />
 
       <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/5">

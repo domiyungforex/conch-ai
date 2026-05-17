@@ -2,26 +2,42 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
-import { Plus, MessageSquare, Loader2 } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Plus, MessageSquare, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn, formatRelativeTime, truncate } from "@/lib/utils";
 import type { ConversationWithCount } from "@/types/api";
 
+interface ConversationListResponse {
+  conversations: ConversationWithCount[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 async function fetchConversations(): Promise<ConversationWithCount[]> {
   const res = await fetch("/api/conversations");
-  if (!res.ok) throw new Error("Failed to fetch conversations");
-  return res.json();
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { error?: string }).error ?? "Failed to fetch conversations");
+  }
+  const data: ConversationListResponse = await res.json();
+  return Array.isArray(data.conversations) ? data.conversations : [];
 }
 
 export function ConversationList() {
   const pathname = usePathname();
-  const { data, isLoading } = useQuery({
+  const qc = useQueryClient();
+
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ["conversations"],
     queryFn: fetchConversations,
     staleTime: 30_000,
+    retry: 2,
   });
+
+  const conversations: ConversationWithCount[] = Array.isArray(data) ? data : [];
 
   return (
     <div className="flex flex-col h-full">
@@ -43,15 +59,35 @@ export function ConversationList() {
           </div>
         )}
 
-        {data?.length === 0 && (
+        {isError && !isLoading && (
+          <div className="flex flex-col items-center justify-center h-40 gap-3 text-center px-4">
+            <MessageSquare className="w-6 h-6 text-slate-600" />
+            <p className="text-xs text-slate-500">
+              {(error as Error)?.message ?? "Could not load conversations"}
+            </p>
+            <button
+              type="button"
+              onClick={() => qc.invalidateQueries({ queryKey: ["conversations"] })}
+              className="text-xs text-violet-400 hover:text-violet-300 flex items-center gap-1"
+            >
+              <RefreshCw className="w-3 h-3" /> Retry
+            </button>
+          </div>
+        )}
+
+        {!isLoading && !isError && conversations.length === 0 && (
           <div className="flex flex-col items-center justify-center h-40 text-center px-4">
             <MessageSquare className="w-8 h-8 text-slate-600 mb-2" />
             <p className="text-xs text-slate-500">No conversations yet</p>
           </div>
         )}
 
-        {data?.map((conv) => {
+        {conversations.map((conv) => {
+          if (!conv?.id) return null;
           const active = pathname === `/chat/${conv.id}`;
+          const msgCount = conv._count?.messages ?? 0;
+          const updatedAt = conv.updatedAt ? new Date(conv.updatedAt) : new Date();
+
           return (
             <Link
               key={conv.id}
@@ -63,13 +99,18 @@ export function ConversationList() {
                   : "hover:bg-white/5 border border-transparent"
               )}
             >
-              <span className={cn("text-sm font-medium truncate", active ? "text-violet-200" : "text-slate-300")}>
+              <span
+                className={cn(
+                  "text-sm font-medium truncate",
+                  active ? "text-violet-200" : "text-slate-300"
+                )}
+              >
                 {truncate(conv.title ?? "New conversation", 32)}
               </span>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-600">{formatRelativeTime(conv.updatedAt)}</span>
+                <span className="text-xs text-slate-600">{formatRelativeTime(updatedAt)}</span>
                 <span className="text-xs text-slate-700">·</span>
-                <span className="text-xs text-slate-600">{conv._count.messages} msgs</span>
+                <span className="text-xs text-slate-600">{msgCount} msgs</span>
               </div>
             </Link>
           );

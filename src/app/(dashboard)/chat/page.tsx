@@ -9,6 +9,7 @@ import { ChatMessage } from "@/components/chat/ChatMessage";
 import { ChatInput } from "@/components/chat/ChatInput";
 import { AgentSelector } from "@/components/chat/AgentSelector";
 import { SuggestedPrompts } from "@/components/chat/SuggestedPrompts";
+import { ChatErrorBoundary } from "@/components/chat/ChatErrorBoundary";
 import { useChat } from "@/hooks/useChat";
 
 export default function ChatPage() {
@@ -26,6 +27,7 @@ export default function ChatPage() {
   }, [messages, streamingContent]);
 
   return (
+    <ChatErrorBoundary>
     <div className="flex h-full -m-4 md:-m-6 lg:-m-8">
       {/* Conversation sidebar */}
       <div className="hidden lg:flex flex-col w-64 border-r border-white/8 shrink-0">
@@ -99,5 +101,6 @@ export default function ChatPage() {
         </div>
       </div>
     </div>
+    </ChatErrorBoundary>
   );
 }
