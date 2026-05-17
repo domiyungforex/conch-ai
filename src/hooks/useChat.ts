@@ -76,12 +76,19 @@ export function useChat({ conversationId, agentId, onConversationCreated }: UseC
 
       if (!reader) throw new Error("No response from AI. Please try again.");
 
+      // lineBuffer holds an incomplete line that spans a chunk boundary.
+      // Without this, a JSON value split across two network packets would fail
+      // to parse and be silently dropped, truncating the response.
+      let lineBuffer = "";
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split("\n");
+        lineBuffer += decoder.decode(value, { stream: true });
+        const lines = lineBuffer.split("\n");
+        // Last element may be an incomplete line — keep it for the next iteration.
+        lineBuffer = lines.pop() ?? "";
 
         for (const line of lines) {
           if (line.startsWith("0:")) {
@@ -109,6 +116,16 @@ export function useChat({ conversationId, agentId, onConversationCreated }: UseC
               throw new Error("AI service temporarily unavailable. Please try again.");
             }
           }
+        }
+      }
+
+      // Flush any complete line left in the buffer after the stream ends.
+      if (lineBuffer.startsWith("0:")) {
+        try {
+          const text = JSON.parse(lineBuffer.slice(2));
+          if (typeof text === "string") accumulated += text;
+        } catch {
+          // incomplete trailing line — discard
         }
       }
 

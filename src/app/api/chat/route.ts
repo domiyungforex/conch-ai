@@ -3,6 +3,7 @@ import { streamText } from "ai";
 import { openai as aiSdkOpenai } from "@ai-sdk/openai";
 import { prisma } from "@/lib/prisma";
 import { retrieveRelevantMemories, buildSystemPrompt } from "@/lib/memory";
+import type { MemoryWithScore } from "@/lib/memory";
 import { ChatRequestSchema } from "@/lib/validators";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 
@@ -39,10 +40,9 @@ export async function POST(req: Request) {
 
   const { conversationId, agentId, message } = parsed.data;
 
+  // ── User lookup with two-tier fallback ───────────────────────────────────
   let user = await prisma.user.findUnique({ where: { clerkId } });
 
-  // Webhook may have missed — two-tier fallback: try currentUser() first,
-  // then create a minimal record so the user is never permanently blocked.
   if (!user) {
     let email = `${clerkId}@pending.conch`;
     let name: string | null = null;
@@ -79,39 +79,62 @@ export async function POST(req: Request) {
     return new Response(JSON.stringify({ error: "Account setup in progress. Please refresh and try again." }), { status: 503 });
   }
 
-  let agent = null;
-  if (agentId) {
-    agent = await prisma.agent.findFirst({ where: { id: agentId, userId: user.id } });
-  }
+  // ── Agent + conversation + message setup (wrapped — DB errors return JSON 503) ──
+  let agent: { id: string; modelId: string; maxTokens: number; temperature: number; systemPrompt: string } | null = null;
+  let conversation: {
+    id: string;
+    messages: Array<{ id: string; role: string; content: string; createdAt: Date }>;
+  };
 
-  let conversation;
-  if (conversationId) {
-    conversation = await prisma.conversation.findFirst({
-      where: { id: conversationId, userId: user.id },
-      include: { messages: { orderBy: { createdAt: "asc" }, take: 20 } },
-    });
-    if (!conversation) {
-      return new Response(JSON.stringify({ error: "Conversation not found" }), { status: 404 });
+  try {
+    if (agentId) {
+      agent = await prisma.agent.findFirst({ where: { id: agentId, userId: user.id } });
     }
-  } else {
-    conversation = await prisma.conversation.create({
-      data: {
-        userId: user.id,
-        agentId: agent?.id ?? null,
-        title: message.slice(0, 60),
-        messages: { create: { role: "user", content: message } },
-      },
-      include: { messages: { orderBy: { createdAt: "asc" } } },
-    });
+
+    if (conversationId) {
+      const found = await prisma.conversation.findFirst({
+        where: { id: conversationId, userId: user.id },
+        include: { messages: { orderBy: { createdAt: "asc" }, take: 20 } },
+      });
+      if (!found) {
+        return new Response(JSON.stringify({ error: "Conversation not found" }), { status: 404 });
+      }
+      conversation = found;
+    } else {
+      conversation = await prisma.conversation.create({
+        data: {
+          userId: user.id,
+          agentId: agent?.id ?? null,
+          title: message.slice(0, 60),
+          messages: { create: { role: "user", content: message } },
+        },
+        include: { messages: { orderBy: { createdAt: "asc" } } },
+      });
+    }
+
+    if (conversationId) {
+      await prisma.message.create({
+        data: { conversationId: conversation.id, role: "user", content: message },
+      });
+    }
+  } catch (dbErr) {
+    console.error("[chat] conversation setup failed:", dbErr);
+    return new Response(
+      JSON.stringify({ error: "Database unavailable. Please try again." }),
+      { status: 503 }
+    );
   }
 
-  if (conversationId) {
-    await prisma.message.create({
-      data: { conversationId: conversation.id, role: "user", content: message },
-    });
+  // ── Memory retrieval — graceful degradation on failure ───────────────────
+  // Pinecone or embedding errors must not crash the route. The AI responds
+  // without memory context rather than failing entirely.
+  let memories: MemoryWithScore[] = [];
+  try {
+    memories = await retrieveRelevantMemories(user.id, message, 5);
+  } catch (memErr) {
+    console.error("[chat] memory retrieval failed, continuing without context:", memErr);
   }
 
-  const memories = await retrieveRelevantMemories(user.id, message, 5);
   const systemPrompt = buildSystemPrompt(agent?.systemPrompt ?? null, memories);
 
   const history = conversation.messages
@@ -119,6 +142,7 @@ export async function POST(req: Request) {
     .slice(-19)
     .map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
 
+  // ── Stream ───────────────────────────────────────────────────────────────
   let result;
   try {
     result = streamText({
@@ -128,27 +152,35 @@ export async function POST(req: Request) {
       maxTokens: agent?.maxTokens ?? 2000,
       temperature: agent?.temperature ?? 0.7,
       onError: ({ error }) => {
-        console.error("[chat] stream error:", error);
+        const msg = String(error);
+        const isRateLimit  = msg.includes("429") || msg.includes("rate_limit");
+        const isAuth       = msg.includes("401") || msg.includes("invalid_api_key") || msg.includes("Incorrect API key");
+        const isModelError = msg.includes("model") && msg.includes("404");
+        console.error("[chat] stream error:", { isRateLimit, isAuth, isModelError, raw: msg.slice(0, 200) });
       },
       onFinish: async ({ text, usage }) => {
-        await prisma.message.create({
-          data: {
-            conversationId: conversation.id,
-            role: "assistant",
-            content: text,
-            tokensUsed: usage?.totalTokens ?? null,
-            memoryIds: memories.map((m) => m.id),
-          },
-        });
-        await prisma.conversation.update({
-          where: { id: conversation.id },
-          data: { updatedAt: new Date() },
-        });
-        await prisma.reputation.upsert({
-          where: { userId: user!.id },
-          create: { userId: user!.id, chatCount: 1 },
-          update: { chatCount: { increment: 1 } },
-        });
+        try {
+          await prisma.message.create({
+            data: {
+              conversationId: conversation.id,
+              role: "assistant",
+              content: text,
+              tokensUsed: usage?.totalTokens ?? null,
+              memoryIds: memories.map((m) => m.id),
+            },
+          });
+          await prisma.conversation.update({
+            where: { id: conversation.id },
+            data: { updatedAt: new Date() },
+          });
+          await prisma.reputation.upsert({
+            where: { userId: user!.id },
+            create: { userId: user!.id, chatCount: 1 },
+            update: { chatCount: { increment: 1 } },
+          });
+        } catch (finishErr) {
+          console.error("[chat] onFinish DB write failed:", finishErr);
+        }
       },
     });
   } catch (err) {
