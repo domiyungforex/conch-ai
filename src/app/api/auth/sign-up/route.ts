@@ -47,13 +47,16 @@ export async function POST(req: NextRequest) {
         level: "novice",
       }),
     ]);
-  } catch (dbErr) {
+  } catch (dbErr: unknown) {
+    const msg = (dbErr as { message?: string })?.message ?? String(dbErr);
+    const code = (dbErr as { code?: number })?.code;
+    const type = (dbErr as { type?: string })?.type;
     console.error("[sign-up] db create failed:", dbErr);
     try {
       const { users } = createAdminClient();
       await users.delete(appwriteUser.$id);
     } catch {}
-    return NextResponse.json({ error: "Account creation failed. Please try again." }, { status: 500 });
+    return NextResponse.json({ error: `DB error (${code}/${type}): ${msg}` }, { status: 500 });
   }
 
   const res = NextResponse.json({ success: true });
