@@ -9,7 +9,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { cn, formatRelativeTime } from "@/lib/utils";
-import type { Memory } from "@prisma/client";
+import type { MemoryDoc, AppwriteDoc } from "@/lib/db";
+type Memory = AppwriteDoc<MemoryDoc>;
 
 const categoryConfig: Record<string, { label: string; color: string; bg: string }> = {
   EPISODIC:   { label: "Episodic",   color: "text-violet-300", bg: "bg-violet-500/15 border-violet-500/30" },
@@ -30,7 +31,7 @@ interface Props {
 export function MemoryCard({ memory, onEdit, onArchive, onDelete }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
 
-  if (!memory?.id) return null;
+  if (!memory?.$id) return null;
 
   const cfg = (typeof memory.category === "string" && categoryConfig[memory.category]) ? categoryConfig[memory.category] : DEFAULT_CFG;
   const rawImportance = typeof memory.importance === "number" ? memory.importance : parseFloat(String(memory.importance));
@@ -48,7 +49,7 @@ export function MemoryCard({ memory, onEdit, onArchive, onDelete }: Props) {
     .map((t) => String(t));
 
   const content = typeof memory.content === "string" ? memory.content : String(memory.content ?? "");
-  const createdAt = memory.createdAt ? new Date(memory.createdAt) : new Date();
+  const createdAt = memory.$createdAt ? new Date(memory.$createdAt) : new Date();
 
   return (
     <GlassCard
@@ -87,13 +88,13 @@ export function MemoryCard({ memory, onEdit, onArchive, onDelete }: Props) {
             <DropdownMenuItem onClick={() => onEdit(memory)}>
               <Edit2 className="w-4 h-4 text-slate-400" /> Edit
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onArchive(memory.id)}>
+            <DropdownMenuItem onClick={() => onArchive(memory.$id)}>
               <Archive className="w-4 h-4 text-slate-400" /> Archive
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="text-red-400 focus:text-red-300 focus:bg-red-500/10"
-              onClick={() => onDelete(memory.id)}
+              onClick={() => onDelete(memory.$id)}
             >
               <Trash2 className="w-4 h-4" /> Delete
             </DropdownMenuItem>

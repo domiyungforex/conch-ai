@@ -13,7 +13,8 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { MemoryErrorBoundary } from "@/components/memory/MemoryErrorBoundary";
 import { useMemory } from "@/hooks/useMemory";
 import { toast } from "@/components/ui/toaster";
-import type { Memory } from "@prisma/client";
+import type { MemoryDoc, AppwriteDoc } from "@/lib/db";
+type Memory = AppwriteDoc<MemoryDoc>;
 
 const CATEGORIES = ["ALL", "EPISODIC", "SEMANTIC", "PREFERENCE", "PROCEDURAL"] as const;
 
@@ -202,9 +203,9 @@ onError: () => toast({ title: "Delete failed", description: "Could not delete th
             ) : (
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {displayed.map((m) =>
-                  m?.id ? (
+                  m?.$id ? (
                     <MemoryCard
-                      key={m.id}
+                      key={m.$id}
                       memory={m}
                       onEdit={setEditTarget}
                       onArchive={handleArchive}

@@ -8,13 +8,13 @@ import { GlassCard } from "@/components/shared/GlassCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatRelativeTime, truncate } from "@/lib/utils";
-import type { Memory, Conversation, Reputation, User } from "@prisma/client";
+import type { MemoryDoc, ConversationDoc, ReputationDoc, UserDoc, AppwriteDoc } from "@/lib/db";
 
 interface Props {
-  user: User;
-  stats: { memoryCount: number; conversationCount: number; agentCount: number; reputation: Reputation | null };
-  recentMemories: Memory[];
-  recentConversations: (Conversation & { _count: { messages: number } })[];
+  user: AppwriteDoc<UserDoc>;
+  stats: { memoryCount: number; conversationCount: number; agentCount: number; reputation: AppwriteDoc<ReputationDoc> | null };
+  recentMemories: AppwriteDoc<MemoryDoc>[];
+  recentConversations: AppwriteDoc<ConversationDoc>[];
 }
 
 const categoryColors: Record<string, string> = {
@@ -174,13 +174,13 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
               <div className="p-6 text-center text-slate-500 text-sm">No memories yet. Start a chat to build your memory!</div>
             ) : (
               recentMemories.map((m) => (
-                <div key={m.id} className="p-4 flex items-start gap-3">
+                <div key={m.$id} className="p-4 flex items-start gap-3">
                   <Badge variant={categoryColors[m.category] as "cyan" | "default" | "yellow" | "green"} className="mt-0.5 shrink-0 text-[10px]">
                     {m.category.slice(0, 3)}
                   </Badge>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm text-white leading-relaxed">{truncate(m.content, 90)}</p>
-                    <p className="text-xs text-slate-500 mt-1">{formatRelativeTime(m.createdAt)}</p>
+                    <p className="text-xs text-slate-500 mt-1">{formatRelativeTime(m.$createdAt)}</p>
                   </div>
                 </div>
               ))
@@ -203,13 +203,13 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
               </div>
             ) : (
               recentConversations.map((c) => (
-                <Link key={c.id} href={`/chat/${c.id}`} className="flex items-center gap-3 p-4 hover:bg-white/5 transition-colors group">
+                <Link key={c.$id} href={`/chat/${c.$id}`} className="flex items-center gap-3 p-4 hover:bg-white/5 transition-colors group">
                   <div className="w-8 h-8 rounded-xl bg-violet-500/10 flex items-center justify-center shrink-0">
                     <Zap className="w-4 h-4 text-violet-400" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm text-white font-medium truncate group-hover:text-violet-300 transition-colors">{c.title}</p>
-                    <p className="text-xs text-slate-500">{c._count.messages} messages · {formatRelativeTime(c.updatedAt)}</p>
+                    <p className="text-xs text-slate-500">{formatRelativeTime(c.$updatedAt)}</p>
                   </div>
                   <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-slate-400 transition-colors shrink-0" />
                 </Link>

@@ -9,7 +9,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { cn } from "@/lib/utils";
-import type { Agent } from "@prisma/client";
+import type { AgentDoc, AppwriteDoc } from "@/lib/db";
+type Agent = AppwriteDoc<AgentDoc>;
 
 const statusConfig = {
   ACTIVE: { label: "Active", color: "text-emerald-300", bg: "bg-emerald-500/15 border-emerald-500/30" },
@@ -30,13 +31,13 @@ const avatarClasses = [
 
 interface Props {
   agent: Agent & { _count?: { conversations?: number; memories?: number } };
-  onEdit: (agent: Agent) => void;
+  onEdit: (agent: Agent & { _count?: { conversations?: number; memories?: number } }) => void;
   onToggleStatus: (id: string, currentStatus: string) => void;
   onDelete: (id: string) => void;
 }
 
 export function AgentCard({ agent, onEdit, onToggleStatus, onDelete }: Props) {
-  if (!agent?.id) return null;
+  if (!agent?.$id) return null;
 
   const statusKey = agent.status as keyof typeof statusConfig;
   const statusCfg = statusConfig[statusKey] ?? DEFAULT_STATUS;
@@ -81,7 +82,7 @@ export function AgentCard({ agent, onEdit, onToggleStatus, onDelete }: Props) {
               <DropdownMenuItem onClick={() => onEdit(agent)}>
                 <Edit2 className="w-4 h-4 text-slate-400" /> Edit
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onToggleStatus(agent.id, agent.status)}>
+              <DropdownMenuItem onClick={() => onToggleStatus(agent.$id, agent.status)}>
                 {agent.status === "ACTIVE"
                   ? <><Pause className="w-4 h-4 text-slate-400" /> Pause</>
                   : <><Play className="w-4 h-4 text-slate-400" /> Activate</>}
@@ -89,7 +90,7 @@ export function AgentCard({ agent, onEdit, onToggleStatus, onDelete }: Props) {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="text-red-400 focus:text-red-300 focus:bg-red-500/10"
-                onClick={() => onDelete(agent.id)}
+                onClick={() => onDelete(agent.$id)}
               >
                 <Trash2 className="w-4 h-4" /> Delete
               </DropdownMenuItem>

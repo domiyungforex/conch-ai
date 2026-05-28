@@ -9,7 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAgent } from "@/hooks/useAgent";
-import type { Agent } from "@prisma/client";
+import type { AgentDoc, AppwriteDoc } from "@/lib/db";
+type Agent = AppwriteDoc<AgentDoc>;
 
 const MODELS = ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo"];
 
@@ -34,7 +35,7 @@ export function AgentEditDialog({ agent, onClose }: Props) {
 
   const handleSubmit = async () => {
     if (!agent || !name.trim() || !systemPrompt.trim()) return;
-    await update.mutateAsync({ id: agent.id, data: { name, description, systemPrompt, modelId, temperature, maxTokens } });
+    await update.mutateAsync({ id: agent.$id, data: { name, description, systemPrompt, modelId, temperature, maxTokens } });
     onClose();
   };
 

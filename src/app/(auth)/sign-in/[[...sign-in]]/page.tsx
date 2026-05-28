@@ -1,28 +1,37 @@
 "use client";
 
-import { SignIn } from "@clerk/nextjs";
-
-const APPEARANCE = {
-  elements: {
-    rootBox: "w-full",
-    card: "glass border border-white/10 shadow-2xl rounded-2xl",
-    headerTitle: "hidden",
-    headerSubtitle: "hidden",
-    socialButtonsBlockButton:
-      "glass border border-white/10 text-white hover:bg-white/10 transition-colors rounded-xl",
-    formFieldInput:
-      "bg-white/5 border border-white/10 text-white placeholder:text-slate-500 rounded-xl focus:border-violet-500 focus:ring-violet-500/20",
-    formButtonPrimary:
-      "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-semibold rounded-xl shadow-lg shadow-violet-500/25 transition-all",
-    footerActionLink: "text-violet-400 hover:text-violet-300",
-    identityPreviewEditButton: "text-violet-400",
-    formFieldLabel: "text-slate-300",
-    dividerLine: "bg-white/10",
-    dividerText: "text-slate-500",
-  },
-};
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function SignInPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    const res = await fetch("/api/auth/sign-in", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      setError(data.error ?? "Sign in failed");
+      setLoading(false);
+      return;
+    }
+
+    router.push("/dashboard");
+  };
+
   return (
     <div className="min-h-screen mesh-gradient flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -39,7 +48,46 @@ export default function SignInPage() {
           <p className="text-slate-400 mt-1">Sign in to access your AI memory</p>
         </div>
 
-        <SignIn appearance={APPEARANCE} forceRedirectUrl="/dashboard" />
+        <div className="glass border border-white/10 shadow-2xl rounded-2xl p-8">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="text-slate-300 text-sm mb-1.5 block">Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="you@example.com"
+                className="w-full bg-white/5 border border-white/10 text-white placeholder:text-slate-500 rounded-xl px-4 py-2.5 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20"
+              />
+            </div>
+            <div>
+              <label className="text-slate-300 text-sm mb-1.5 block">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="••••••••"
+                className="w-full bg-white/5 border border-white/10 text-white placeholder:text-slate-500 rounded-xl px-4 py-2.5 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20"
+              />
+            </div>
+            {error && <p className="text-sm text-red-400">{error}</p>}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-linear-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 disabled:opacity-50 text-white font-semibold rounded-xl py-2.5 shadow-lg shadow-violet-500/25 transition-all"
+            >
+              {loading ? "Signing in…" : "Sign In"}
+            </button>
+          </form>
+          <p className="text-center text-sm text-slate-500 mt-4">
+            No account?{" "}
+            <Link href="/sign-up" className="text-violet-400 hover:text-violet-300">
+              Create one
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

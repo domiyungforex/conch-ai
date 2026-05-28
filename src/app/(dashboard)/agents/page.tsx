@@ -9,7 +9,8 @@ import { AgentCreateDialog } from "@/components/agents/AgentCreateDialog";
 import { AgentEditDialog } from "@/components/agents/AgentEditDialog";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { useAgent } from "@/hooks/useAgent";
-import type { Agent } from "@prisma/client";
+import type { AgentDoc, AppwriteDoc } from "@/lib/db";
+type Agent = AppwriteDoc<AgentDoc>;
 
 export default function AgentsPage() {
   const [createOpen, setCreateOpen] = useState(false);
@@ -47,7 +48,7 @@ export default function AgentsPage() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {agents.map((agent) => (
             <AgentCard
-              key={agent.id}
+              key={agent.$id}
               agent={agent}
               onEdit={setEditTarget}
               onToggleStatus={handleToggleStatus}

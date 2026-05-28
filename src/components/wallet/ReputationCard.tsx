@@ -6,7 +6,8 @@ import { GlassCard } from "@/components/shared/GlassCard";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import type { Reputation } from "@prisma/client";
+import type { ReputationDoc, AppwriteDoc } from "@/lib/db";
+type Reputation = AppwriteDoc<ReputationDoc>;
 
 async function fetchReputation(): Promise<Reputation | null> {
   const res = await fetch("/api/user/reputation");

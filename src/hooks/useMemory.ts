@@ -1,7 +1,9 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Memory, MemoryCategory } from "@prisma/client";
+import type { MemoryDoc, MemoryCategory, AppwriteDoc } from "@/lib/db";
+
+type Memory = AppwriteDoc<MemoryDoc>;
 
 interface MemoryListResponse {
   memories: Memory[];

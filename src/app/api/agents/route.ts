@@ -1,41 +1,52 @@
-import { auth } from "@clerk/nextjs/server";
-import { prisma } from "@/lib/prisma";
+import { auth, createAdminClient } from "@/lib/appwrite";
+import { DB_ID, COLLECTIONS, type AgentDoc, type ReputationDoc, type AppwriteDoc } from "@/lib/db";
 import { AgentCreateSchema } from "@/lib/validators";
+import { Query, ID } from "node-appwrite";
 
-export async function GET(req: Request) {
-  const { userId: clerkId } = await auth();
-  if (!clerkId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+export async function GET() {
+  const { userId: appwriteId } = await auth();
+  if (!appwriteId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
 
-  const user = await prisma.user.findUnique({ where: { clerkId } });
-  if (!user) return new Response(JSON.stringify({ error: "User not found" }), { status: 404 });
+  const { databases } = createAdminClient();
+  const result = await databases.listDocuments(DB_ID, COLLECTIONS.AGENTS, [
+    Query.equal("userId", appwriteId),
+    Query.notEqual("status", "ARCHIVED"),
+    Query.orderDesc("$updatedAt"),
+    Query.limit(50),
+  ]);
 
-  const agents = await prisma.agent.findMany({
-    where: { userId: user.id, status: { not: "ARCHIVED" } },
-    orderBy: { updatedAt: "desc" },
-    include: { _count: { select: { memories: true, conversations: true } } },
-  });
-
+  const agents = result.documents as unknown as AppwriteDoc<AgentDoc>[];
   return Response.json({ agents });
 }
 
 export async function POST(req: Request) {
-  const { userId: clerkId } = await auth();
-  if (!clerkId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
-
-  const user = await prisma.user.findUnique({ where: { clerkId } });
-  if (!user) return new Response(JSON.stringify({ error: "User not found" }), { status: 404 });
+  const { userId: appwriteId } = await auth();
+  if (!appwriteId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
 
   const parsed = AgentCreateSchema.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) {
     return new Response(JSON.stringify({ error: "Invalid request", details: parsed.error.flatten() }), { status: 400 });
   }
 
-  const agent = await prisma.agent.create({ data: { userId: user.id, ...parsed.data } });
+  const { databases } = createAdminClient();
+  const agent = await databases.createDocument(DB_ID, COLLECTIONS.AGENTS, ID.unique(), {
+    userId: appwriteId,
+    ...parsed.data,
+  }) as unknown as AppwriteDoc<AgentDoc>;
 
-  await prisma.reputation.updateMany({
-    where: { userId: user.id },
-    data: { agentCount: { increment: 1 } },
-  });
+  try {
+    const repResult = await databases.listDocuments(DB_ID, COLLECTIONS.REPUTATIONS, [
+      Query.equal("userId", appwriteId), Query.limit(1),
+    ]);
+    if (repResult.documents.length > 0) {
+      const rep = repResult.documents[0] as unknown as AppwriteDoc<ReputationDoc>;
+      await databases.updateDocument(DB_ID, COLLECTIONS.REPUTATIONS, rep.$id, {
+        agentCount: rep.agentCount + 1,
+      });
+    }
+  } catch {
+    // Non-critical
+  }
 
   return Response.json({ agent }, { status: 201 });
 }

@@ -1,7 +1,9 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Agent } from "@prisma/client";
+import type { AgentDoc, AppwriteDoc } from "@/lib/db";
+
+type Agent = AppwriteDoc<AgentDoc>;
 
 interface AgentListResponse { agents: Agent[] }
 interface AgentResponse { agent: Agent }

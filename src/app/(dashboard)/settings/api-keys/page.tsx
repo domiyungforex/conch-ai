@@ -92,7 +92,7 @@ export default function ApiKeysPage() {
       ) : (
         <div className="space-y-3">
           {keys.map((k) => (
-            <GlassCard key={k.id} className="px-4 py-3 flex items-center gap-4">
+            <GlassCard key={k.$id} className="px-4 py-3 flex items-center gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-white">{k.name}</span>
@@ -106,7 +106,7 @@ export default function ApiKeysPage() {
                 </div>
               </div>
               {!k.isRevoked && (
-                <Button variant="destructive" size="sm" onClick={() => revoke.mutate(k.id)} className="h-7 px-2 text-xs shrink-0">
+                <Button variant="destructive" size="sm" onClick={() => revoke.mutate(k.$id)} className="h-7 px-2 text-xs shrink-0">
                   <Trash2 className="w-3.5 h-3.5" />
                 </Button>
               )}

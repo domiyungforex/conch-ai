@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { createAdminClient } from "@/lib/appwrite";
+import { DB_ID, COLLECTIONS } from "@/lib/db";
+import { Query } from "node-appwrite";
 
 export const runtime = "nodejs";
 
@@ -9,9 +11,10 @@ export async function GET() {
   const results: Record<string, string> = {};
   const errors: Record<string, string> = {};
 
-  // ── Database ─────────────────────────────────────────────────────────────
+  // ── Appwrite Database ─────────────────────────────────────────────────────
   try {
-    await prisma.$queryRaw`SELECT 1`;
+    const { databases } = createAdminClient();
+    await databases.listDocuments(DB_ID, COLLECTIONS.USERS, [Query.limit(1)]);
     results.db = "ok";
   } catch (err) {
     results.db = "error";
@@ -25,7 +28,6 @@ export async function GET() {
     try {
       const { OpenAI } = await import("openai");
       const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-      // Minimal call: 8-dim embedding to keep token cost near zero
       await client.embeddings.create({ model: "text-embedding-3-small", input: "health", dimensions: 8 });
       results.openai = "ok";
     } catch (err) {

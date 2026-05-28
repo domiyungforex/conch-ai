@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import { Download, Trash2, AlertTriangle } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { Button } from "@/components/ui/button";
@@ -9,9 +9,10 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
 export default function PrivacyPage() {
-  const { user } = useUser();
+  const router = useRouter();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [publicProfile, setPublicProfile] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const handleExport = async () => {
     try {
@@ -28,6 +29,19 @@ export default function PrivacyPage() {
     } catch (err) {
       console.error("[export]", err);
       alert("Export failed. Please try again.");
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    try {
+      await fetch("/api/user/account", { method: "DELETE" });
+      await fetch("/api/auth/sign-out", { method: "POST" });
+      router.push("/");
+    } catch (err) {
+      console.error("[delete account]", err);
+      alert("Account deletion failed. Please try again.");
+      setDeleting(false);
     }
   };
 
@@ -68,8 +82,8 @@ export default function PrivacyPage() {
           <div className="space-y-3">
             <p className="text-sm text-red-300">Are you sure? All your memories, agents, and conversations will be permanently deleted.</p>
             <div className="flex gap-3">
-              <Button variant="destructive" onClick={() => user?.delete()} className="gap-2">
-                <Trash2 className="w-4 h-4" /> Yes, delete my account
+              <Button variant="destructive" onClick={handleDeleteAccount} disabled={deleting} className="gap-2">
+                <Trash2 className="w-4 h-4" /> {deleting ? "Deleting…" : "Yes, delete my account"}
               </Button>
               <Button variant="secondary" onClick={() => setConfirmDelete(false)}>Cancel</Button>
             </div>

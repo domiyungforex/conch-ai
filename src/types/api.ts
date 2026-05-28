@@ -1,51 +1,51 @@
-import type { Memory, Conversation, Message, Agent, Wallet, Reputation, ApiKey, MemoryCategory } from "@prisma/client";
+import type { MemoryDoc, ConversationDoc, MessageDoc, AgentDoc, WalletDoc, ReputationDoc, ApiKeyDoc, MemoryCategory, AppwriteDoc } from "@/lib/db";
 
 export type { MemoryCategory };
 
-export interface MemoryWithScore extends Memory {
+export interface MemoryWithScore extends AppwriteDoc<MemoryDoc> {
   score: number;
 }
 
-export interface ConversationWithMessages extends Conversation {
-  messages: Message[];
+export interface ConversationWithMessages extends AppwriteDoc<ConversationDoc> {
+  messages: AppwriteDoc<MessageDoc>[];
 }
 
-export interface ConversationWithCount extends Conversation {
-  _count: { messages: number };
+export interface ConversationWithCount extends AppwriteDoc<ConversationDoc> {
+  _count?: { messages: number };
 }
 
-export interface AgentWithCounts extends Agent {
-  _count: { memories: number; conversations: number };
+export interface AgentWithCounts extends AppwriteDoc<AgentDoc> {
+  _count?: { memories: number; conversations: number };
 }
 
 export interface UserStats {
   memoryCount: number;
   conversationCount: number;
   agentCount: number;
-  reputation: Reputation | null;
+  reputation: AppwriteDoc<ReputationDoc> | null;
 }
 
 export interface ApiKeyPublic {
-  id: string;
+  $id: string;
   name: string;
   keyPrefix: string;
   scope: string;
-  lastUsedAt: Date | null;
-  expiresAt: Date | null;
+  lastUsedAt: string | null;
+  expiresAt: string | null;
   isRevoked: boolean;
-  createdAt: Date;
+  $createdAt: string;
 }
 
-export interface ApiKeyCreated extends ApiKeyPublic {
+export interface ApiKeyCreated extends AppwriteDoc<ApiKeyDoc> {
   fullKey: string;
 }
 
-export interface WalletPublic extends Wallet {
+export interface WalletPublic extends AppwriteDoc<WalletDoc> {
   isVerified: boolean;
 }
 
 export interface SearchResult {
-  memory: Memory;
+  memory: AppwriteDoc<MemoryDoc>;
   score: number;
 }
 

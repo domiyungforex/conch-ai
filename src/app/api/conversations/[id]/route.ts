@@ -1,39 +1,72 @@
-import { auth } from "@clerk/nextjs/server";
-import { prisma } from "@/lib/prisma";
+import { auth, createAdminClient } from "@/lib/appwrite";
+import { DB_ID, COLLECTIONS, type ConversationDoc, type MessageDoc, type AgentDoc, type AppwriteDoc } from "@/lib/db";
+import { Query } from "node-appwrite";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { userId: clerkId } = await auth();
-  if (!clerkId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const { userId: appwriteId } = await auth();
+  if (!appwriteId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
 
   const { id } = await params;
-  const user = await prisma.user.findUnique({ where: { clerkId } });
-  if (!user) return new Response(JSON.stringify({ error: "User not found" }), { status: 404 });
+  const { databases } = createAdminClient();
 
-  const conversation = await prisma.conversation.findFirst({
-    where: { id, userId: user.id },
-    include: {
-      messages: { orderBy: { createdAt: "asc" } },
-      agent: { select: { id: true, name: true, avatarUrl: true } },
-    },
-  });
+  let conv: AppwriteDoc<ConversationDoc>;
+  try {
+    conv = await databases.getDocument(DB_ID, COLLECTIONS.CONVERSATIONS, id) as unknown as AppwriteDoc<ConversationDoc>;
+  } catch {
+    return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
+  }
 
-  if (!conversation) return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
+  if (conv.userId !== appwriteId) return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
+
+  const messagesResult = await databases.listDocuments(DB_ID, COLLECTIONS.MESSAGES, [
+    Query.equal("conversationId", id),
+    Query.orderAsc("$createdAt"),
+    Query.limit(500),
+  ]);
+
+  let agentData: { $id: string; name: string; avatarUrl: string | null } | null = null;
+  if (conv.agentId) {
+    try {
+      const agentDoc = await databases.getDocument(DB_ID, COLLECTIONS.AGENTS, conv.agentId) as unknown as AppwriteDoc<AgentDoc>;
+      agentData = { $id: agentDoc.$id, name: agentDoc.name, avatarUrl: agentDoc.avatarUrl ?? null };
+    } catch {
+      // Agent may have been deleted
+    }
+  }
+
+  const conversation = {
+    ...conv,
+    messages: messagesResult.documents as unknown as AppwriteDoc<MessageDoc>[],
+    agent: agentData,
+  };
 
   return Response.json({ conversation });
 }
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { userId: clerkId } = await auth();
-  if (!clerkId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const { userId: appwriteId } = await auth();
+  if (!appwriteId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
 
   const { id } = await params;
-  const user = await prisma.user.findUnique({ where: { clerkId } });
-  if (!user) return new Response(JSON.stringify({ error: "User not found" }), { status: 404 });
+  const { databases } = createAdminClient();
 
-  const conversation = await prisma.conversation.findFirst({ where: { id, userId: user.id } });
-  if (!conversation) return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
+  let conv: AppwriteDoc<ConversationDoc>;
+  try {
+    conv = await databases.getDocument(DB_ID, COLLECTIONS.CONVERSATIONS, id) as unknown as AppwriteDoc<ConversationDoc>;
+  } catch {
+    return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
+  }
 
-  await prisma.conversation.delete({ where: { id } });
+  if (conv.userId !== appwriteId) return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
 
+  const messagesResult = await databases.listDocuments(DB_ID, COLLECTIONS.MESSAGES, [
+    Query.equal("conversationId", id),
+    Query.limit(1000),
+  ]);
+  await Promise.all(
+    messagesResult.documents.map((m) => databases.deleteDocument(DB_ID, COLLECTIONS.MESSAGES, m.$id))
+  );
+
+  await databases.deleteDocument(DB_ID, COLLECTIONS.CONVERSATIONS, id);
   return Response.json({ success: true });
 }

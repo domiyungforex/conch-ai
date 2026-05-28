@@ -83,15 +83,15 @@ export function ConversationList() {
         )}
 
         {conversations.map((conv) => {
-          if (!conv?.id) return null;
-          const active = pathname === `/chat/${conv.id}`;
+          if (!conv?.$id) return null;
+          const active = pathname === `/chat/${conv.$id}`;
           const msgCount = conv._count?.messages ?? 0;
-          const updatedAt = conv.updatedAt ? new Date(conv.updatedAt) : new Date();
+          const updatedAt = conv.$updatedAt ? new Date(conv.$updatedAt) : new Date();
 
           return (
             <Link
-              key={conv.id}
-              href={`/chat/${conv.id}`}
+              key={conv.$id}
+              href={`/chat/${conv.$id}`}
               className={cn(
                 "flex flex-col gap-0.5 rounded-xl px-3 py-2.5 mb-1 transition-all text-left",
                 active

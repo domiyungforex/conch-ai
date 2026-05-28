@@ -1,32 +1,37 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useUser } from "@clerk/nextjs";
+import { account } from "@/lib/appwrite-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 
+type AppwriteUser = Awaited<ReturnType<typeof account.get>>;
+
 export default function ProfilePage() {
-  const { user, isLoaded } = useUser();
+  const [user, setUser] = useState<AppwriteUser | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Sync form fields once Clerk user data is available.
-  // useState initial values are frozen at first render (when user is undefined),
-  // so this effect is necessary to populate fields after auth resolves.
   useEffect(() => {
-    if (isLoaded && user) {
-      setFirstName(user.firstName ?? "");
-      setLastName(user.lastName ?? "");
-    }
-  }, [isLoaded, user?.id]); // user.id stabilizes the dep — avoids re-running on re-renders
+    account.get()
+      .then((u) => {
+        setUser(u);
+        const parts = (u.name ?? "").split(" ");
+        setFirstName(parts[0] ?? "");
+        setLastName(parts.slice(1).join(" "));
+        setIsLoaded(true);
+      })
+      .catch(() => setIsLoaded(true));
+  }, []);
 
   if (!isLoaded) {
     return (
@@ -49,7 +54,9 @@ export default function ProfilePage() {
     setSaving(true);
     setError(null);
     try {
-      await user.update({ firstName: firstName.trim(), lastName: lastName.trim() });
+      const fullName = [firstName.trim(), lastName.trim()].filter(Boolean).join(" ");
+      await account.updateName(fullName);
+      setUser((prev) => prev ? { ...prev, name: fullName } : prev);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
@@ -65,15 +72,13 @@ export default function ProfilePage() {
         <h2 className="text-base font-semibold text-white mb-6">Profile Information</h2>
         <div className="flex items-start gap-6 mb-6">
           <Avatar className="w-16 h-16">
-            <AvatarImage src={user.imageUrl} alt={user.fullName ?? ""} />
             <AvatarFallback className="bg-linear-to-br from-violet-600 to-indigo-600 text-white text-xl font-bold">
-              {user.firstName?.[0] ?? "U"}
+              {user.name?.[0]?.toUpperCase() ?? "U"}
             </AvatarFallback>
           </Avatar>
           <div>
-            <p className="text-sm font-medium text-white">{user.fullName}</p>
-            <p className="text-xs text-slate-400 mt-0.5">{user.primaryEmailAddress?.emailAddress}</p>
-            <p className="text-xs text-slate-600 mt-2">To update your profile photo, use the account button in the sidebar.</p>
+            <p className="text-sm font-medium text-white">{user.name}</p>
+            <p className="text-xs text-slate-400 mt-0.5">{user.email}</p>
           </div>
         </div>
         <div className="grid sm:grid-cols-2 gap-4">
@@ -117,7 +122,7 @@ export default function ProfilePage() {
         <h2 className="text-base font-semibold text-white mb-2">Email Address</h2>
         <p className="text-sm text-slate-400 mb-4">Your primary email for account communications.</p>
         <p className="text-sm font-mono text-white bg-white/5 rounded-xl px-4 py-2.5 border border-white/8">
-          {user.primaryEmailAddress?.emailAddress}
+          {user.email}
         </p>
       </GlassCard>
     </div>

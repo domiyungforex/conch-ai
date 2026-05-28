@@ -1,36 +1,39 @@
-import { auth } from "@clerk/nextjs/server";
-import { prisma } from "@/lib/prisma";
+import { auth, createAdminClient } from "@/lib/appwrite";
+import { DB_ID, COLLECTIONS, type WalletDoc, type AppwriteDoc } from "@/lib/db";
 import { WalletLinkSchema } from "@/lib/validators";
 import { verifyMessage } from "viem";
+import { Query, ID } from "node-appwrite";
 
 export async function DELETE() {
-  const { userId: clerkId } = await auth();
-  if (!clerkId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const { userId: appwriteId } = await auth();
+  if (!appwriteId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
 
-  const user = await prisma.user.findUnique({ where: { clerkId } });
-  if (!user) return new Response(JSON.stringify({ error: "User not found" }), { status: 404 });
-
-  await prisma.wallet.deleteMany({ where: { userId: user.id } });
+  const { databases } = createAdminClient();
+  const result = await databases.listDocuments(DB_ID, COLLECTIONS.WALLETS, [
+    Query.equal("userId", appwriteId), Query.limit(10),
+  ]);
+  await Promise.all(result.documents.map((d) => databases.deleteDocument(DB_ID, COLLECTIONS.WALLETS, d.$id)));
   return new Response(null, { status: 204 });
 }
 
 export async function GET() {
-  const { userId: clerkId } = await auth();
-  if (!clerkId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const { userId: appwriteId } = await auth();
+  if (!appwriteId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
 
-  const user = await prisma.user.findUnique({ where: { clerkId } });
-  if (!user) return new Response(JSON.stringify({ error: "User not found" }), { status: 404 });
+  const { databases } = createAdminClient();
+  const result = await databases.listDocuments(DB_ID, COLLECTIONS.WALLETS, [
+    Query.equal("userId", appwriteId), Query.limit(1),
+  ]);
 
-  const wallet = await prisma.wallet.findUnique({ where: { userId: user.id } });
+  const wallet = result.documents.length > 0
+    ? result.documents[0] as unknown as AppwriteDoc<WalletDoc>
+    : null;
   return Response.json({ wallet });
 }
 
 export async function POST(req: Request) {
-  const { userId: clerkId } = await auth();
-  if (!clerkId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
-
-  const user = await prisma.user.findUnique({ where: { clerkId } });
-  if (!user) return new Response(JSON.stringify({ error: "User not found" }), { status: 404 });
+  const { userId: appwriteId } = await auth();
+  if (!appwriteId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
 
   const parsed = WalletLinkSchema.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) {
@@ -38,7 +41,6 @@ export async function POST(req: Request) {
   }
 
   const { address, signature, message } = parsed.data;
-
   const isValid = await verifyMessage({
     address: address as `0x${string}`,
     message,
@@ -49,11 +51,24 @@ export async function POST(req: Request) {
     return new Response(JSON.stringify({ error: "Invalid signature" }), { status: 400 });
   }
 
-  const wallet = await prisma.wallet.upsert({
-    where: { userId: user.id },
-    update: { address, verifiedAt: new Date() },
-    create: { userId: user.id, address, chainId: 8453, verifiedAt: new Date() },
-  });
+  const { databases } = createAdminClient();
+  const now = new Date().toISOString();
+
+  const existing = await databases.listDocuments(DB_ID, COLLECTIONS.WALLETS, [
+    Query.equal("userId", appwriteId), Query.limit(1),
+  ]);
+
+  let wallet: AppwriteDoc<WalletDoc>;
+  if (existing.documents.length > 0) {
+    wallet = await databases.updateDocument(DB_ID, COLLECTIONS.WALLETS, existing.documents[0].$id, {
+      address, verifiedAt: now,
+    }) as unknown as AppwriteDoc<WalletDoc>;
+  } else {
+    wallet = await databases.createDocument(DB_ID, COLLECTIONS.WALLETS, ID.unique(), {
+      userId: appwriteId, address, chainId: 8453, verifiedAt: now,
+      ensName: null, badgeMinted: false, badgeTokenId: null,
+    }) as unknown as AppwriteDoc<WalletDoc>;
+  }
 
   return Response.json({ wallet }, { status: 201 });
 }

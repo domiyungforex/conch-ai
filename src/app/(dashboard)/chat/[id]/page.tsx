@@ -54,13 +54,13 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
       initialized.current = true;
       loadMessages(
         (conversation.messages ?? []).map((m) => ({
-          id: m.id,
+          id: m.$id,
           role: m.role as "user" | "assistant",
           content: m.content ?? "",
           memoryIds: Array.isArray((m as { memoryIds?: string[] }).memoryIds)
             ? (m as { memoryIds?: string[] }).memoryIds
             : [],
-          createdAt: m.createdAt ? new Date(m.createdAt) : new Date(),
+          createdAt: m.$createdAt ? new Date(m.$createdAt) : new Date(),
         }))
       );
       setAgentId((conversation as { agentId?: string | null }).agentId ?? null);

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { ClerkProvider } from "@clerk/nextjs";
 import { Web3Provider } from "@/providers/Web3Provider";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
@@ -32,18 +31,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ClerkProvider
-          proxyUrl={
-            process.env.NEXT_PUBLIC_APP_URL
-              ? `${process.env.NEXT_PUBLIC_APP_URL}/api/clerk-proxy`
-              : undefined
-          }
-        >
-          <Web3Provider>
-            {children}
-            <Toaster />
-          </Web3Provider>
-        </ClerkProvider>
+        <Web3Provider>
+          {children}
+          <Toaster />
+        </Web3Provider>
       </body>
     </html>
   );

@@ -9,7 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { Agent } from "@prisma/client";
+import type { AgentDoc, AppwriteDoc } from "@/lib/db";
+type Agent = AppwriteDoc<AgentDoc>;
 
 interface AgentListResponse {
   agents: Agent[];
@@ -57,7 +58,7 @@ export function AgentSelector({ value, onChange }: Props) {
           </div>
         </SelectItem>
         {activeAgents.map((agent) => (
-          <SelectItem key={agent.id} value={agent.id}>
+          <SelectItem key={agent.$id} value={agent.$id}>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded-full bg-linear-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
                 <span className="text-[8px] font-bold text-white">

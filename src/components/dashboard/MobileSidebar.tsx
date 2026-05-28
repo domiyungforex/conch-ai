@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { UserButton } from "@clerk/nextjs";
+import { UserMenu } from "./UserMenu";
 import { LayoutDashboard, MessageSquare, Brain, Bot, Share2, Star, Wallet, Settings } from "lucide-react";
 import { Logo } from "@/components/shared/Logo";
 import { cn } from "@/lib/utils";
@@ -56,7 +56,7 @@ export function MobileSidebar() {
       </nav>
       <div className="px-4 py-3 border-t border-white/8 flex items-center gap-3">
         <div className="relative">
-          <UserButton appearance={{ elements: { avatarBox: "w-8 h-8" } }} />
+          <UserMenu size="sm" />
           <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-background pointer-events-none" />
         </div>
         <span className="text-sm text-slate-400">Account</span>

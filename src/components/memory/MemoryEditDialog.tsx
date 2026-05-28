@@ -10,7 +10,8 @@ import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useMemory } from "@/hooks/useMemory";
-import type { Memory, MemoryCategory } from "@prisma/client";
+import type { MemoryDoc, MemoryCategory, AppwriteDoc } from "@/lib/db";
+type Memory = AppwriteDoc<MemoryDoc>;
 
 const categories: { value: MemoryCategory; label: string }[] = [
   { value: "SEMANTIC", label: "Semantic" },
@@ -49,7 +50,7 @@ export function MemoryEditDialog({ memory, onClose }: Props) {
 
   const handleSubmit = async () => {
     if (!memory || !content.trim()) return;
-    await update.mutateAsync({ id: memory.id, data: { content, category, tags, importance } });
+    await update.mutateAsync({ id: memory.$id, data: { content, category, tags, importance } });
     onClose();
   };
 

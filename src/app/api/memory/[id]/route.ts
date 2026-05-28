@@ -1,49 +1,60 @@
-import { auth } from "@clerk/nextjs/server";
-import { prisma } from "@/lib/prisma";
+import { auth, createAdminClient } from "@/lib/appwrite";
+import { DB_ID, COLLECTIONS, type MemoryDoc, type ReputationDoc, type AppwriteDoc } from "@/lib/db";
 import { generateEmbedding } from "@/lib/embeddings";
 import { getPineconeIndex } from "@/lib/pinecone";
 import { MemoryUpdateSchema } from "@/lib/validators";
+import { Query } from "node-appwrite";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { userId: clerkId } = await auth();
-  if (!clerkId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const { userId: appwriteId } = await auth();
+  if (!appwriteId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
 
   const { id } = await params;
-  const user = await prisma.user.findUnique({ where: { clerkId } });
-  if (!user) return new Response(JSON.stringify({ error: "User not found" }), { status: 404 });
+  const { databases } = createAdminClient();
 
-  const memory = await prisma.memory.findFirst({ where: { id, userId: user.id } });
-  if (!memory) return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
+  let memory: AppwriteDoc<MemoryDoc>;
+  try {
+    memory = await databases.getDocument(DB_ID, COLLECTIONS.MEMORIES, id) as unknown as AppwriteDoc<MemoryDoc>;
+  } catch {
+    return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
+  }
+
+  if (memory.userId !== appwriteId) return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
 
   return Response.json({ memory });
 }
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { userId: clerkId } = await auth();
-  if (!clerkId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const { userId: appwriteId } = await auth();
+  if (!appwriteId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
 
   const { id } = await params;
-  const user = await prisma.user.findUnique({ where: { clerkId } });
-  if (!user) return new Response(JSON.stringify({ error: "User not found" }), { status: 404 });
+  const { databases } = createAdminClient();
 
-  const existing = await prisma.memory.findFirst({ where: { id, userId: user.id } });
-  if (!existing) return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
+  let existing: AppwriteDoc<MemoryDoc>;
+  try {
+    existing = await databases.getDocument(DB_ID, COLLECTIONS.MEMORIES, id) as unknown as AppwriteDoc<MemoryDoc>;
+  } catch {
+    return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
+  }
+
+  if (existing.userId !== appwriteId) return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
 
   const parsed = MemoryUpdateSchema.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) {
     return new Response(JSON.stringify({ error: "Invalid request", details: parsed.error.flatten() }), { status: 400 });
   }
 
-  const memory = await prisma.memory.update({ where: { id }, data: parsed.data });
+  const memory = await databases.updateDocument(DB_ID, COLLECTIONS.MEMORIES, id, parsed.data) as unknown as AppwriteDoc<MemoryDoc>;
 
   if (parsed.data.content && parsed.data.content !== existing.content) {
     try {
       const embedding = await generateEmbedding(memory.content);
       const index = getPineconeIndex();
       await index.upsert([{
-        id: memory.id,
+        id: memory.$id,
         values: embedding,
-        metadata: { userId: user.id, category: memory.category, memoryId: memory.id },
+        metadata: { userId: appwriteId, category: memory.category, memoryId: memory.$id },
       }]);
     } catch {
       // Continue even if vector update fails
@@ -54,15 +65,20 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 }
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { userId: clerkId } = await auth();
-  if (!clerkId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const { userId: appwriteId } = await auth();
+  if (!appwriteId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
 
   const { id } = await params;
-  const user = await prisma.user.findUnique({ where: { clerkId } });
-  if (!user) return new Response(JSON.stringify({ error: "User not found" }), { status: 404 });
+  const { databases } = createAdminClient();
 
-  const memory = await prisma.memory.findFirst({ where: { id, userId: user.id } });
-  if (!memory) return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
+  let memory: AppwriteDoc<MemoryDoc>;
+  try {
+    memory = await databases.getDocument(DB_ID, COLLECTIONS.MEMORIES, id) as unknown as AppwriteDoc<MemoryDoc>;
+  } catch {
+    return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
+  }
+
+  if (memory.userId !== appwriteId) return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
 
   if (memory.pineconeId) {
     try {
@@ -73,11 +89,21 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     }
   }
 
-  await prisma.memory.delete({ where: { id } });
-  await prisma.reputation.updateMany({
-    where: { userId: user.id },
-    data: { memoryCount: { decrement: 1 } },
-  });
+  await databases.deleteDocument(DB_ID, COLLECTIONS.MEMORIES, id);
+
+  try {
+    const repResult = await databases.listDocuments(DB_ID, COLLECTIONS.REPUTATIONS, [
+      Query.equal("userId", appwriteId), Query.limit(1),
+    ]);
+    if (repResult.documents.length > 0) {
+      const rep = repResult.documents[0] as unknown as AppwriteDoc<ReputationDoc>;
+      await databases.updateDocument(DB_ID, COLLECTIONS.REPUTATIONS, rep.$id, {
+        memoryCount: Math.max(0, rep.memoryCount - 1),
+      });
+    }
+  } catch {
+    // Non-critical
+  }
 
   return Response.json({ success: true });
 }

@@ -1,129 +1,63 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth, createAdminClient } from "@/lib/appwrite";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import { DB_ID, COLLECTIONS, type UserDoc, type ReputationDoc, type MemoryDoc, type ConversationDoc, type AppwriteDoc } from "@/lib/db";
 import { DashboardHome } from "@/components/dashboard/DashboardHome";
 import { SetupRetry } from "@/components/dashboard/SetupRetry";
 import type { Metadata } from "next";
+import { Query } from "node-appwrite";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
-  const { userId: clerkId } = await auth();
-  if (!clerkId) redirect("/sign-in");
+  const { userId: appwriteId } = await auth();
+  if (!appwriteId) redirect("/sign-in");
 
   try {
-    let user = await prisma.user.findUnique({
-      where: { clerkId },
-      include: {
-        reputation: true,
-        _count: { select: { memories: true, conversations: true, agents: true } },
-      },
-    });
+    const { databases } = createAdminClient();
 
-    // Webhook may have missed — attempt fallback creation from Clerk session data.
-    // Two-tier fallback: first try currentUser() for full profile data, then
-    // fall back to a minimal record keyed only on clerkId so the user is never
-    // permanently stuck. The webhook will fill in email/name/avatar later.
-    if (!user) {
-      let email = `${clerkId}@pending.conch`;
-      let name: string | null = null;
-      let avatarUrl: string | null = null;
-
-      try {
-        const clerkUser = await currentUser();
-        if (clerkUser) {
-          email = clerkUser.emailAddresses[0]?.emailAddress ?? email;
-          name = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") || null;
-          avatarUrl = clerkUser.imageUrl ?? null;
-        }
-      } catch (clerkErr) {
-        console.error("[dashboard] currentUser() failed, using minimal fallback:", clerkErr);
-      }
-
-      try {
-        await prisma.user.upsert({
-          where: { clerkId },
-          create: {
-            clerkId,
-            email,
-            name,
-            avatarUrl,
-            reputation: { create: {} },
-          },
-          update: {
-            // Only overwrite if we have real data (not the placeholder email)
-            ...(email.endsWith("@pending.conch") ? {} : { email }),
-            ...(name !== null ? { name } : {}),
-            ...(avatarUrl !== null ? { avatarUrl } : {}),
-          },
-        });
-
-        user = await prisma.user.findUnique({
-          where: { clerkId },
-          include: {
-            reputation: true,
-            _count: { select: { memories: true, conversations: true, agents: true } },
-          },
-        });
-      } catch (fallbackErr) {
-        console.error("[dashboard] fallback user creation failed:", fallbackErr);
-      }
-    }
-
-    if (!user) {
+    let user: AppwriteDoc<UserDoc>;
+    try {
+      user = await databases.getDocument(DB_ID, COLLECTIONS.USERS, appwriteId) as unknown as AppwriteDoc<UserDoc>;
+    } catch {
       return <SetupRetry />;
     }
 
-    const [recentMemories, recentConversations] = await Promise.all([
-      prisma.memory.findMany({
-        where: { userId: user.id, isArchived: false },
-        orderBy: { createdAt: "desc" },
-        take: 5,
-      }),
-      prisma.conversation.findMany({
-        where: { userId: user.id },
-        orderBy: { updatedAt: "desc" },
-        take: 3,
-        include: { _count: { select: { messages: true } } },
-      }),
+    const [repResult, memCount, convCount, agentCount, recentMemResult, recentConvResult] = await Promise.all([
+      databases.listDocuments(DB_ID, COLLECTIONS.REPUTATIONS, [Query.equal("userId", appwriteId), Query.limit(1)]),
+      databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, [Query.equal("userId", appwriteId), Query.equal("isArchived", false), Query.limit(1)]),
+      databases.listDocuments(DB_ID, COLLECTIONS.CONVERSATIONS, [Query.equal("userId", appwriteId), Query.limit(1)]),
+      databases.listDocuments(DB_ID, COLLECTIONS.AGENTS, [Query.equal("userId", appwriteId), Query.notEqual("status", "ARCHIVED"), Query.limit(1)]),
+      databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, [Query.equal("userId", appwriteId), Query.equal("isArchived", false), Query.orderDesc("$createdAt"), Query.limit(5)]),
+      databases.listDocuments(DB_ID, COLLECTIONS.CONVERSATIONS, [Query.equal("userId", appwriteId), Query.orderDesc("$updatedAt"), Query.limit(3)]),
     ]);
+
+    const reputation = repResult.documents.length > 0
+      ? repResult.documents[0] as unknown as AppwriteDoc<ReputationDoc>
+      : null;
+    const recentMemories = recentMemResult.documents as unknown as AppwriteDoc<MemoryDoc>[];
+    const recentConversations = recentConvResult.documents as unknown as AppwriteDoc<ConversationDoc>[];
 
     return (
       <DashboardHome
         user={user}
         stats={{
-          memoryCount: user._count.memories,
-          conversationCount: user._count.conversations,
-          agentCount: user._count.agents,
-          reputation: user.reputation,
+          memoryCount: memCount.total,
+          conversationCount: convCount.total,
+          agentCount: agentCount.total,
+          reputation,
         }}
         recentMemories={recentMemories}
         recentConversations={recentConversations}
       />
     );
   } catch (err) {
-    const code = (err as { code?: string })?.code;
-    const isNoTable = code === "P2021" || code === "P1017" ||
-      String(err).includes("does not exist") || String(err).includes("relation");
-    const isNoConn = code === "P1001" || code === "P1000";
-
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center gap-4">
         <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-2xl">
           <span className="text-red-400 text-lg font-bold">!</span>
         </div>
-        <h2 className="text-lg font-semibold text-white">
-          {isNoTable ? "Database tables missing" : isNoConn ? "Cannot reach database" : "Database error"}
-        </h2>
-        <p className="text-sm text-slate-400 max-w-sm">
-          {isNoTable ? (
-            <>Run <code className="text-violet-400">node_modules/.bin/prisma db push</code> to create the tables, then refresh.</>
-          ) : isNoConn ? (
-            <>Check that <code className="text-violet-400">DATABASE_URL</code> and <code className="text-violet-400">DIRECT_URL</code> are set correctly in Vercel, then redeploy.</>
-          ) : (
-            <>{String(err).slice(0, 120)}</>
-          )}
-        </p>
+        <h2 className="text-lg font-semibold text-white">Database error</h2>
+        <p className="text-sm text-slate-400 max-w-sm">{String(err).slice(0, 120)}</p>
       </div>
     );
   }

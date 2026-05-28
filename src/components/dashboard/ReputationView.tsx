@@ -4,7 +4,8 @@ import { useEffect } from "react";
 import { motion, useSpring, useTransform } from "framer-motion";
 import { Brain, MessageSquare, Bot, Zap, Sparkles, Share2, Lock } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
-import type { Reputation } from "@prisma/client";
+import type { ReputationDoc, AppwriteDoc } from "@/lib/db";
+type Reputation = AppwriteDoc<ReputationDoc>;
 
 interface Props {
   reputation: Reputation | null;

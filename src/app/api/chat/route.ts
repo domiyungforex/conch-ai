@@ -1,18 +1,19 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth, createAdminClient } from "@/lib/appwrite";
+import { DB_ID, COLLECTIONS, type AgentDoc, type ConversationDoc, type MessageDoc, type ReputationDoc, type AppwriteDoc } from "@/lib/db";
 import { streamText } from "ai";
 import { openai as aiSdkOpenai } from "@ai-sdk/openai";
-import { prisma } from "@/lib/prisma";
 import { retrieveRelevantMemories, buildSystemPrompt } from "@/lib/memory";
 import type { MemoryWithScore } from "@/lib/memory";
 import { ChatRequestSchema } from "@/lib/validators";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
+import { Query, ID } from "node-appwrite";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
-  const { userId: clerkId } = await auth();
-  if (!clerkId) {
+  const { userId: appwriteId } = await auth();
+  if (!appwriteId) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
@@ -23,7 +24,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const rateCheck = checkRateLimit(`chat:${clerkId}`, 30, 60_000);
+  const rateCheck = checkRateLimit(`chat:${appwriteId}`, 30, 60_000);
   if (!rateCheck.success) return rateLimitResponse(rateCheck.resetAt);
 
   let body: unknown;
@@ -39,83 +40,68 @@ export async function POST(req: Request) {
   }
 
   const { conversationId, agentId, message } = parsed.data;
+  const { databases } = createAdminClient();
 
-  // ── User lookup with two-tier fallback ───────────────────────────────────
-  let user = await prisma.user.findUnique({ where: { clerkId } });
-
-  if (!user) {
-    let email = `${clerkId}@pending.conch`;
-    let name: string | null = null;
-    let avatarUrl: string | null = null;
-
-    try {
-      const clerkUser = await currentUser();
-      if (clerkUser) {
-        email = clerkUser.emailAddresses[0]?.emailAddress ?? email;
-        name = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") || null;
-        avatarUrl = clerkUser.imageUrl ?? null;
-      }
-    } catch (clerkErr) {
-      console.error("[chat] currentUser() failed, using minimal fallback:", clerkErr);
-    }
-
-    try {
-      await prisma.user.upsert({
-        where: { clerkId },
-        create: { clerkId, email, name, avatarUrl, reputation: { create: {} } },
-        update: {
-          ...(email.endsWith("@pending.conch") ? {} : { email }),
-          ...(name !== null ? { name } : {}),
-          ...(avatarUrl !== null ? { avatarUrl } : {}),
-        },
-      });
-      user = await prisma.user.findUnique({ where: { clerkId } });
-    } catch (err) {
-      console.error("[chat] fallback user creation failed:", err);
-    }
-  }
-
-  if (!user) {
-    return new Response(JSON.stringify({ error: "Account setup in progress. Please refresh and try again." }), { status: 503 });
-  }
-
-  // ── Agent + conversation + message setup (wrapped — DB errors return JSON 503) ──
-  let agent: { id: string; modelId: string; maxTokens: number; temperature: number; systemPrompt: string } | null = null;
-  let conversation: {
-    id: string;
-    messages: Array<{ id: string; role: string; content: string; createdAt: Date }>;
-  };
+  let agent: AppwriteDoc<AgentDoc> | null = null;
+  let convId!: string;
+  let messageHistory: Array<{ role: string; content: string }> = [];
 
   try {
     if (agentId) {
-      agent = await prisma.agent.findFirst({ where: { id: agentId, userId: user.id } });
+      try {
+        const agentDoc = await databases.getDocument(DB_ID, COLLECTIONS.AGENTS, agentId) as unknown as AppwriteDoc<AgentDoc>;
+        if (agentDoc.userId === appwriteId) agent = agentDoc;
+      } catch {
+        // Agent not found — proceed without it
+      }
     }
 
     if (conversationId) {
-      const found = await prisma.conversation.findFirst({
-        where: { id: conversationId, userId: user.id },
-        include: { messages: { orderBy: { createdAt: "asc" }, take: 20 } },
-      });
-      if (!found) {
+      let conv: AppwriteDoc<ConversationDoc>;
+      try {
+        conv = await databases.getDocument(DB_ID, COLLECTIONS.CONVERSATIONS, conversationId) as unknown as AppwriteDoc<ConversationDoc>;
+      } catch {
         return new Response(JSON.stringify({ error: "Conversation not found" }), { status: 404 });
       }
-      conversation = found;
-    } else {
-      conversation = await prisma.conversation.create({
-        data: {
-          userId: user.id,
-          agentId: agent?.id ?? null,
-          title: message.slice(0, 60),
-          messages: { create: { role: "user", content: message } },
-        },
-        include: { messages: { orderBy: { createdAt: "asc" } } },
-      });
-    }
+      if (conv.userId !== appwriteId) {
+        return new Response(JSON.stringify({ error: "Conversation not found" }), { status: 404 });
+      }
+      convId = conv.$id;
 
-    if (conversationId) {
-      await prisma.message.create({
-        data: { conversationId: conversation.id, role: "user", content: message },
+      const msgsResult = await databases.listDocuments(DB_ID, COLLECTIONS.MESSAGES, [
+        Query.equal("conversationId", convId),
+        Query.orderAsc("$createdAt"),
+        Query.limit(20),
+      ]);
+      messageHistory = (msgsResult.documents as unknown as AppwriteDoc<MessageDoc>[]).map((m) => ({
+        role: m.role,
+        content: m.content,
+      }));
+
+      await databases.createDocument(DB_ID, COLLECTIONS.MESSAGES, ID.unique(), {
+        conversationId: convId,
+        role: "user",
+        content: message,
+        tokensUsed: null,
+        memoryIds: [],
       });
+    } else {
+      const conv = await databases.createDocument(DB_ID, COLLECTIONS.CONVERSATIONS, ID.unique(), {
+        userId: appwriteId,
+        agentId: agent?.$id ?? null,
+        title: message.slice(0, 60),
+        summary: null,
+      }) as unknown as AppwriteDoc<ConversationDoc>;
+      convId = conv.$id;
+
+      await databases.createDocument(DB_ID, COLLECTIONS.MESSAGES, ID.unique(), {
+        conversationId: convId,
+        role: "user",
+        content: message,
+        tokensUsed: null,
+        memoryIds: [],
+      });
+      messageHistory = [];
     }
   } catch (dbErr) {
     console.error("[chat] conversation setup failed:", dbErr);
@@ -125,24 +111,19 @@ export async function POST(req: Request) {
     );
   }
 
-  // ── Memory retrieval — graceful degradation on failure ───────────────────
-  // Pinecone or embedding errors must not crash the route. The AI responds
-  // without memory context rather than failing entirely.
   let memories: MemoryWithScore[] = [];
   try {
-    memories = await retrieveRelevantMemories(user.id, message, 5);
+    memories = await retrieveRelevantMemories(appwriteId, message, 5);
   } catch (memErr) {
     console.error("[chat] memory retrieval failed, continuing without context:", memErr);
   }
 
   const systemPrompt = buildSystemPrompt(agent?.systemPrompt ?? null, memories);
 
-  const history = conversation.messages
-    .filter((m) => !(m.role === "user" && m.content === message && !conversationId))
+  const history = messageHistory
     .slice(-19)
     .map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
 
-  // ── Stream ───────────────────────────────────────────────────────────────
   let result;
   try {
     result = streamText({
@@ -160,24 +141,23 @@ export async function POST(req: Request) {
       },
       onFinish: async ({ text, usage }) => {
         try {
-          await prisma.message.create({
-            data: {
-              conversationId: conversation.id,
-              role: "assistant",
-              content: text,
-              tokensUsed: usage?.totalTokens ?? null,
-              memoryIds: memories.map((m) => m.id),
-            },
+          await databases.createDocument(DB_ID, COLLECTIONS.MESSAGES, ID.unique(), {
+            conversationId: convId,
+            role: "assistant",
+            content: text,
+            tokensUsed: usage?.totalTokens ?? null,
+            memoryIds: memories.map((m) => m.$id),
           });
-          await prisma.conversation.update({
-            where: { id: conversation.id },
-            data: { updatedAt: new Date() },
-          });
-          await prisma.reputation.upsert({
-            where: { userId: user!.id },
-            create: { userId: user!.id, chatCount: 1 },
-            update: { chatCount: { increment: 1 } },
-          });
+
+          const repResult = await databases.listDocuments(DB_ID, COLLECTIONS.REPUTATIONS, [
+            Query.equal("userId", appwriteId), Query.limit(1),
+          ]);
+          if (repResult.documents.length > 0) {
+            const rep = repResult.documents[0] as unknown as AppwriteDoc<ReputationDoc>;
+            await databases.updateDocument(DB_ID, COLLECTIONS.REPUTATIONS, rep.$id, {
+              chatCount: rep.chatCount + 1,
+            });
+          }
         } catch (finishErr) {
           console.error("[chat] onFinish DB write failed:", finishErr);
         }
@@ -194,6 +174,6 @@ export async function POST(req: Request) {
 
   const response = result.toDataStreamResponse();
   const newHeaders = new Headers(response.headers);
-  newHeaders.set("X-Conversation-Id", conversation.id);
+  newHeaders.set("X-Conversation-Id", convId);
   return new Response(response.body, { status: response.status, headers: newHeaders });
 }

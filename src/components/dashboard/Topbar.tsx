@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Menu, Bell } from "lucide-react";
-import { UserButton } from "@clerk/nextjs";
+import { UserMenu } from "./UserMenu";
 import { Logo } from "@/components/shared/Logo";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -62,7 +62,7 @@ export function Topbar() {
         <Bell className="h-5 w-5" />
       </Button>
       <div className="md:hidden">
-        <UserButton appearance={{ elements: { avatarBox: "w-8 h-8" } }} />
+        <UserMenu size="sm" />
       </div>
     </header>
   );

@@ -1,9 +1,10 @@
-import { prisma } from "./prisma";
+import { Query } from "node-appwrite";
+import { createAdminClient } from "./appwrite";
 import { generateEmbedding } from "./embeddings";
 import { getPineconeIndex } from "./pinecone";
-import type { Memory, MemoryCategory } from "@prisma/client";
+import { DB_ID, COLLECTIONS, type MemoryDoc, type MemoryCategory, type AppwriteDoc } from "./db";
 
-export interface MemoryWithScore extends Memory {
+export interface MemoryWithScore extends AppwriteDoc<MemoryDoc> {
   score: number;
 }
 
@@ -34,16 +35,28 @@ export async function retrieveRelevantMemories(
     if (relevant.length === 0) return [];
 
     const ids = relevant.map((m) => m.id);
-    const memories = await prisma.memory.findMany({
-      where: { pineconeId: { in: ids }, isArchived: false, userId },
-    });
+    const { databases } = createAdminClient();
+
+    const queryFilters = [
+      Query.equal("pineconeId", ids),
+      Query.equal("isArchived", false),
+      Query.equal("userId", userId),
+      Query.limit(ids.length),
+    ];
+    const result = await databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, queryFilters);
+    const memories = result.documents as unknown as AppwriteDoc<MemoryDoc>[];
 
     const scoreMap = new Map(relevant.map((m) => [m.id, m.score ?? 0]));
 
-    await prisma.memory.updateMany({
-      where: { pineconeId: { in: ids } },
-      data: { accessCount: { increment: 1 }, lastAccessed: new Date() },
-    });
+    const now = new Date().toISOString();
+    await Promise.all(
+      memories.map((m) =>
+        databases.updateDocument(DB_ID, COLLECTIONS.MEMORIES, m.$id, {
+          accessCount: m.accessCount + 1,
+          lastAccessed: now,
+        })
+      )
+    );
 
     return memories
       .map((m) => ({ ...m, score: scoreMap.get(m.pineconeId!) ?? 0 }))

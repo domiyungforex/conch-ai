@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { UserButton } from "@clerk/nextjs";
+import { UserMenu } from "./UserMenu";
 import {
   LayoutDashboard, MessageSquare, Brain, Bot, Share2, Star, Wallet, Settings,
   ChevronLeft, ChevronRight,
@@ -147,14 +147,7 @@ export function Sidebar() {
       {/* Bottom: user + collapse */}
       <div className={cn("px-2 py-3 border-t border-white/8 flex items-center gap-2", collapsed && "justify-center")}>
         <div className="relative shrink-0">
-          <UserButton
-            appearance={{
-              elements: {
-                avatarBox: "w-8 h-8",
-                userButtonTrigger: "focus:shadow-none",
-              },
-            }}
-          />
+          <UserMenu size="sm" />
           <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-background pointer-events-none" />
         </div>
 
