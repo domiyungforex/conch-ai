@@ -1,10 +1,14 @@
+import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { Query } from "node-appwrite";
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS } from "@/lib/db";
 
 export async function DELETE() {
-    const appwriteId = "demo";
+  const { userId } = await auth();
+  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const appwriteId = userId;
+
   const { databases } = createAdminClient();
 
   try {

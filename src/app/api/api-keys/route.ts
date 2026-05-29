@@ -1,3 +1,4 @@
+import { auth } from "@clerk/nextjs/server";
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type ApiKeyDoc, type AppwriteDoc } from "@/lib/db";
 import { ApiKeyCreateSchema } from "@/lib/validators";
@@ -6,7 +7,9 @@ import bcrypt from "bcryptjs";
 import { Query, ID } from "node-appwrite";
 
 export async function GET() {
-    const appwriteId = "demo";
+  const { userId } = await auth();
+  if (!userId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const appwriteId = userId;
 
   const { databases } = createAdminClient();
   const result = await databases.listDocuments(DB_ID, COLLECTIONS.API_KEYS, [
@@ -21,7 +24,9 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-    const appwriteId = "demo";
+  const { userId } = await auth();
+  if (!userId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const appwriteId = userId;
 
   const parsed = ApiKeyCreateSchema.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) {

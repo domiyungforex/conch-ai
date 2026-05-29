@@ -1,10 +1,13 @@
+import { auth } from "@clerk/nextjs/server";
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type ConversationDoc, type AppwriteDoc } from "@/lib/db";
 import { ConversationCreateSchema } from "@/lib/validators";
 import { Query, ID } from "node-appwrite";
 
 export async function GET(req: Request) {
-    const appwriteId = "demo";
+  const { userId } = await auth();
+  if (!userId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const appwriteId = userId;
 
   const { databases } = createAdminClient();
   const { searchParams } = new URL(req.url);
@@ -24,7 +27,9 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-    const appwriteId = "demo";
+  const { userId } = await auth();
+  if (!userId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const appwriteId = userId;
 
   const parsed = ConversationCreateSchema.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) return new Response(JSON.stringify({ error: "Invalid request" }), { status: 400 });

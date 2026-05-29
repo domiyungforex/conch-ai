@@ -1,4 +1,4 @@
-
+import { auth } from "@clerk/nextjs/server";
 import { generateEmbedding } from "@/lib/embeddings";
 import { getPineconeIndex } from "@/lib/pinecone";
 import { z } from "zod";
@@ -9,7 +9,9 @@ const EmbeddingSchema = z.object({
 });
 
 export async function POST(req: Request) {
-    const appwriteId = "demo";
+  const { userId } = await auth();
+  if (!userId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const appwriteId = userId;
 
   const parsed = EmbeddingSchema.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) {

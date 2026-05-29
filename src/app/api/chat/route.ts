@@ -1,3 +1,4 @@
+import { auth } from "@clerk/nextjs/server";
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type AgentDoc, type ConversationDoc, type MessageDoc, type ReputationDoc, type AppwriteDoc } from "@/lib/db";
 import { streamText } from "ai";
@@ -12,7 +13,9 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
-  const appwriteId = "demo";
+  const { userId } = await auth();
+  if (!userId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const appwriteId = userId;
 
   if (!process.env.OPENAI_API_KEY) {
     return new Response(

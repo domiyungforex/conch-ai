@@ -1,3 +1,4 @@
+import { auth } from "@clerk/nextjs/server";
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type MemoryDoc, type ReputationDoc, type AppwriteDoc } from "@/lib/db";
 import { generateEmbedding } from "@/lib/embeddings";
@@ -7,7 +8,9 @@ import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 import { Query, ID } from "node-appwrite";
 
 export async function GET(req: Request) {
-    const appwriteId = "demo";
+  const { userId } = await auth();
+  if (!userId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const appwriteId = userId;
 
   const { databases } = createAdminClient();
   const { searchParams } = new URL(req.url);
@@ -33,7 +36,9 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-    const appwriteId = "demo";
+  const { userId } = await auth();
+  if (!userId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const appwriteId = userId;
 
   const rateCheck = checkRateLimit(`memory:create:${appwriteId}`, 20, 60_000);
   if (!rateCheck.success) return rateLimitResponse(rateCheck.resetAt);

@@ -1,8 +1,11 @@
+import { auth } from "@clerk/nextjs/server";
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type ApiKeyDoc, type AppwriteDoc } from "@/lib/db";
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
-    const appwriteId = "demo";
+  const { userId } = await auth();
+  if (!userId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const appwriteId = userId;
 
   const { id } = await params;
   const { databases } = createAdminClient();

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { ArrowRight, Sparkles, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GradientText } from "@/components/shared/GradientText";
@@ -31,24 +31,6 @@ export function HeroSection() {
   const [displayed, setDisplayed] = useState("");
   const [deleting, setDeleting] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const springX = useSpring(mouseX, { stiffness: 50, damping: 25 });
-  const springY = useSpring(mouseY, { stiffness: 50, damping: 25 });
-  const leftX = useTransform(springX, (v) => v * 0.5);
-  const leftY = useTransform(springY, (v) => v * 0.6);
-  const rightX = useTransform(springX, (v) => v * -0.4);
-  const rightY = useTransform(springY, (v) => v * -0.35);
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      mouseX.set((e.clientX / window.innerWidth - 0.5) * 20);
-      mouseY.set((e.clientY / window.innerHeight - 0.5) * 12);
-    };
-    window.addEventListener("mousemove", handler);
-    return () => window.removeEventListener("mousemove", handler);
-  }, [mouseX, mouseY]);
 
   useEffect(() => {
     const current = subPhrases[phraseIndex];
@@ -107,7 +89,7 @@ export function HeroSection() {
           className="absolute bottom-1/4 left-1/3 w-56 h-56 bg-violet-500 rounded-full blur-3xl"
         />
 
-        {/* Floating particles — CSS vars are required inline for per-particle randomness */}
+        {/* Floating particles */}
         {particles.map((p) => (
           <div
             key={p.id}
@@ -182,8 +164,8 @@ export function HeroSection() {
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Button size="xl" asChild className="w-full sm:w-auto group glow-pulse">
-              <Link href="/dashboard">
-                Open App
+              <Link href="/sign-up">
+                Get Started Now
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
@@ -203,97 +185,91 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.6 }}
-          className="relative mt-20 max-w-3xl mx-auto h-64 sm:h-80"
+          className="relative mt-20 max-w-3xl mx-auto"
         >
-          {/* SVG neural connections between cards */}
+          {/* SVG neural connections */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.4 }}
-            className="absolute inset-0 pointer-events-none"
+            className="absolute inset-0 pointer-events-none hidden sm:block"
           >
             <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
               <path
-                d="M 50% 30% Q 30% 20% 20% 40%"
+                d="M 50% 20% Q 30% 10% 18% 30%"
                 fill="none"
                 stroke="rgba(124,58,237,0.15)"
                 strokeWidth="1.5"
                 strokeDasharray="4 5"
               />
               <path
-                d="M 50% 30% Q 30% 20% 20% 40%"
-                fill="none"
-                stroke="rgba(124,58,237,0.5)"
-                strokeWidth="1"
-                className="neural-line"
-              />
-              <path
-                d="M 50% 30% Q 72% 18% 80% 38%"
+                d="M 50% 20% Q 72% 10% 82% 28%"
                 fill="none"
                 stroke="rgba(124,58,237,0.15)"
                 strokeWidth="1.5"
                 strokeDasharray="4 5"
-              />
-              <path
-                d="M 50% 30% Q 72% 18% 80% 38%"
-                fill="none"
-                stroke="rgba(124,58,237,0.5)"
-                strokeWidth="1"
-                className="neural-line neural-line--delayed"
               />
             </svg>
           </motion.div>
 
-          {/* Center card */}
-          <motion.div
-            style={{ x: springX, y: springY }}
-            className="absolute left-1/2 -translate-x-1/2 top-0 w-72 sm:w-80 glass border border-white/10 rounded-2xl p-5 shadow-2xl z-10 animate-float"
-          >
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-xl bg-violet-500/20 flex items-center justify-center flex-shrink-0">
-                <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-violet-400">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" fill="currentColor"/>
-                </svg>
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-violet-300 mb-1">SEMANTIC MEMORY</p>
-                <p className="text-sm text-white">Prefers TypeScript over JavaScript for type safety in large codebases.</p>
-                <p className="text-xs text-slate-500 mt-2">Accessed 47 times · 2 days ago</p>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Left card */}
-          <motion.div
-            style={{ x: leftX, y: leftY }}
-            className="absolute left-0 sm:left-4 top-12 w-56 sm:w-64 z-0 hidden sm:block animate-float-delayed opacity-75"
-          >
-            <div className="glass border border-white/8 rounded-2xl p-4 shadow-xl">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-6 h-6 rounded-lg bg-cyan-500/20 flex items-center justify-center">
-                  <span className="text-xs text-cyan-400">P</span>
+          <div className="flex items-start justify-center gap-4 sm:gap-6">
+            {/* Left card — hidden on mobile */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7, delay: 0.9 }}
+              className="hidden sm:block w-56 lg:w-64 flex-shrink-0 animate-float-delayed opacity-75 mt-8"
+            >
+              <div className="glass border border-white/8 rounded-2xl p-4 shadow-xl">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-6 h-6 rounded-lg bg-cyan-500/20 flex items-center justify-center">
+                    <span className="text-xs text-cyan-400">P</span>
+                  </div>
+                  <p className="text-xs font-semibold text-cyan-300">PREFERENCE</p>
                 </div>
-                <p className="text-xs font-semibold text-cyan-300">PREFERENCE</p>
+                <p className="text-xs text-slate-300">Dark mode advocate. Minimal UI. Keyboard-first workflows.</p>
               </div>
-              <p className="text-xs text-slate-300">Dark mode advocate. Minimal UI. Keyboard-first workflows.</p>
-            </div>
-          </motion.div>
+            </motion.div>
 
-          {/* Right card */}
-          <motion.div
-            style={{ x: rightX, y: rightY }}
-            className="absolute right-0 sm:right-4 top-8 w-52 sm:w-60 z-0 hidden sm:block opacity-75 animate-float"
-          >
-            <div className="glass border border-white/8 rounded-2xl p-4 shadow-xl">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-6 h-6 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                  <span className="text-xs text-emerald-400">E</span>
+            {/* Center card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.75 }}
+              className="w-full sm:w-72 lg:w-80 flex-shrink-0 glass border border-white/10 rounded-2xl p-5 shadow-2xl z-10 animate-float"
+            >
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-xl bg-violet-500/20 flex items-center justify-center flex-shrink-0">
+                  <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-violet-400">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" fill="currentColor"/>
+                  </svg>
                 </div>
-                <p className="text-xs font-semibold text-emerald-300">EPISODIC</p>
+                <div>
+                  <p className="text-xs font-semibold text-violet-300 mb-1">SEMANTIC MEMORY</p>
+                  <p className="text-sm text-white">Prefers TypeScript over JavaScript for type safety in large codebases.</p>
+                  <p className="text-xs text-slate-500 mt-2">Accessed 47 times · 2 days ago</p>
+                </div>
               </div>
-              <p className="text-xs text-slate-300">Launched v2.0 on Base chain. Reviewed by 200 users.</p>
-            </div>
-          </motion.div>
+            </motion.div>
+
+            {/* Right card — hidden on mobile */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7, delay: 0.9 }}
+              className="hidden sm:block w-52 lg:w-60 flex-shrink-0 opacity-75 animate-float mt-4"
+            >
+              <div className="glass border border-white/8 rounded-2xl p-4 shadow-xl">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-6 h-6 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                    <span className="text-xs text-emerald-400">E</span>
+                  </div>
+                  <p className="text-xs font-semibold text-emerald-300">EPISODIC</p>
+                </div>
+                <p className="text-xs text-slate-300">Launched v2.0 on Base chain. Reviewed by 200 users.</p>
+              </div>
+            </motion.div>
+          </div>
         </motion.div>
       </div>
 
