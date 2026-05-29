@@ -1,5 +1,4 @@
-import { auth, createAdminClient } from "@/lib/appwrite";
-import { redirect } from "next/navigation";
+import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type UserDoc, type ReputationDoc, type MemoryDoc, type ConversationDoc, type AppwriteDoc } from "@/lib/db";
 import { DashboardHome } from "@/components/dashboard/DashboardHome";
 import { SetupRetry } from "@/components/dashboard/SetupRetry";
@@ -8,27 +7,26 @@ import { Query } from "node-appwrite";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
-export default async function DashboardPage() {
-  const { userId: appwriteId } = await auth();
-  if (!appwriteId) redirect("/sign-in");
+const DEMO_USER_ID = "demo";
 
+export default async function DashboardPage() {
   try {
     const { databases } = createAdminClient();
 
     let user: AppwriteDoc<UserDoc>;
     try {
-      user = await databases.getDocument(DB_ID, COLLECTIONS.USERS, appwriteId) as unknown as AppwriteDoc<UserDoc>;
+      user = await databases.getDocument(DB_ID, COLLECTIONS.USERS, DEMO_USER_ID) as unknown as AppwriteDoc<UserDoc>;
     } catch {
       return <SetupRetry />;
     }
 
     const [repResult, memCount, convCount, agentCount, recentMemResult, recentConvResult] = await Promise.all([
-      databases.listDocuments(DB_ID, COLLECTIONS.REPUTATIONS, [Query.equal("userId", appwriteId), Query.limit(1)]),
-      databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, [Query.equal("userId", appwriteId), Query.equal("isArchived", false), Query.limit(1)]),
-      databases.listDocuments(DB_ID, COLLECTIONS.CONVERSATIONS, [Query.equal("userId", appwriteId), Query.limit(1)]),
-      databases.listDocuments(DB_ID, COLLECTIONS.AGENTS, [Query.equal("userId", appwriteId), Query.notEqual("status", "ARCHIVED"), Query.limit(1)]),
-      databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, [Query.equal("userId", appwriteId), Query.equal("isArchived", false), Query.orderDesc("$createdAt"), Query.limit(5)]),
-      databases.listDocuments(DB_ID, COLLECTIONS.CONVERSATIONS, [Query.equal("userId", appwriteId), Query.orderDesc("$updatedAt"), Query.limit(3)]),
+      databases.listDocuments(DB_ID, COLLECTIONS.REPUTATIONS, [Query.equal("userId", DEMO_USER_ID), Query.limit(1)]),
+      databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, [Query.equal("userId", DEMO_USER_ID), Query.equal("isArchived", false), Query.limit(1)]),
+      databases.listDocuments(DB_ID, COLLECTIONS.CONVERSATIONS, [Query.equal("userId", DEMO_USER_ID), Query.limit(1)]),
+      databases.listDocuments(DB_ID, COLLECTIONS.AGENTS, [Query.equal("userId", DEMO_USER_ID), Query.notEqual("status", "ARCHIVED"), Query.limit(1)]),
+      databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, [Query.equal("userId", DEMO_USER_ID), Query.equal("isArchived", false), Query.orderDesc("$createdAt"), Query.limit(5)]),
+      databases.listDocuments(DB_ID, COLLECTIONS.CONVERSATIONS, [Query.equal("userId", DEMO_USER_ID), Query.orderDesc("$updatedAt"), Query.limit(3)]),
     ]);
 
     const reputation = repResult.documents.length > 0

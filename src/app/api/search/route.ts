@@ -1,4 +1,4 @@
-import { auth, createAdminClient } from "@/lib/appwrite";
+import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type MemoryDoc, type AppwriteDoc } from "@/lib/db";
 import { generateEmbedding } from "@/lib/embeddings";
 import { getPineconeIndex } from "@/lib/pinecone";
@@ -7,8 +7,7 @@ import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 import { Query } from "node-appwrite";
 
 export async function POST(req: Request) {
-  const { userId: appwriteId } = await auth();
-  if (!appwriteId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    const appwriteId = "demo";
 
   const rateCheck = checkRateLimit(`search:${appwriteId}`, 30, 60_000);
   if (!rateCheck.success) return rateLimitResponse(rateCheck.resetAt);

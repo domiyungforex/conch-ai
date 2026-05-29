@@ -1,4 +1,4 @@
-import { auth, createAdminClient } from "@/lib/appwrite";
+import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type ApiKeyDoc, type AppwriteDoc } from "@/lib/db";
 import { ApiKeyCreateSchema } from "@/lib/validators";
 import { generateRandomBytes } from "@/lib/utils";
@@ -6,8 +6,7 @@ import bcrypt from "bcryptjs";
 import { Query, ID } from "node-appwrite";
 
 export async function GET() {
-  const { userId: appwriteId } = await auth();
-  if (!appwriteId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    const appwriteId = "demo";
 
   const { databases } = createAdminClient();
   const result = await databases.listDocuments(DB_ID, COLLECTIONS.API_KEYS, [
@@ -22,8 +21,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const { userId: appwriteId } = await auth();
-  if (!appwriteId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    const appwriteId = "demo";
 
   const parsed = ApiKeyCreateSchema.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) {

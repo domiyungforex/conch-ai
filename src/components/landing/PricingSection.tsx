@@ -22,7 +22,7 @@ const plans = [
       "Community support",
     ],
     cta: "Start Free",
-    href: "/sign-up",
+    href: "/dashboard",
     highlight: false,
   },
   {
@@ -41,7 +41,7 @@ const plans = [
       "Priority support",
     ],
     cta: "Start Pro",
-    href: "/sign-up?plan=pro",
+    href: "/dashboard",
     highlight: true,
   },
   {

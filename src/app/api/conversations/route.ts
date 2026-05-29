@@ -1,11 +1,10 @@
-import { auth, createAdminClient } from "@/lib/appwrite";
+import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type ConversationDoc, type AppwriteDoc } from "@/lib/db";
 import { ConversationCreateSchema } from "@/lib/validators";
 import { Query, ID } from "node-appwrite";
 
 export async function GET(req: Request) {
-  const { userId: appwriteId } = await auth();
-  if (!appwriteId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    const appwriteId = "demo";
 
   const { databases } = createAdminClient();
   const { searchParams } = new URL(req.url);
@@ -25,8 +24,7 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const { userId: appwriteId } = await auth();
-  if (!appwriteId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    const appwriteId = "demo";
 
   const parsed = ConversationCreateSchema.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) return new Response(JSON.stringify({ error: "Invalid request" }), { status: 400 });

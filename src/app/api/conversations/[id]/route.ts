@@ -1,10 +1,9 @@
-import { auth, createAdminClient } from "@/lib/appwrite";
+import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type ConversationDoc, type MessageDoc, type AgentDoc, type AppwriteDoc } from "@/lib/db";
 import { Query } from "node-appwrite";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { userId: appwriteId } = await auth();
-  if (!appwriteId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    const appwriteId = "demo";
 
   const { id } = await params;
   const { databases } = createAdminClient();
@@ -44,8 +43,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 }
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { userId: appwriteId } = await auth();
-  if (!appwriteId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    const appwriteId = "demo";
 
   const { id } = await params;
   const { databases } = createAdminClient();

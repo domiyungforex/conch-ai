@@ -1,4 +1,4 @@
-import { auth } from "@/lib/appwrite";
+
 import { generateEmbedding } from "@/lib/embeddings";
 import { getPineconeIndex } from "@/lib/pinecone";
 import { z } from "zod";
@@ -9,8 +9,7 @@ const EmbeddingSchema = z.object({
 });
 
 export async function POST(req: Request) {
-  const { userId: appwriteId } = await auth();
-  if (!appwriteId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    const appwriteId = "demo";
 
   const parsed = EmbeddingSchema.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) {

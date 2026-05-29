@@ -1,13 +1,9 @@
-import { auth, createAdminClient } from "@/lib/appwrite";
+import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type SharedContextDoc, type AppwriteDoc } from "@/lib/db";
 import { Query } from "node-appwrite";
 
 export async function GET() {
-  const { userId: appwriteId } = await auth();
-  if (!appwriteId) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
-  }
-
+  const appwriteId = "demo";
   const { databases } = createAdminClient();
   const result = await databases.listDocuments(DB_ID, COLLECTIONS.SHARED_CONTEXTS, [
     Query.equal("ownerId", appwriteId),

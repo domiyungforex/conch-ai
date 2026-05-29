@@ -1,4 +1,4 @@
-import { auth, createAdminClient } from "@/lib/appwrite";
+import { createAdminClient } from "@/lib/appwrite";
 import { redirect } from "next/navigation";
 import { DB_ID, COLLECTIONS, type ReputationDoc, type AppwriteDoc } from "@/lib/db";
 import { ReputationView } from "@/components/dashboard/ReputationView";
@@ -6,20 +6,19 @@ import { Query } from "node-appwrite";
 
 export const metadata = { title: "Reputation — Conch" };
 
-export default async function ReputationPage() {
-  const { userId: appwriteId } = await auth();
-  if (!appwriteId) redirect("/sign-in");
+const DEMO_USER_ID = "demo";
 
+export default async function ReputationPage() {
   let reputation: AppwriteDoc<ReputationDoc> | null = null;
   let counts = { memories: 0, agents: 0, conversations: 0 };
 
   try {
     const { databases } = createAdminClient();
     const [repResult, memResult, convResult, agentResult] = await Promise.all([
-      databases.listDocuments(DB_ID, COLLECTIONS.REPUTATIONS, [Query.equal("userId", appwriteId), Query.limit(1)]),
-      databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, [Query.equal("userId", appwriteId), Query.limit(1)]),
-      databases.listDocuments(DB_ID, COLLECTIONS.CONVERSATIONS, [Query.equal("userId", appwriteId), Query.limit(1)]),
-      databases.listDocuments(DB_ID, COLLECTIONS.AGENTS, [Query.equal("userId", appwriteId), Query.limit(1)]),
+      databases.listDocuments(DB_ID, COLLECTIONS.REPUTATIONS, [Query.equal("userId", DEMO_USER_ID), Query.limit(1)]),
+      databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, [Query.equal("userId", DEMO_USER_ID), Query.limit(1)]),
+      databases.listDocuments(DB_ID, COLLECTIONS.CONVERSATIONS, [Query.equal("userId", DEMO_USER_ID), Query.limit(1)]),
+      databases.listDocuments(DB_ID, COLLECTIONS.AGENTS, [Query.equal("userId", DEMO_USER_ID), Query.limit(1)]),
     ]);
 
     reputation = repResult.documents.length > 0
@@ -30,12 +29,7 @@ export default async function ReputationPage() {
     redirect("/dashboard");
   }
 
-  if (!reputation) redirect("/sign-in");
+  if (!reputation) redirect("/dashboard");
 
-  return (
-    <ReputationView
-      reputation={reputation}
-      counts={counts}
-    />
-  );
+  return <ReputationView reputation={reputation} counts={counts} />;
 }

@@ -182,8 +182,8 @@ export function HeroSection() {
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Button size="xl" asChild className="w-full sm:w-auto group glow-pulse">
-              <Link href="/sign-up">
-                Start for Free
+              <Link href="/dashboard">
+                Open App
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>

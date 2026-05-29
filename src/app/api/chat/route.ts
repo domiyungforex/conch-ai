@@ -1,4 +1,4 @@
-import { auth, createAdminClient } from "@/lib/appwrite";
+import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type AgentDoc, type ConversationDoc, type MessageDoc, type ReputationDoc, type AppwriteDoc } from "@/lib/db";
 import { streamText } from "ai";
 import { openai as aiSdkOpenai } from "@ai-sdk/openai";
@@ -12,10 +12,7 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
-  const { userId: appwriteId } = await auth();
-  if (!appwriteId) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
-  }
+  const appwriteId = "demo";
 
   if (!process.env.OPENAI_API_KEY) {
     return new Response(
