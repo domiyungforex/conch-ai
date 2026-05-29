@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Logo } from "@/components/shared/Logo";
 import { Button } from "@/components/ui/button";
+import { SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs";
 
 const links = [
   { label: "Features", href: "#features" },
@@ -45,9 +46,20 @@ export function Navbar() {
             </div>
 
             <div className="hidden md:flex items-center gap-3 ml-auto">
-              <Button size="sm" asChild>
-                <Link href="/dashboard">Open App</Link>
-              </Button>
+              <Show when="signed-out">
+                <SignInButton mode="modal">
+                  <Button variant="ghost" size="sm">Sign In</Button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <Button size="sm">Get Started Free</Button>
+                </SignUpButton>
+              </Show>
+              <Show when="signed-in">
+                <Button size="sm" asChild>
+                  <Link href="/dashboard">Dashboard</Link>
+                </Button>
+                <UserButton />
+              </Show>
             </div>
 
             {/* Mobile menu button */}
@@ -83,9 +95,19 @@ export function Navbar() {
                 </a>
               ))}
               <div className="pt-3 border-t border-white/10 flex flex-col gap-2">
-                <Button size="sm" className="w-full" asChild>
-                  <Link href="/dashboard">Open App</Link>
-                </Button>
+                <Show when="signed-out">
+                  <SignInButton mode="modal">
+                    <Button variant="secondary" size="sm" className="w-full">Sign In</Button>
+                  </SignInButton>
+                  <SignUpButton mode="modal">
+                    <Button size="sm" className="w-full">Get Started Free</Button>
+                  </SignUpButton>
+                </Show>
+                <Show when="signed-in">
+                  <Button size="sm" className="w-full" asChild>
+                    <Link href="/dashboard">Dashboard</Link>
+                  </Button>
+                </Show>
               </div>
             </div>
           </motion.div>

@@ -1,3 +1,4 @@
+import {ClerkProvider} from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Web3Provider } from "@/providers/Web3Provider";
@@ -31,10 +32,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Web3Provider>
+        <ClerkProvider>
+          <Web3Provider>
           {children}
           <Toaster />
-        </Web3Provider>
+          </Web3Provider>
+        </ClerkProvider>
       </body>
     </html>
   );
