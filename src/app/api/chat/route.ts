@@ -1,13 +1,16 @@
 import { auth } from "@clerk/nextjs/server";
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type AgentDoc, type ConversationDoc, type MessageDoc, type ReputationDoc, type AppwriteDoc } from "@/lib/db";
-import { streamText } from "ai";
+import { streamText, tool } from "ai";
 import { openai as aiSdkOpenai } from "@ai-sdk/openai";
 import { retrieveRelevantMemories, buildSystemPrompt } from "@/lib/memory";
+import { generateEmbedding } from "@/lib/embeddings";
+import { getPineconeIndex } from "@/lib/pinecone";
 import type { MemoryWithScore } from "@/lib/memory";
 import { ChatRequestSchema } from "@/lib/validators";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 import { Query, ID } from "node-appwrite";
+import { z } from "zod";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -111,18 +114,99 @@ export async function POST(req: Request) {
     );
   }
 
+  // Retrieve more memories when user is asking about what's remembered
+  const isMemoryQuery = /\b(remember|recall|memories|memory|know about me|saved|stored)\b/i.test(message);
+  const topK = isMemoryQuery ? 15 : 6;
+
   let memories: MemoryWithScore[] = [];
   try {
-    memories = await retrieveRelevantMemories(appwriteId, message, 5);
+    memories = await retrieveRelevantMemories(appwriteId, message, topK);
   } catch (memErr) {
     console.error("[chat] memory retrieval failed, continuing without context:", memErr);
   }
 
-  const systemPrompt = buildSystemPrompt(agent?.systemPrompt ?? null, memories);
+  // Fetch total memory count for context
+  let totalMemories = 0;
+  try {
+    const countResult = await databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, [
+      Query.equal("userId", appwriteId),
+      Query.equal("isArchived", false),
+      Query.limit(1),
+    ]);
+    totalMemories = countResult.total;
+  } catch {
+    // Non-critical
+  }
+
+  const systemPrompt = buildSystemPrompt(agent?.systemPrompt ?? null, memories, totalMemories);
 
   const history = messageHistory
     .slice(-19)
     .map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
+
+  // Tool: save a memory when the AI is instructed to remember something
+  const saveMemory = tool({
+    description: "Save an important piece of information to the user's persistent memory. Use this when the user asks you to remember something, or when they share a preference, fact, or experience worth preserving.",
+    parameters: z.object({
+      content: z.string().describe("The exact memory content to save (be concise and specific)"),
+      category: z.enum(["EPISODIC", "SEMANTIC", "PREFERENCE", "PROCEDURAL"]).describe(
+        "EPISODIC: personal events/experiences; SEMANTIC: facts/knowledge; PREFERENCE: likes/dislikes/preferences; PROCEDURAL: how-to knowledge or workflows"
+      ),
+      importance: z.number().min(0).max(1).describe("Importance score (0.5 = normal, 0.8 = very important, 1.0 = critical)"),
+      tags: z.array(z.string().max(30)).max(5).describe("Short descriptive tags"),
+    }),
+    execute: async ({ content, category, importance, tags }) => {
+      try {
+        const memId = ID.unique();
+        await databases.createDocument(DB_ID, COLLECTIONS.MEMORIES, memId, {
+          userId: appwriteId,
+          pineconeId: memId,
+          content,
+          category,
+          importance,
+          tags,
+          source: "chat",
+          agentId: agent?.$id ?? null,
+          isArchived: false,
+          accessCount: 0,
+          lastAccessed: null,
+        });
+
+        // Upsert to Pinecone for future retrieval
+        try {
+          const embedding = await generateEmbedding(content);
+          const index = getPineconeIndex();
+          await index.upsert([{
+            id: memId,
+            values: embedding,
+            metadata: { userId: appwriteId, category, memoryId: memId },
+          }]);
+        } catch {
+          // Memory saved even if vector upsert fails
+        }
+
+        // Increment reputation memory count
+        try {
+          const repResult = await databases.listDocuments(DB_ID, COLLECTIONS.REPUTATIONS, [
+            Query.equal("userId", appwriteId), Query.limit(1),
+          ]);
+          if (repResult.documents.length > 0) {
+            const rep = repResult.documents[0] as unknown as AppwriteDoc<ReputationDoc>;
+            await databases.updateDocument(DB_ID, COLLECTIONS.REPUTATIONS, rep.$id, {
+              memoryCount: rep.memoryCount + 1,
+            });
+          }
+        } catch {
+          // Non-critical
+        }
+
+        return { saved: true, memoryId: memId };
+      } catch (err) {
+        console.error("[chat] saveMemory tool failed:", err);
+        return { saved: false, error: "Failed to save memory" };
+      }
+    },
+  });
 
   let result;
   try {
@@ -132,6 +216,8 @@ export async function POST(req: Request) {
       messages: [...history, { role: "user", content: message }],
       maxTokens: agent?.maxTokens ?? 2000,
       temperature: agent?.temperature ?? 0.7,
+      maxSteps: 3,
+      tools: { saveMemory },
       onError: ({ error }) => {
         const msg = String(error);
         const isRateLimit  = msg.includes("429") || msg.includes("rate_limit");

@@ -79,11 +79,18 @@ export function injectMemoryContext(memories: MemoryWithScore[]): string {
 
 export function buildSystemPrompt(
   agentSystemPrompt: string | null,
-  memories: MemoryWithScore[]
+  memories: MemoryWithScore[],
+  totalMemoryCount = 0
 ): string {
   const base =
     agentSystemPrompt ||
-    "You are Conch, an intelligent AI assistant with persistent memory. You remember context about the user across conversations and use it to give personalized, helpful responses. Be concise, thoughtful, and genuinely helpful.";
+    `You are Conch, an intelligent AI assistant with persistent memory. You remember context about the user across conversations and use it to give personalized, helpful responses.
+
+MEMORY CAPABILITIES:
+- You have access to a saveMemory tool. Use it whenever the user asks you to remember something, or when they share a preference, fact, or personal detail worth preserving.
+- Always confirm when you save a memory (e.g., "Got it, I've saved that to your memory.").
+- When asked what you remember about the user, summarize the relevant memories shown below.${totalMemoryCount > 0 ? ` The user has ${totalMemoryCount} total memories; you are seeing the most relevant ones.` : ""}
+- Be concise, thoughtful, and genuinely helpful.`;
 
   const memoryContext = injectMemoryContext(memories);
   return base + memoryContext;

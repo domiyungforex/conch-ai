@@ -34,7 +34,15 @@ export async function POST(req: Request) {
   const { databases } = createAdminClient();
   const agent = await databases.createDocument(DB_ID, COLLECTIONS.AGENTS, ID.unique(), {
     userId: appwriteId,
-    ...parsed.data,
+    name: parsed.data.name,
+    description: parsed.data.description ?? null,
+    systemPrompt: parsed.data.systemPrompt,
+    avatarUrl: null,
+    status: "ACTIVE",
+    memoryScope: parsed.data.memoryScope ?? "user",
+    modelId: parsed.data.modelId ?? "gpt-4o",
+    temperature: parsed.data.temperature ?? 0.7,
+    maxTokens: parsed.data.maxTokens ?? 2000,
   }) as unknown as AppwriteDoc<AgentDoc>;
 
   try {
