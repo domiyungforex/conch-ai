@@ -83,7 +83,7 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
         <div className="flex flex-col flex-1 min-w-0">
           <div className="flex items-center justify-between px-4 py-3 border-b border-white/8 shrink-0">
             <div className="flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-violet-400" />
+              <MessageSquare className="w-4 h-4 text-coral-400" />
               <span className="text-sm font-medium text-white truncate max-w-50">
                 {title}
               </span>

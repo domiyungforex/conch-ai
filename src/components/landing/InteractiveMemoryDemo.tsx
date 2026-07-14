@@ -75,7 +75,7 @@ export function InteractiveMemoryDemo() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass border border-cyan-500/30 text-xs text-cyan-300 font-medium mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass border border-teal-500/30 text-xs text-teal-300 font-medium mb-4">
             <Sparkles className="w-3 h-3" />
             Live Demo
           </div>
@@ -112,11 +112,11 @@ export function InteractiveMemoryDemo() {
                     transition={{ duration: 0.35 }}
                     className="flex justify-end"
                   >
-                    <div className="max-w-[85%] bg-violet-600/25 border border-violet-500/30 rounded-2xl rounded-tr-sm px-4 py-3">
+                    <div className="max-w-[85%] bg-coral-600/25 border border-coral-500/30 rounded-2xl rounded-tr-sm px-4 py-3">
                       <p className="text-sm text-white">
                         {phase === 0 ? typedText : USER_MESSAGE_0}
                         {phase === 0 && !typingDone && (
-                          <span className="inline-block w-0.5 h-4 bg-violet-400 ml-0.5 align-middle animate-pulse" />
+                          <span className="inline-block w-0.5 h-4 bg-coral-400 ml-0.5 align-middle animate-pulse" />
                         )}
                       </p>
                     </div>
@@ -150,11 +150,11 @@ export function InteractiveMemoryDemo() {
                     transition={{ duration: 0.35 }}
                     className="flex justify-end"
                   >
-                    <div className="max-w-[85%] bg-violet-600/25 border border-violet-500/30 rounded-2xl rounded-tr-sm px-4 py-3">
+                    <div className="max-w-[85%] bg-coral-600/25 border border-coral-500/30 rounded-2xl rounded-tr-sm px-4 py-3">
                       <p className="text-sm text-white">
                         {phase === 1 ? typedText : USER_MESSAGE_1}
                         {phase === 1 && !typingDone && (
-                          <span className="inline-block w-0.5 h-4 bg-violet-400 ml-0.5 align-middle animate-pulse" />
+                          <span className="inline-block w-0.5 h-4 bg-coral-400 ml-0.5 align-middle animate-pulse" />
                         )}
                       </p>
                     </div>
@@ -193,7 +193,7 @@ export function InteractiveMemoryDemo() {
                     transition={{ duration: 0.35 }}
                     className="flex gap-3"
                   >
-                    <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center flex-shrink-0 mt-1">
+                    <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-coral-600 to-gold-600 flex items-center justify-center flex-shrink-0 mt-1">
                       <Brain className="w-3.5 h-3.5 text-white" />
                     </div>
                     <div className="max-w-[85%] glass border border-white/8 rounded-2xl rounded-tl-sm px-4 py-3">
@@ -213,12 +213,12 @@ export function InteractiveMemoryDemo() {
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.7, duration: 0.4 }}
-                        className="flex items-center gap-1.5 mt-2 text-xs text-violet-500"
+                        className="flex items-center gap-1.5 mt-2 text-xs text-coral-500"
                       >
                         <motion.div
                           animate={{ scale: [1, 1.5, 1] }}
                           transition={{ duration: 1.2, repeat: 3 }}
-                          className="w-1.5 h-1.5 rounded-full bg-violet-400"
+                          className="w-1.5 h-1.5 rounded-full bg-coral-400"
                         />
                         <Brain className="w-3 h-3" />
                         1 memory recalled
@@ -259,7 +259,7 @@ export function InteractiveMemoryDemo() {
                       initial={{ scale: 1, opacity: 0.5 }}
                       animate={{ scale: 2.2, opacity: 0 }}
                       transition={{ duration: 1.3, repeat: Infinity, ease: "easeOut" }}
-                      className="absolute inset-0 rounded-2xl border border-violet-500/40 pointer-events-none"
+                      className="absolute inset-0 rounded-2xl border border-coral-500/40 pointer-events-none"
                     />
                   )}
                 </AnimatePresence>
@@ -302,7 +302,7 @@ export function InteractiveMemoryDemo() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 }}
-                    className="mt-3 pt-3 border-t border-white/8 flex items-center gap-2 text-xs text-violet-400"
+                    className="mt-3 pt-3 border-t border-white/8 flex items-center gap-2 text-xs text-coral-400"
                   >
                     <Brain className="w-3 h-3" />
                     Retrieved for response
@@ -348,7 +348,7 @@ export function InteractiveMemoryDemo() {
                   <motion.span
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="text-xs text-violet-400 font-medium"
+                    className="text-xs text-coral-400 font-medium"
                   >
                     {phaseLabels[p]}
                   </motion.span>

@@ -18,8 +18,8 @@ async function fetchReputation(): Promise<Reputation | null> {
 
 const LEVELS = [
   { name: "novice", label: "Novice", min: 0, max: 50, color: "text-slate-300" },
-  { name: "apprentice", label: "Apprentice", min: 50, max: 150, color: "text-cyan-300" },
-  { name: "practitioner", label: "Practitioner", min: 150, max: 350, color: "text-violet-300" },
+  { name: "apprentice", label: "Apprentice", min: 50, max: 150, color: "text-teal-300" },
+  { name: "practitioner", label: "Practitioner", min: 150, max: 350, color: "text-coral-300" },
   { name: "expert", label: "Expert", min: 350, max: 700, color: "text-amber-300" },
   { name: "master", label: "Master", min: 700, max: Infinity, color: "text-emerald-300" },
 ] as const;
@@ -114,7 +114,7 @@ export function ReputationCard() {
               <span className="text-xs text-slate-400">{label}</span>
             </div>
             <p className="text-sm font-semibold text-white">{count}</p>
-            <p className="text-xs text-violet-400">+{pts} pts</p>
+            <p className="text-xs text-coral-400">+{pts} pts</p>
           </div>
         ))}
       </div>
@@ -128,7 +128,7 @@ export function ReputationCard() {
             <div className="space-y-2 pt-1">
               {EARN_ITEMS.map(({ icon: Icon, label, desc }) => (
                 <div key={label} className="flex items-center gap-3 text-xs">
-                  <Icon className="w-3.5 h-3.5 text-violet-400 shrink-0" />
+                  <Icon className="w-3.5 h-3.5 text-coral-400 shrink-0" />
                   <span className="text-slate-300 flex-1">{label}</span>
                   <span className="text-emerald-400">{desc}</span>
                 </div>

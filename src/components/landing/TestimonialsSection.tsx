@@ -13,7 +13,7 @@ const testimonials = [
     title: "Founder at BuildFast.ai",
     avatar: "",
     initials: "AC",
-    gradient: "from-violet-500 to-indigo-500",
+    gradient: "from-coral-500 to-gold-500",
   },
   {
     quote: "I've tried every AI memory tool. Conch is the only one that feels like it actually understands the ownership model. My data, my rules. Finally.",
@@ -21,7 +21,7 @@ const testimonials = [
     title: "Principal Engineer at Scale",
     avatar: "",
     initials: "SO",
-    gradient: "from-cyan-500 to-blue-500",
+    gradient: "from-teal-500 to-blue-500",
   },
   {
     quote: "The portability is wild. I switched AI providers and everything just... worked. My preferences, history, persona — all intact. That's never happened before.",
@@ -47,7 +47,7 @@ export function TestimonialsSection() {
   return (
     <section id="testimonials" className="py-24 sm:py-32 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-violet-600/6 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-coral-600/6 rounded-full blur-3xl" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -58,7 +58,7 @@ export function TestimonialsSection() {
           transition={{ duration: 0.7 }}
           className="text-center mb-16"
         >
-          <p className="text-sm font-semibold text-violet-400 tracking-widest uppercase mb-4">Testimonials</p>
+          <p className="text-sm font-semibold text-coral-400 tracking-widest uppercase mb-4">Testimonials</p>
           <h2 className="text-4xl sm:text-5xl font-bold text-white leading-tight">
             Loved by{" "}
             <GradientText>builders</GradientText>

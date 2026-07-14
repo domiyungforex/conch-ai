@@ -16,8 +16,8 @@ export function UserMenu({ size = "md" }: { size?: "sm" | "md" }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="relative focus:outline-none focus:ring-2 focus:ring-violet-500 rounded-full">
-          <div className={`${boxSize} rounded-full bg-linear-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-white text-sm font-bold`}>
+        <button className="relative focus:outline-none focus:ring-2 focus:ring-coral-500 rounded-full">
+          <div className={`${boxSize} rounded-full bg-linear-to-br from-coral-600 to-gold-600 flex items-center justify-center text-white text-sm font-bold`}>
             C
           </div>
         </button>

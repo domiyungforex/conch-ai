@@ -51,9 +51,15 @@ export function Sidebar() {
       {/* Logo + AI pulse */}
       <div className={cn("flex items-center px-4 py-5 border-b border-white/8 gap-2", collapsed && "justify-center px-2")}>
         {collapsed ? (
-          <div className="w-8 h-8 rounded-xl bg-linear-to-br from-violet-600 to-indigo-600 flex items-center justify-center shadow-lg shrink-0">
+          <div className="w-8 h-8 rounded-xl bg-linear-to-br from-coral-600 to-gold-600 flex items-center justify-center shadow-lg shrink-0">
             <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5">
-              <path d="M12 3C7.03 3 3 7.03 3 12s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm-1 13V8l7 4-7 4z" fill="white" />
+              <path
+                d="M13.2 20c-4.6 0-7.7-3.4-7.7-7.3 0-3.2 2.3-5.6 5.2-5.6 2.4 0 4.1 1.7 4.1 3.9 0 1.8-1.2 3.1-2.8 3.1-1.3 0-2.2-.9-2.2-2.1 0-.9.6-1.6 1.5-1.6"
+                stroke="white"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                fill="none"
+              />
             </svg>
           </div>
         ) : (
@@ -62,7 +68,7 @@ export function Sidebar() {
             <motion.div
               animate={{ scale: [1, 1.5, 1], opacity: [0.6, 1, 0.6] }}
               transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-              className="ml-auto w-2 h-2 rounded-full bg-violet-400 shrink-0"
+              className="ml-auto w-2 h-2 rounded-full bg-coral-400 shrink-0"
             />
           </>
         )}
@@ -94,7 +100,7 @@ export function Sidebar() {
                 className={cn(
                   "relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors overflow-hidden group",
                   active
-                    ? "text-violet-300"
+                    ? "text-coral-300"
                     : "text-slate-400 hover:text-white hover:bg-white/5",
                   collapsed && "justify-center px-2"
                 )}
@@ -104,7 +110,7 @@ export function Sidebar() {
                 {active && (
                   <motion.div
                     layoutId="sidebar-active-bg"
-                    className="absolute inset-0 rounded-xl bg-violet-600/15"
+                    className="absolute inset-0 rounded-xl bg-coral-600/15"
                     transition={{ type: "spring", stiffness: 350, damping: 30 }}
                   />
                 )}
@@ -112,7 +118,7 @@ export function Sidebar() {
                 <Icon
                   className={cn(
                     "relative shrink-0 h-5 w-5 z-10",
-                    active ? "text-violet-400" : "text-slate-500 group-hover:text-slate-300"
+                    active ? "text-coral-400" : "text-slate-500 group-hover:text-slate-300"
                   )}
                 />
 
@@ -135,7 +141,7 @@ export function Sidebar() {
                 {!collapsed && active && (
                   <motion.div
                     layoutId="sidebar-active-dot"
-                    className="relative z-10 ml-auto w-1.5 h-1.5 rounded-full bg-violet-400"
+                    className="relative z-10 ml-auto w-1.5 h-1.5 rounded-full bg-coral-400"
                   />
                 )}
               </Link>
@@ -171,7 +177,7 @@ export function Sidebar() {
       <button
         type="button"
         onClick={() => setCollapsed((c) => !c)}
-        className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full glass border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:border-violet-500/50 transition-colors z-10"
+        className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full glass border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:border-coral-500/50 transition-colors z-10"
         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
       >
         {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}

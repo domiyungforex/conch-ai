@@ -96,7 +96,7 @@ export default function ApiKeysPage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-white">{k.name}</span>
-                  <Badge className="text-xs bg-violet-500/15 text-violet-300 border-violet-500/30">{k.scope}</Badge>
+                  <Badge className="text-xs bg-coral-500/15 text-coral-300 border-coral-500/30">{k.scope}</Badge>
                   {k.isRevoked && <Badge className="text-xs bg-red-500/15 text-red-300 border-red-500/30">Revoked</Badge>}
                 </div>
                 <div className="flex items-center gap-3 mt-1">
@@ -155,7 +155,7 @@ export default function ApiKeysPage() {
               ⚠ Copy this key now — it will not be shown again.
             </p>
             <div className="flex items-center gap-2">
-              <code className="flex-1 text-xs font-mono text-violet-300 bg-white/5 rounded-xl px-3 py-2 border border-white/8 break-all">
+              <code className="flex-1 text-xs font-mono text-coral-300 bg-white/5 rounded-xl px-3 py-2 border border-white/8 break-all">
                 {newKey?.fullKey}
               </code>
               <Button variant="secondary" size="icon" onClick={copyKey} className="shrink-0">

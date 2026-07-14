@@ -7,15 +7,15 @@ import { GlassCard } from "@/components/shared/GlassCard";
 const pillars = [
   {
     icon: Eye,
-    color: "text-violet-400",
-    bg: "bg-violet-500/10 border-violet-500/20",
+    color: "text-coral-400",
+    bg: "bg-coral-500/10 border-coral-500/20",
     title: "You Decide What's Remembered",
     description: "Granular controls let you choose exactly which memories persist. Review, edit, or delete any memory at any time from your dashboard.",
   },
   {
     icon: Key,
-    color: "text-cyan-400",
-    bg: "bg-cyan-500/10 border-cyan-500/20",
+    color: "text-teal-400",
+    bg: "bg-teal-500/10 border-teal-500/20",
     title: "End-to-End Encrypted",
     description: "Memory content is encrypted at rest and in transit. Even Conch cannot read your private memories. Your keys, your data.",
   },
@@ -31,7 +31,7 @@ const pillars = [
 export function PrivacySection() {
   return (
     <section className="py-24 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-violet-950/10 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-coral-950/10 to-transparent pointer-events-none" />
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

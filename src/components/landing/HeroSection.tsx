@@ -71,22 +71,22 @@ export function HeroSection() {
         <motion.div
           animate={{ scale: [1, 1.18, 1], opacity: [0.08, 0.16, 0.08] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-violet-600 rounded-full blur-3xl"
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-coral-600 rounded-full blur-3xl"
         />
         <motion.div
           animate={{ scale: [1, 1.2, 1], opacity: [0.06, 0.13, 0.06] }}
           transition={{ duration: 11, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
-          className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-indigo-600 rounded-full blur-3xl"
+          className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-gold-600 rounded-full blur-3xl"
         />
         <motion.div
           animate={{ scale: [1, 1.15, 1], opacity: [0.05, 0.10, 0.05] }}
           transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
-          className="absolute top-1/2 right-1/3 w-64 h-64 bg-cyan-600 rounded-full blur-3xl"
+          className="absolute top-1/2 right-1/3 w-64 h-64 bg-teal-600 rounded-full blur-3xl"
         />
         <motion.div
           animate={{ scale: [1, 1.22, 1], opacity: [0.04, 0.09, 0.04] }}
           transition={{ duration: 13, repeat: Infinity, ease: "easeInOut", delay: 2.5 }}
-          className="absolute bottom-1/4 left-1/3 w-56 h-56 bg-violet-500 rounded-full blur-3xl"
+          className="absolute bottom-1/4 left-1/3 w-56 h-56 bg-coral-500 rounded-full blur-3xl"
         />
 
         {/* Floating particles */}
@@ -126,8 +126,8 @@ export function HeroSection() {
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
           {/* Badge */}
           <motion.div variants={itemVariants} className="flex justify-center mb-8">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass border border-violet-500/30 text-xs text-violet-300 font-medium">
-              <Sparkles className="w-3.5 h-3.5 text-violet-400" />
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass border border-coral-500/30 text-xs text-coral-300 font-medium">
+              <Sparkles className="w-3.5 h-3.5 text-coral-400" />
               Decentralized AI Identity &amp; Memory Platform
             </div>
           </motion.div>
@@ -135,7 +135,7 @@ export function HeroSection() {
           {/* Main headline */}
           <motion.h1
             variants={itemVariants}
-            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white leading-[1.05] tracking-tight mb-4"
+            className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-normal text-white leading-[1.05] tracking-tight mb-4"
           >
             Your AI Should
             <br />
@@ -144,9 +144,9 @@ export function HeroSection() {
 
           {/* Animated sub-phrase */}
           <motion.div variants={itemVariants} className="h-8 flex items-center justify-center mb-4">
-            <span className="text-lg sm:text-xl text-violet-300 font-medium">
+            <span className="text-lg sm:text-xl text-coral-300 font-medium">
               {displayed}
-              <span className="inline-block w-0.5 h-5 bg-violet-400 ml-0.5 align-middle animate-pulse" />
+              <span className="inline-block w-0.5 h-5 bg-coral-400 ml-0.5 align-middle animate-pulse" />
             </span>
           </motion.div>
 
@@ -222,10 +222,10 @@ export function HeroSection() {
             >
               <div className="glass border border-white/8 rounded-2xl p-4 shadow-xl">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="w-6 h-6 rounded-lg bg-cyan-500/20 flex items-center justify-center">
-                    <span className="text-xs text-cyan-400">P</span>
+                  <div className="w-6 h-6 rounded-lg bg-teal-500/20 flex items-center justify-center">
+                    <span className="text-xs text-teal-400">P</span>
                   </div>
-                  <p className="text-xs font-semibold text-cyan-300">PREFERENCE</p>
+                  <p className="text-xs font-semibold text-teal-300">PREFERENCE</p>
                 </div>
                 <p className="text-xs text-slate-300">Dark mode advocate. Minimal UI. Keyboard-first workflows.</p>
               </div>
@@ -239,13 +239,13 @@ export function HeroSection() {
               className="w-full sm:w-72 lg:w-80 flex-shrink-0 glass border border-white/10 rounded-2xl p-5 shadow-2xl z-10 animate-float"
             >
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-xl bg-violet-500/20 flex items-center justify-center flex-shrink-0">
-                  <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-violet-400">
+                <div className="w-8 h-8 rounded-xl bg-coral-500/20 flex items-center justify-center flex-shrink-0">
+                  <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-coral-400">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" fill="currentColor"/>
                   </svg>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-violet-300 mb-1">SEMANTIC MEMORY</p>
+                  <p className="text-xs font-semibold text-coral-300 mb-1">SEMANTIC MEMORY</p>
                   <p className="text-sm text-white">Prefers TypeScript over JavaScript for type safety in large codebases.</p>
                   <p className="text-xs text-slate-500 mt-2">Accessed 47 times · 2 days ago</p>
                 </div>
@@ -280,7 +280,7 @@ export function HeroSection() {
       </div>
 
       {/* Bottom gradient fade */}
-      <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-[#0a0a0f] to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-[#0a1613] to-transparent pointer-events-none" />
     </section>
   );
 }

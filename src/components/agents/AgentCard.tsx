@@ -22,8 +22,8 @@ const DEFAULT_STATUS = { label: "Active", color: "text-emerald-300", bg: "bg-eme
 
 // Complete, non-composed class strings so Tailwind v4 scanner includes them.
 const avatarClasses = [
-  "bg-linear-to-br from-violet-600 to-indigo-500",
-  "bg-linear-to-br from-cyan-500 to-blue-600",
+  "bg-linear-to-br from-coral-600 to-gold-500",
+  "bg-linear-to-br from-teal-500 to-blue-600",
   "bg-linear-to-br from-emerald-500 to-teal-600",
   "bg-linear-to-br from-rose-500 to-pink-600",
   "bg-linear-to-br from-amber-500 to-orange-600",

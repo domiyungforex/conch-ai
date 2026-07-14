@@ -31,23 +31,23 @@ export function ReputationView({ reputation, counts }: Props) {
     {
       label: "Memory Quality",
       value: Math.min((reputation?.memoryCount ?? 0) * 2, 100),
-      color: "bg-violet-500",
+      color: "bg-coral-500",
       icon: Brain,
-      iconColor: "text-violet-400",
+      iconColor: "text-coral-400",
     },
     {
       label: "Conversations",
       value: Math.min(reputation?.chatCount ?? 0, 100),
-      color: "bg-indigo-500",
+      color: "bg-gold-500",
       icon: MessageSquare,
-      iconColor: "text-indigo-400",
+      iconColor: "text-gold-400",
     },
     {
       label: "Agent Usage",
       value: Math.min((reputation?.agentCount ?? 0) * 10, 100),
-      color: "bg-cyan-500",
+      color: "bg-teal-500",
       icon: Bot,
-      iconColor: "text-cyan-400",
+      iconColor: "text-teal-400",
     },
     {
       label: "Context Sharing",
@@ -75,9 +75,9 @@ export function ReputationView({ reputation, counts }: Props) {
       title: "Memory Master",
       desc: "Stored 25+ memories",
       unlocked: counts.memories >= 25,
-      color: "text-violet-400",
-      bg: "bg-violet-500/10",
-      border: "border-violet-500/25",
+      color: "text-coral-400",
+      bg: "bg-coral-500/10",
+      border: "border-coral-500/25",
     },
     {
       id: "chatter",
@@ -85,9 +85,9 @@ export function ReputationView({ reputation, counts }: Props) {
       title: "Conversationalist",
       desc: "50+ AI conversations",
       unlocked: counts.conversations >= 50,
-      color: "text-cyan-400",
-      bg: "bg-cyan-500/10",
-      border: "border-cyan-500/25",
+      color: "text-teal-400",
+      bg: "bg-teal-500/10",
+      border: "border-teal-500/25",
     },
     {
       id: "pioneer",
@@ -128,8 +128,8 @@ export function ReputationView({ reputation, counts }: Props) {
               <svg viewBox="0 0 120 120" className="w-48 h-48 -rotate-90">
                 <defs>
                   <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#7c3aed" />
-                    <stop offset="100%" stopColor="#06b6d4" />
+                    <stop offset="0%" stopColor="#e2917f" />
+                    <stop offset="100%" stopColor="#2b7268" />
                   </linearGradient>
                 </defs>
                 {/* Track */}
@@ -252,9 +252,9 @@ export function ReputationView({ reputation, counts }: Props) {
         <GlassCard className="p-6">
           <ul className="space-y-0">
             {[
-              { icon: Brain,         label: "Memory stored",        detail: "+2 reputation",  color: "bg-violet-400",  time: "2m ago" },
-              { icon: MessageSquare, label: "Conversation completed",detail: "+5 reputation",  color: "bg-indigo-400",  time: "1h ago" },
-              { icon: Bot,           label: "Agent created",         detail: "+10 reputation", color: "bg-cyan-400",    time: "3h ago" },
+              { icon: Brain,         label: "Memory stored",        detail: "+2 reputation",  color: "bg-coral-400",  time: "2m ago" },
+              { icon: MessageSquare, label: "Conversation completed",detail: "+5 reputation",  color: "bg-gold-400",  time: "1h ago" },
+              { icon: Bot,           label: "Agent created",         detail: "+10 reputation", color: "bg-teal-400",    time: "3h ago" },
               { icon: Sparkles,      label: "Account created",       detail: "+50 reputation", color: "bg-amber-400",   time: "day 1" },
             ].map(({ icon: Icon, label, detail, color, time }, i, arr) => (
               <motion.li

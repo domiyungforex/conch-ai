@@ -93,13 +93,13 @@ export function PricingSection() {
         <div className="inline-flex items-center gap-3 glass border border-white/10 rounded-xl p-1">
           <button
             onClick={() => setYearly(false)}
-            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${!yearly ? "bg-violet-600/30 text-violet-300" : "text-slate-400 hover:text-white"}`}
+            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${!yearly ? "bg-coral-600/30 text-coral-300" : "text-slate-400 hover:text-white"}`}
           >
             Monthly
           </button>
           <button
             onClick={() => setYearly(true)}
-            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${yearly ? "bg-violet-600/30 text-violet-300" : "text-slate-400 hover:text-white"}`}
+            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${yearly ? "bg-coral-600/30 text-coral-300" : "text-slate-400 hover:text-white"}`}
           >
             Yearly
             <span className="text-xs px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold">-20%</span>
@@ -118,10 +118,10 @@ export function PricingSection() {
             className="h-full"
           >
             <GlassCard
-              className={`p-7 h-full flex flex-col relative ${plan.highlight ? "border-violet-500/40 glow-primary" : ""}`}
+              className={`p-7 h-full flex flex-col relative ${plan.highlight ? "border-coral-500/40 glow-primary" : ""}`}
             >
               {plan.highlight && (
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-xs font-semibold shadow-lg shadow-violet-500/30">
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-coral-600 to-gold-600 text-white text-xs font-semibold shadow-lg shadow-coral-500/30">
                   <Sparkles className="w-3 h-3" />
                   Most Popular
                 </div>
@@ -149,7 +149,7 @@ export function PricingSection() {
               <ul className="space-y-3 flex-1 mb-8">
                 {plan.features.map((f) => (
                   <li key={f} className="flex items-center gap-2.5 text-sm text-slate-300">
-                    <Check className="w-4 h-4 text-violet-400 flex-shrink-0" />
+                    <Check className="w-4 h-4 text-coral-400 flex-shrink-0" />
                     {f}
                   </li>
                 ))}

@@ -5,9 +5,9 @@ import { Brain, Smartphone, Globe, Cpu, ArrowRight } from "lucide-react";
 import { GradientText } from "@/components/shared/GradientText";
 
 const apps = [
-  { icon: Brain, label: "Conch AI", color: "text-violet-400", bg: "bg-violet-500/15 border-violet-500/30" },
-  { icon: Cpu, label: "Code Agent", color: "text-cyan-400", bg: "bg-cyan-500/15 border-cyan-500/30" },
-  { icon: Smartphone, label: "Mobile App", color: "text-indigo-400", bg: "bg-indigo-500/15 border-indigo-500/30" },
+  { icon: Brain, label: "Conch AI", color: "text-coral-400", bg: "bg-coral-500/15 border-coral-500/30" },
+  { icon: Cpu, label: "Code Agent", color: "text-teal-400", bg: "bg-teal-500/15 border-teal-500/30" },
+  { icon: Smartphone, label: "Mobile App", color: "text-gold-400", bg: "bg-gold-500/15 border-gold-500/30" },
   { icon: Globe, label: "Web App", color: "text-emerald-400", bg: "bg-emerald-500/15 border-emerald-500/30" },
 ];
 
@@ -22,7 +22,7 @@ export function AIPortabilitySection() {
   return (
     <section id="ai-portability" className="py-24 sm:py-32 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-600/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gold-600/5 rounded-full blur-3xl" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -34,7 +34,7 @@ export function AIPortabilitySection() {
           transition={{ duration: 0.7 }}
           className="text-center mb-16"
         >
-          <p className="text-sm font-semibold text-cyan-400 tracking-widest uppercase mb-4">AI Portability</p>
+          <p className="text-sm font-semibold text-teal-400 tracking-widest uppercase mb-4">AI Portability</p>
           <h2 className="text-4xl sm:text-5xl font-bold text-white leading-tight mb-6">
             One memory.{" "}
             <GradientText variant="full">Every app.</GradientText>
@@ -54,13 +54,13 @@ export function AIPortabilitySection() {
             transition={{ duration: 0.6 }}
             className="relative"
           >
-            <div className="w-32 h-32 rounded-3xl glass border border-violet-500/40 flex flex-col items-center justify-center shadow-2xl animate-pulse-glow">
-              <Brain className="w-10 h-10 text-violet-400 mb-2" />
-              <span className="text-xs font-bold text-violet-300 tracking-widest">CONCH</span>
+            <div className="w-32 h-32 rounded-3xl glass border border-coral-500/40 flex flex-col items-center justify-center shadow-2xl animate-pulse-glow">
+              <Brain className="w-10 h-10 text-coral-400 mb-2" />
+              <span className="text-xs font-bold text-coral-300 tracking-widest">CONCH</span>
               <span className="text-xs text-slate-500">MEMORY</span>
             </div>
             {/* Pulsing rings */}
-            <div className="absolute inset-0 rounded-3xl border border-violet-500/20 scale-110 animate-ping" style={{ animationDuration: "3s" }} />
+            <div className="absolute inset-0 rounded-3xl border border-coral-500/20 scale-110 animate-ping" style={{ animationDuration: "3s" }} />
           </motion.div>
 
           {/* Arrow */}
@@ -110,7 +110,7 @@ export function AIPortabilitySection() {
         >
           {features.map((f, i) => (
             <div key={i} className="flex items-center gap-3 glass border border-white/8 rounded-xl px-4 py-3">
-              <div className="w-2 h-2 rounded-full bg-gradient-to-r from-violet-500 to-cyan-500 flex-shrink-0" />
+              <div className="w-2 h-2 rounded-full bg-gradient-to-r from-coral-500 to-teal-500 flex-shrink-0" />
               <span className="text-sm text-slate-300">{f}</span>
             </div>
           ))}

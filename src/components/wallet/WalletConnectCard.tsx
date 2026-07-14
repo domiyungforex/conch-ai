@@ -107,7 +107,7 @@ export function WalletConnectCard() {
       {wallet ? (
         <div className="space-y-4">
           <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/8">
-            <div className="w-9 h-9 rounded-full bg-linear-to-br from-violet-600 to-indigo-600 flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-full bg-linear-to-br from-coral-600 to-gold-600 flex items-center justify-center shrink-0">
               <CheckCircle2 className="w-4 h-4 text-white" />
             </div>
             <div className="flex-1 min-w-0">
@@ -175,7 +175,7 @@ export function WalletConnectCard() {
         <div className="flex flex-col items-start gap-4">
           {signing || verify.isPending ? (
             <div className="flex items-center gap-3 text-sm text-slate-300">
-              <div className="w-4 h-4 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
+              <div className="w-4 h-4 border-2 border-coral-500 border-t-transparent rounded-full animate-spin" />
               {signing ? "Sign the message in your wallet…" : "Verifying signature…"}
             </div>
           ) : (

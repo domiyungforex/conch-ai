@@ -68,7 +68,7 @@ export function ConversationList() {
             <button
               type="button"
               onClick={() => qc.invalidateQueries({ queryKey: ["conversations"] })}
-              className="text-xs text-violet-400 hover:text-violet-300 flex items-center gap-1"
+              className="text-xs text-coral-400 hover:text-coral-300 flex items-center gap-1"
             >
               <RefreshCw className="w-3 h-3" /> Retry
             </button>
@@ -95,14 +95,14 @@ export function ConversationList() {
               className={cn(
                 "flex flex-col gap-0.5 rounded-xl px-3 py-2.5 mb-1 transition-all text-left",
                 active
-                  ? "bg-violet-600/20 border border-violet-500/30"
+                  ? "bg-coral-600/20 border border-coral-500/30"
                   : "hover:bg-white/5 border border-transparent"
               )}
             >
               <span
                 className={cn(
                   "text-sm font-medium truncate",
-                  active ? "text-violet-200" : "text-slate-300"
+                  active ? "text-coral-200" : "text-slate-300"
                 )}
               >
                 {truncate(conv.title ?? "New conversation", 32)}

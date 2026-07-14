@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useEffect, useMemo } from "react";
 import { motion, useSpring, useTransform } from "framer-motion";
-import { Brain, MessageSquare, Bot, Star, ArrowRight, Plus, Zap } from "lucide-react";
+import { Brain, MessageSquare, Bot, Star, ArrowRight, Plus } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
+import { NautilusSpiral } from "@/components/shared/NautilusSpiral";
+import { TideChart } from "@/components/shared/TideChart";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatRelativeTime, truncate } from "@/lib/utils";
@@ -44,28 +46,20 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
   const firstName = user.name?.split(" ")[0] ?? "there";
 
   const statCards = [
-    { label: "Memories",      value: stats.memoryCount,       icon: Brain,         color: "text-violet-400", bg: "bg-violet-500/10" },
-    { label: "Conversations", value: stats.conversationCount, icon: MessageSquare, color: "text-cyan-400",   bg: "bg-cyan-500/10" },
-    { label: "Agents",        value: stats.agentCount,        icon: Bot,           color: "text-indigo-400", bg: "bg-indigo-500/10" },
-    {
-      label: "Reputation",
-      value: Math.round(stats.reputation?.score ?? 0),
-      icon: Star,
-      color: "text-yellow-400",
-      bg: "bg-yellow-500/10",
-    },
+    { label: "Memories",      value: stats.memoryCount,       icon: Brain,         accent: "#e2917f" },
+    { label: "Conversations", value: stats.conversationCount, icon: MessageSquare, accent: "#62b3a7" },
+    { label: "Agents",        value: stats.agentCount,        icon: Bot,           accent: "#cda05f" },
+    { label: "Reputation",    value: Math.round(stats.reputation?.score ?? 0), icon: Star, accent: "#e2917f" },
   ];
 
-  const pulseBars = useMemo(
-    () => Array.from({ length: 24 }, (_, i) => Math.max(15, Math.abs(Math.sin(i * 0.75 + 1) * 60) + 20)),
+  // Ambient activity texture — not wired to real per-hour telemetry (that would need a
+  // dedicated aggregation query), same as the equalizer bars this replaced.
+  const tideValues = useMemo(
+    () => Array.from({ length: 32 }, (_, i) =>
+      Math.max(0.08, Math.min(0.95, 0.4 + 0.3 * Math.sin(i * 0.4 + 1.2) + 0.12 * Math.sin(i * 1.3)))
+    ),
     []
   );
-
-  const feedItems = [
-    { icon: Brain,         label: "Memory retrieved",  detail: "Used in your last conversation", time: "2m ago",  color: "text-violet-400", bg: "bg-violet-500/10" },
-    { icon: Bot,           label: "Agent responded",   detail: "Default Conch agent active",      time: "15m ago", color: "text-indigo-400", bg: "bg-indigo-500/10" },
-    { icon: Zap,           label: "Context updated",   detail: "New preference detected",         time: "1h ago",  color: "text-cyan-400",   bg: "bg-cyan-500/10" },
-  ];
 
   const suggestions = [
     { prompt: "Ask about your preferences", href: "/chat",   icon: MessageSquare },
@@ -80,67 +74,69 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
       className="max-w-6xl mx-auto space-y-8"
     >
       {/* Greeting */}
-      <motion.div variants={sectionVariants}>
-        <h1 className="text-2xl sm:text-3xl font-bold text-white">
-          Good {getTimeOfDay()},{" "}
-          <span className="gradient-text">{firstName}</span>
+      <motion.div variants={sectionVariants} className="relative">
+        <NautilusSpiral
+          size={280}
+          className="absolute -top-14 -right-10 pointer-events-none hidden sm:block opacity-60"
+        />
+        <p className="text-xs uppercase tracking-widest text-slate-500 font-semibold mb-2">Dashboard</p>
+        <h1 className="font-serif text-3xl sm:text-4xl font-normal text-white leading-tight">
+          Good {getTimeOfDay()},<br className="sm:hidden" />{" "}
+          <em className="not-italic gradient-text">{firstName}</em>.
         </h1>
-        <p className="text-slate-400 mt-1">Here&apos;s what&apos;s happening with your AI memory.</p>
+        <p className="text-slate-400 mt-2">Here&apos;s what Conch has been holding onto for you.</p>
       </motion.div>
 
       {/* AI Status bar */}
       <motion.div
         variants={sectionVariants}
-        className="flex items-center gap-3 rounded-xl px-4 py-3 border border-violet-500/20 bg-violet-500/5"
+        className="flex items-center gap-3 rounded-full px-4 py-2.5 border border-teal-500/25 bg-teal-500/5 w-fit max-w-full"
       >
         <motion.div
           animate={{ scale: [1, 1.4, 1] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          className="w-2 h-2 rounded-full bg-violet-400 shrink-0"
+          className="w-2 h-2 rounded-full bg-teal-400 shrink-0"
         />
         <span className="text-sm text-slate-300">
-          <span className="text-violet-300 font-medium">Conch</span> is active and learning from your conversations
+          <span className="text-teal-300 font-medium">Conch</span> is active and learning from your conversations
         </span>
-        <span className="ml-auto text-xs text-slate-600 hidden sm:block">Last sync: just now</span>
       </motion.div>
 
       {/* Stats */}
       <motion.div variants={sectionVariants} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {statCards.map(({ label, value, icon: Icon, color, bg }) => (
-          <GlassCard key={label} hover className="p-5">
-            <div className="flex items-start justify-between">
+        {statCards.map(({ label, value, icon: Icon, accent }) => (
+          <GlassCard key={label} hover className="p-5 relative overflow-hidden">
+            <div
+              aria-hidden="true"
+              className="absolute -top-10 -right-10 w-28 h-28 rounded-full pointer-events-none"
+              style={{ background: `radial-gradient(circle, ${accent}30, transparent 70%)` }}
+            />
+            <div className="flex items-start justify-between relative">
               <div>
                 <p className="text-sm text-slate-400 mb-1">{label}</p>
-                <p className="text-2xl font-bold text-white">
+                <p className="font-serif text-2xl text-white">
                   <AnimatedCounter to={value} />
                 </p>
               </div>
-              <div className={`w-9 h-9 rounded-xl ${bg} flex items-center justify-center`}>
-                <Icon className={`w-4 h-4 ${color}`} />
+              <div
+                className="w-9 h-9 rounded-xl flex items-center justify-center"
+                style={{ background: `${accent}1a` }}
+              >
+                <Icon className="w-4 h-4" style={{ color: accent }} />
               </div>
             </div>
           </GlassCard>
         ))}
       </motion.div>
 
-      {/* Memory pulse bars */}
+      {/* Tide chart */}
       <motion.div variants={sectionVariants}>
-        <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">
-          Memory Activity (24h)
-        </h2>
+        <div className="flex items-baseline justify-between mb-3">
+          <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Memory Activity</h2>
+          <span className="text-xs text-slate-600">last 24 hours</span>
+        </div>
         <GlassCard className="p-4">
-          <div className="flex items-end gap-0.5 h-12">
-            {pulseBars.map((h, i) => (
-              <motion.div
-                key={i}
-                initial={{ scaleY: 0 }}
-                animate={{ scaleY: 1 }}
-                transition={{ delay: i * 0.02, duration: 0.4, ease: "easeOut" }}
-                className={`flex-1 rounded-sm ${i >= 19 ? "bg-violet-400" : "bg-violet-500/20"}`}
-                style={{ height: `${h}%`, transformOrigin: "bottom" }}
-              />
-            ))}
-          </div>
+          <TideChart values={tideValues} color="#e2917f" height={56} />
         </GlassCard>
       </motion.div>
 
@@ -165,7 +161,7 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
         <motion.div variants={sectionVariants}>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Recent Memories</h2>
-            <Link href="/memory" className="text-xs text-violet-400 hover:text-violet-300 flex items-center gap-1">
+            <Link href="/memory" className="text-xs text-coral-400 hover:text-coral-300 flex items-center gap-1">
               View all <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
@@ -191,7 +187,7 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
         <motion.div variants={sectionVariants}>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Recent Chats</h2>
-            <Link href="/chat" className="text-xs text-violet-400 hover:text-violet-300 flex items-center gap-1">
+            <Link href="/chat" className="text-xs text-coral-400 hover:text-coral-300 flex items-center gap-1">
               View all <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
@@ -199,16 +195,14 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
             {recentConversations.length === 0 ? (
               <div className="p-6 text-center text-slate-500 text-sm">
                 No conversations yet.{" "}
-                <Link href="/chat" className="text-violet-400 hover:text-violet-300">Start chatting</Link>
+                <Link href="/chat" className="text-coral-400 hover:text-coral-300">Start chatting</Link>
               </div>
             ) : (
               recentConversations.map((c) => (
                 <Link key={c.$id} href={`/chat/${c.$id}`} className="flex items-center gap-3 p-4 hover:bg-white/5 transition-colors group">
-                  <div className="w-8 h-8 rounded-xl bg-violet-500/10 flex items-center justify-center shrink-0">
-                    <Zap className="w-4 h-4 text-violet-400" />
-                  </div>
+                  <div className="w-8 h-8 rounded-xl bg-teal-500/10 flex items-center justify-center shrink-0 text-teal-400 text-sm">✦</div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm text-white font-medium truncate group-hover:text-violet-300 transition-colors">{c.title}</p>
+                    <p className="text-sm text-white font-medium truncate group-hover:text-coral-300 transition-colors">{c.title}</p>
                     <p className="text-xs text-slate-500">{formatRelativeTime(c.$updatedAt)}</p>
                   </div>
                   <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-slate-400 transition-colors shrink-0" />
@@ -219,31 +213,6 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
         </motion.div>
       </div>
 
-      {/* AI Activity Feed */}
-      <motion.div variants={sectionVariants}>
-        <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">AI Activity</h2>
-        <GlassCard className="divide-y divide-white/5">
-          {feedItems.map(({ icon: Icon, label, detail, time, color, bg }, i) => (
-            <motion.div
-              key={label}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.5 + i * 0.08, duration: 0.35 }}
-              className="flex items-center gap-4 p-4"
-            >
-              <div className={`w-8 h-8 rounded-xl ${bg} flex items-center justify-center shrink-0`}>
-                <Icon className={`w-4 h-4 ${color}`} />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm text-white font-medium">{label}</p>
-                <p className="text-xs text-slate-500">{detail}</p>
-              </div>
-              <span className="text-xs text-slate-600 shrink-0">{time}</span>
-            </motion.div>
-          ))}
-        </GlassCard>
-      </motion.div>
-
       {/* Contextual suggestions */}
       <motion.div variants={sectionVariants}>
         <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">Suggested Next Steps</h2>
@@ -251,8 +220,8 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
           {suggestions.map(({ prompt, href, icon: Icon }) => (
             <GlassCard key={href} hover className="p-4">
               <Link href={href} className="flex items-center gap-3 group">
-                <div className="w-8 h-8 rounded-xl bg-violet-500/10 flex items-center justify-center shrink-0">
-                  <Icon className="w-4 h-4 text-violet-400" />
+                <div className="w-8 h-8 rounded-xl bg-coral-500/10 flex items-center justify-center shrink-0">
+                  <Icon className="w-4 h-4 text-coral-400" />
                 </div>
                 <span className="text-sm text-slate-300 group-hover:text-white transition-colors">{prompt}</span>
                 <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-slate-400 transition-colors ml-auto shrink-0" />

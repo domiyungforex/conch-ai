@@ -8,8 +8,8 @@ interface Props {
 }
 
 const prompts = [
-  { icon: Brain,    text: "What do you remember about me?", color: "text-violet-400", bg: "bg-violet-500/10", border: "border-violet-500/20" },
-  { icon: Settings, text: "Set a new preference",           color: "text-cyan-400",   bg: "bg-cyan-500/10",   border: "border-cyan-500/20" },
+  { icon: Brain,    text: "What do you remember about me?", color: "text-coral-400", bg: "bg-coral-500/10", border: "border-coral-500/20" },
+  { icon: Settings, text: "Set a new preference",           color: "text-teal-400",   bg: "bg-teal-500/10",   border: "border-teal-500/20" },
   { icon: Star,     text: "Show my recent memories",        color: "text-amber-400",  bg: "bg-amber-500/10",  border: "border-amber-500/20" },
   { icon: Zap,      text: "Create a new goal",              color: "text-emerald-400",bg: "bg-emerald-500/10",border: "border-emerald-500/20" },
 ];

@@ -13,8 +13,8 @@ import type { MemoryDoc, AppwriteDoc } from "@/lib/db";
 type Memory = AppwriteDoc<MemoryDoc>;
 
 const categoryConfig: Record<string, { label: string; color: string; bg: string }> = {
-  EPISODIC:   { label: "Episodic",   color: "text-violet-300", bg: "bg-violet-500/15 border-violet-500/30" },
-  SEMANTIC:   { label: "Semantic",   color: "text-cyan-300",   bg: "bg-cyan-500/15 border-cyan-500/30" },
+  EPISODIC:   { label: "Episodic",   color: "text-coral-300", bg: "bg-coral-500/15 border-coral-500/30" },
+  SEMANTIC:   { label: "Semantic",   color: "text-teal-300",   bg: "bg-teal-500/15 border-teal-500/30" },
   PREFERENCE: { label: "Preference", color: "text-amber-300",  bg: "bg-amber-500/15 border-amber-500/30" },
   PROCEDURAL: { label: "Procedural", color: "text-emerald-300",bg: "bg-emerald-500/15 border-emerald-500/30" },
 };

@@ -27,7 +27,7 @@ export default async function ProfilePage() {
         <div className="flex items-start gap-6">
           <Avatar className="w-16 h-16">
             {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt={user.name ?? user.email} />}
-            <AvatarFallback className="bg-linear-to-br from-violet-600 to-indigo-600 text-white text-xl font-bold">
+            <AvatarFallback className="bg-linear-to-br from-coral-600 to-gold-600 text-white text-xl font-bold">
               {initial}
             </AvatarFallback>
           </Avatar>

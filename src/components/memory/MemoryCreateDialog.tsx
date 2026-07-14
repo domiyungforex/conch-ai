@@ -100,7 +100,7 @@ export function MemoryCreateDialog({ open, onClose }: Props) {
             {tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-2">
                 {tags.map((t) => (
-                  <span key={t} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-500/15 border border-violet-500/30 text-xs text-violet-300">
+                  <span key={t} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-coral-500/15 border border-coral-500/30 text-xs text-coral-300">
                     {t}
                     <button onClick={() => setTags((prev) => prev.filter((x) => x !== t))} className="hover:text-white">
                       <X className="w-3 h-3" />

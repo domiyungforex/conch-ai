@@ -9,15 +9,15 @@ const benefits = [
     icon: ShieldCheck,
     title: "Full Ownership",
     description: "Your memories are encrypted and stored under your identity. No platform can access, sell, or delete them without your explicit permission.",
-    color: "text-violet-400",
-    bg: "bg-violet-500/10",
+    color: "text-coral-400",
+    bg: "bg-coral-500/10",
   },
   {
     icon: Download,
     title: "Portable & Exportable",
     description: "Export your entire AI memory graph at any time. Import it into any Conch-compatible app or store it on your own infrastructure.",
-    color: "text-cyan-400",
-    bg: "bg-cyan-500/10",
+    color: "text-teal-400",
+    bg: "bg-teal-500/10",
   },
   {
     icon: Link2,
@@ -29,8 +29,8 @@ const benefits = [
 ];
 
 const floatingCards = [
-  { category: "EPISODIC", color: "text-violet-300", bg: "bg-violet-500/10 border-violet-500/20", content: "Launched SaaS product on Base chain — 247 early adopters in 48 hours.", delay: 0 },
-  { category: "PREFERENCE", color: "text-cyan-300", bg: "bg-cyan-500/10 border-cyan-500/20", content: "Prefers async communication. Best focus window: 6–10am.", delay: 1.5 },
+  { category: "EPISODIC", color: "text-coral-300", bg: "bg-coral-500/10 border-coral-500/20", content: "Launched SaaS product on Base chain — 247 early adopters in 48 hours.", delay: 0 },
+  { category: "PREFERENCE", color: "text-teal-300", bg: "bg-teal-500/10 border-teal-500/20", content: "Prefers async communication. Best focus window: 6–10am.", delay: 1.5 },
   { category: "SEMANTIC", color: "text-emerald-300", bg: "bg-emerald-500/10 border-emerald-500/20", content: "Expert in distributed systems and zero-knowledge proofs.", delay: 3 },
 ];
 
@@ -38,8 +38,8 @@ export function MemoryOwnershipSection() {
   return (
     <section id="memory-ownership" className="py-24 sm:py-32 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/3 left-0 w-96 h-96 bg-violet-600/8 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-0 w-72 h-72 bg-cyan-600/6 rounded-full blur-3xl" />
+        <div className="absolute top-1/3 left-0 w-96 h-96 bg-coral-600/8 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-0 w-72 h-72 bg-teal-600/6 rounded-full blur-3xl" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -82,7 +82,7 @@ export function MemoryOwnershipSection() {
             transition={{ duration: 0.7 }}
             className="order-1 lg:order-2"
           >
-            <p className="text-sm font-semibold text-violet-400 tracking-widest uppercase mb-4">Memory Ownership</p>
+            <p className="text-sm font-semibold text-coral-400 tracking-widest uppercase mb-4">Memory Ownership</p>
             <h2 className="text-4xl sm:text-5xl font-bold text-white leading-tight mb-6">
               Your data.{" "}
               <GradientText>Your rules.</GradientText>

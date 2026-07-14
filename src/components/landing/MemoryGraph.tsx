@@ -47,8 +47,8 @@ nodes.forEach((node) => {
 });
 
 const categoryStyle: Record<NodeCategory, { border: string; bg: string; dot: string; text: string; activeStroke: string }> = {
-  episodic:   { border: "border-violet-500/40", bg: "bg-violet-500/10", dot: "bg-violet-400",  text: "text-violet-300",  activeStroke: "rgba(124,58,237,0.6)" },
-  semantic:   { border: "border-cyan-500/40",   bg: "bg-cyan-500/10",   dot: "bg-cyan-400",    text: "text-cyan-300",    activeStroke: "rgba(6,182,212,0.6)" },
+  episodic:   { border: "border-coral-500/40", bg: "bg-coral-500/10", dot: "bg-coral-400",  text: "text-coral-300",  activeStroke: "rgba(124,58,237,0.6)" },
+  semantic:   { border: "border-teal-500/40",   bg: "bg-teal-500/10",   dot: "bg-teal-400",    text: "text-teal-300",    activeStroke: "rgba(6,182,212,0.6)" },
   preference: { border: "border-amber-500/40",  bg: "bg-amber-500/10",  dot: "bg-amber-400",   text: "text-amber-300",   activeStroke: "rgba(245,158,11,0.6)" },
   procedural: { border: "border-emerald-500/40",bg: "bg-emerald-500/10",dot: "bg-emerald-400", text: "text-emerald-300", activeStroke: "rgba(16,185,129,0.6)" },
 };
@@ -123,7 +123,7 @@ export function MemoryGraph() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass border border-violet-500/25 text-xs text-violet-300 font-medium mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass border border-coral-500/25 text-xs text-coral-300 font-medium mb-4">
             Memory Graph
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">

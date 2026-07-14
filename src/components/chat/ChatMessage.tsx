@@ -27,7 +27,7 @@ export function ChatMessage({ message, isStreaming, streamingContent, onRetry }:
     <div className={cn("flex gap-3 max-w-3xl", isUser ? "ml-auto flex-row-reverse" : "mr-auto")}>
       {/* Avatar */}
       {!isUser && (
-        <div className="w-8 h-8 rounded-xl bg-linear-to-br from-violet-600 to-indigo-600 flex items-center justify-center shrink-0 mt-1">
+        <div className="w-8 h-8 rounded-xl bg-linear-to-br from-coral-600 to-gold-600 flex items-center justify-center shrink-0 mt-1">
           <Brain className="w-4 h-4 text-white" />
         </div>
       )}
@@ -43,10 +43,10 @@ export function ChatMessage({ message, isStreaming, streamingContent, onRetry }:
           className={cn(
             "rounded-2xl px-4 py-3 text-sm leading-relaxed",
             isUser
-              ? "bg-violet-600/30 border border-violet-500/30 text-white rounded-tr-sm"
+              ? "bg-coral-600/30 border border-coral-500/30 text-white rounded-tr-sm"
               : isError
               ? "glass border border-red-500/30 text-slate-300 rounded-tl-sm border-l-2 border-l-red-500/50"
-              : "glass border border-white/8 text-slate-100 rounded-tl-sm border-l-2 border-l-violet-500/50"
+              : "glass border border-white/8 text-slate-100 rounded-tl-sm border-l-2 border-l-coral-500/50"
           )}
         >
           {isUser ? (
@@ -62,7 +62,7 @@ export function ChatMessage({ message, isStreaming, streamingContent, onRetry }:
                   className="whitespace-pre-wrap"
                 >
                   {content}
-                  <span className="inline-block w-0.5 h-4 bg-violet-400 ml-0.5 align-middle animate-pulse" />
+                  <span className="inline-block w-0.5 h-4 bg-coral-400 ml-0.5 align-middle animate-pulse" />
                 </motion.p>
               ) : content ? (
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
@@ -98,12 +98,12 @@ export function ChatMessage({ message, isStreaming, streamingContent, onRetry }:
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.35, duration: 0.4 }}
-              className="flex items-center gap-1.5 text-xs text-violet-500"
+              className="flex items-center gap-1.5 text-xs text-coral-500"
             >
               <motion.div
                 animate={{ scale: [1, 1.5, 1] }}
                 transition={{ duration: 1.2, repeat: 3, ease: "easeInOut" }}
-                className="w-1.5 h-1.5 rounded-full bg-violet-400"
+                className="w-1.5 h-1.5 rounded-full bg-coral-400"
               />
               <Brain className="w-3 h-3" />
               <span>{memoryCount} {memoryCount === 1 ? "memory" : "memories"} recalled</span>

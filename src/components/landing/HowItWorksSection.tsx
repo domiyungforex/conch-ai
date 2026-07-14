@@ -9,24 +9,24 @@ const steps = [
     icon: UserPlus,
     title: "Create Your Identity",
     description: "Sign up with Google, magic link, or connect your Web3 wallet. Your decentralized identity is created instantly.",
-    color: "from-violet-600 to-violet-800",
-    glow: "shadow-violet-500/30",
+    color: "from-coral-600 to-coral-800",
+    glow: "shadow-coral-500/30",
   },
   {
     step: "02",
     icon: MessageSquare,
     title: "Chat & Converse",
     description: "Start conversations with your AI. As you talk, Conch automatically extracts and stores meaningful memories.",
-    color: "from-indigo-600 to-indigo-800",
-    glow: "shadow-indigo-500/30",
+    color: "from-gold-600 to-gold-800",
+    glow: "shadow-gold-500/30",
   },
   {
     step: "03",
     icon: Brain,
     title: "Memory Builds Over Time",
     description: "Your AI learns your preferences, goals, and context. Every future conversation starts with full awareness of who you are.",
-    color: "from-cyan-600 to-cyan-800",
-    glow: "shadow-cyan-500/30",
+    color: "from-teal-600 to-teal-800",
+    glow: "shadow-teal-500/30",
   },
   {
     step: "04",
@@ -65,7 +65,7 @@ export function HowItWorksSection() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative">
           {/* Connector line */}
-          <div className="hidden lg:block absolute top-12 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-violet-600/0 via-violet-600/40 to-violet-600/0" />
+          <div className="hidden lg:block absolute top-12 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-coral-600/0 via-coral-600/40 to-coral-600/0" />
 
           {steps.map((s, i) => (
             <motion.div

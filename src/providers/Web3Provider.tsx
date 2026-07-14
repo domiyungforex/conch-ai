@@ -15,7 +15,7 @@ const config = getDefaultConfig({
 });
 
 const rainbowTheme = darkTheme({
-  accentColor: "#7c3aed",
+  accentColor: "#c05f47",
   accentColorForeground: "white",
   borderRadius: "large",
   fontStack: "system",

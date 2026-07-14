@@ -39,7 +39,7 @@ export function ChatInput({ value, onChange, onSubmit, onStop, isLoading, placeh
   const nearLimit = value.length > MAX_CHARS * 0.8;
 
   return (
-    <div className="glass border border-white/10 rounded-2xl p-3 focus-within:border-violet-500/50 transition-colors">
+    <div className="glass border border-white/10 rounded-2xl p-3 focus-within:border-coral-500/50 transition-colors">
       <textarea
         ref={textareaRef}
         value={value}

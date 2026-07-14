@@ -32,7 +32,7 @@ export function EmptyState({ icon, title, description, action, className }: Empt
   return (
     <div className={cn("flex flex-col items-center justify-center py-16 text-center", className)}>
       {(IconComponent || iconNode) && (
-        <div className="w-16 h-16 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mb-4 text-violet-400">
+        <div className="w-16 h-16 rounded-2xl bg-coral-500/10 border border-coral-500/20 flex items-center justify-center mb-4 text-coral-400">
           {IconComponent ? <IconComponent className="w-8 h-8" /> : iconNode}
         </div>
       )}

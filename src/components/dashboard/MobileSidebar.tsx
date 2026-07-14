@@ -44,10 +44,10 @@ export function MobileSidebar() {
                 href={href}
                 className={cn(
                   "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
-                  active ? "bg-violet-600/20 text-violet-300" : "text-slate-400 hover:text-white hover:bg-white/5"
+                  active ? "bg-coral-600/20 text-coral-300" : "text-slate-400 hover:text-white hover:bg-white/5"
                 )}
               >
-                <Icon className={cn("h-5 w-5 shrink-0", active ? "text-violet-400" : "text-slate-500")} />
+                <Icon className={cn("h-5 w-5 shrink-0", active ? "text-coral-400" : "text-slate-500")} />
                 <span>{label}</span>
               </Link>
             </div>

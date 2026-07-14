@@ -92,7 +92,7 @@ onError: () => toast({ title: "Delete failed", description: "Could not delete th
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">Memory</h1>
+            <h1 className="font-serif text-2xl font-normal text-white">Memory</h1>
             <p className="text-sm text-slate-400 mt-0.5">Everything Conch knows about you</p>
           </div>
           <Button onClick={() => setCreateOpen(true)} className="gap-2">
@@ -114,7 +114,7 @@ onError: () => toast({ title: "Delete failed", description: "Could not delete th
                 <TabsTrigger
                   key={c}
                   value={c}
-                  className="text-xs px-3 data-[state=active]:bg-violet-600/30 data-[state=active]:text-violet-200"
+                  className="text-xs px-3 data-[state=active]:bg-coral-600/30 data-[state=active]:text-coral-200"
                 >
                   {c === "ALL" ? "All" : c[0] + c.slice(1).toLowerCase()}
                 </TabsTrigger>

@@ -39,7 +39,7 @@ export default function ChatPage() {
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/8 shrink-0">
           <div className="flex items-center gap-2">
-            <MessageSquare className="w-4 h-4 text-violet-400" />
+            <MessageSquare className="w-4 h-4 text-coral-400" />
             <span className="text-sm font-medium text-white">New Conversation</span>
           </div>
           <AgentSelector value={agentId} onChange={setAgentId} />
@@ -58,8 +58,8 @@ export default function ChatPage() {
                 className="flex flex-col items-center justify-center h-full gap-8 pb-8 min-h-100"
               >
                 <div className="text-center">
-                  <div className="w-16 h-16 rounded-2xl bg-violet-600/20 border border-violet-500/30 flex items-center justify-center mb-4 mx-auto">
-                    <MessageSquare className="w-8 h-8 text-violet-400" />
+                  <div className="w-16 h-16 rounded-2xl bg-coral-600/20 border border-coral-500/30 flex items-center justify-center mb-4 mx-auto">
+                    <MessageSquare className="w-8 h-8 text-coral-400" />
                   </div>
                   <h3 className="text-lg font-semibold text-white mb-2">Start a conversation</h3>
                   <p className="text-sm text-slate-400 max-w-sm">

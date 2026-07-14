@@ -7,15 +7,15 @@ import { GlassCard } from "@/components/shared/GlassCard";
 const benefits = [
   {
     icon: Brain,
-    color: "text-violet-400",
-    bg: "bg-violet-500/10 border-violet-500/20",
+    color: "text-coral-400",
+    bg: "bg-coral-500/10 border-coral-500/20",
     title: "Persistent Memory",
     description: "Your AI remembers everything — preferences, goals, past conversations, and context — so you never have to repeat yourself again.",
   },
   {
     icon: Globe,
-    color: "text-cyan-400",
-    bg: "bg-cyan-500/10 border-cyan-500/20",
+    color: "text-teal-400",
+    bg: "bg-teal-500/10 border-teal-500/20",
     title: "Portable Identity",
     description: "Carry your AI identity across platforms, devices, and applications. Your memory travels with you wherever you go.",
   },
@@ -35,8 +35,8 @@ const benefits = [
   },
   {
     icon: Cpu,
-    color: "text-indigo-400",
-    bg: "bg-indigo-500/10 border-indigo-500/20",
+    color: "text-gold-400",
+    bg: "bg-gold-500/10 border-gold-500/20",
     title: "Custom AI Agents",
     description: "Build specialized agents with unique personalities, memory scopes, and system prompts tailored to your workflow.",
   },
