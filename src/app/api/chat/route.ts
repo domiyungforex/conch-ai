@@ -239,14 +239,22 @@ export async function POST(req: Request) {
     },
   };
 
-  // Tool: precise arithmetic instead of the model estimating math in its head
+  // Tool: precise math instead of the model estimating it in its head
   const calculateTool: AnthropicToolDef = {
     name: "calculate",
-    description: "Evaluate a precise arithmetic expression. Use this for any calculation — totals, percentages, margins, splits, unit conversions — instead of computing it yourself, since exact numbers matter for business and financial questions.",
+    description: "Evaluate a precise math expression — arithmetic, algebra-style formulas, trigonometry, logarithms, factorials, and statistics over a list of numbers. Use this for any calculation, from school homework to business/financial math, instead of computing it yourself: exact numbers matter.",
     input_schema: {
       type: "object",
       properties: {
-        expression: { type: "string", description: "An arithmetic expression, e.g. \"(1500 - 1200) / 1200 * 100\". Supports + - * / % ^ and parentheses." },
+        expression: {
+          type: "string",
+          description:
+            "A math expression. Operators: + - * / % ^ (power) ! (factorial) and parentheses. " +
+            "Constants: pi, e. Functions: sqrt, abs, sin, cos, tan, asin, acos, atan, log (base 10), ln, exp, floor, ceil, round, sign. " +
+            "Multi-argument stats functions take plain comma-separated numbers, NOT array brackets — " +
+            "write mean(85, 92, 78, 90), never mean([85, 92, 78, 90]). Same for min, max, sum, median, stddev. " +
+            "Examples: \"(1500 - 1200) / 1200 * 100\", \"sqrt(3^2 + 4^2)\", \"pi * 5^2\", \"mean(85, 92, 78, 90)\".",
+        },
       },
       required: ["expression"],
     },
