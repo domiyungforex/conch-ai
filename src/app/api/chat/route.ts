@@ -1,9 +1,10 @@
 import { auth } from "@clerk/nextjs/server";
 import { createAdminClient } from "@/lib/appwrite";
-import { DB_ID, COLLECTIONS, type AgentDoc, type ConversationDoc, type MessageDoc, type ReputationDoc, type AppwriteDoc } from "@/lib/db";
+import { DB_ID, COLLECTIONS, type AgentDoc, type ConversationDoc, type MessageDoc, type ReputationDoc, type MemoryDoc, type AppwriteDoc } from "@/lib/db";
 import { streamAnthropicChat, type AnthropicToolDef } from "@/lib/anthropicRaw";
 import { retrieveRelevantMemories, buildSystemPrompt } from "@/lib/memory";
 import { generateEmbedding } from "@/lib/embeddings";
+import { calculate } from "@/lib/calculator";
 import type { MemoryWithScore } from "@/lib/memory";
 import { ChatRequestSchema } from "@/lib/validators";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
@@ -238,6 +239,67 @@ export async function POST(req: Request) {
     },
   };
 
+  // Tool: precise arithmetic instead of the model estimating math in its head
+  const calculateTool: AnthropicToolDef = {
+    name: "calculate",
+    description: "Evaluate a precise arithmetic expression. Use this for any calculation — totals, percentages, margins, splits, unit conversions — instead of computing it yourself, since exact numbers matter for business and financial questions.",
+    input_schema: {
+      type: "object",
+      properties: {
+        expression: { type: "string", description: "An arithmetic expression, e.g. \"(1500 - 1200) / 1200 * 100\". Supports + - * / % ^ and parentheses." },
+      },
+      required: ["expression"],
+    },
+    execute: async (input) => {
+      const { expression } = input as { expression: string };
+      try {
+        return { result: calculate(expression) };
+      } catch (err) {
+        return { error: err instanceof Error ? err.message : "Could not evaluate expression" };
+      }
+    },
+  };
+
+  // Tool: browse memory directly (by category/tag) rather than similarity search —
+  // for "what do you know about my business" style questions where the user wants
+  // a full picture, not just the top-K most-similar matches.
+  const listMemories: AnthropicToolDef = {
+    name: "listMemories",
+    description: "List the user's stored memories directly, optionally filtered by category or tag, ordered most recent first. Use this when the user wants a full overview (e.g. \"what do you know about my customers\", \"show me everything you have on X\") rather than an answer to a specific question.",
+    input_schema: {
+      type: "object",
+      properties: {
+        category: { type: "string", enum: ["EPISODIC", "SEMANTIC", "PREFERENCE", "PROCEDURAL"], description: "Optional category filter" },
+        tag: { type: "string", description: "Optional tag filter (exact match)" },
+        limit: { type: "number", description: "Max results, default 20, max 50" },
+      },
+      required: [],
+    },
+    execute: async (input) => {
+      const { category, tag, limit } = input as { category?: string; tag?: string; limit?: number };
+      try {
+        const filters = [
+          Query.equal("userId", appwriteId),
+          Query.equal("isArchived", false),
+          Query.orderDesc("$createdAt"),
+          Query.limit(Math.min(limit ?? 20, 50)),
+        ];
+        if (category) filters.push(Query.equal("category", category));
+        if (tag) filters.push(Query.equal("tags", tag));
+
+        const result = await databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, filters);
+        const found = result.documents as unknown as AppwriteDoc<MemoryDoc>[];
+        return {
+          total: result.total,
+          memories: found.map((m) => ({ content: m.content, category: m.category, tags: m.tags, createdAt: m.$createdAt })),
+        };
+      } catch (err) {
+        console.error("[chat] listMemories tool failed:", err);
+        return { total: 0, memories: [], error: "Could not list memories" };
+      }
+    },
+  };
+
   let stream: ReadableStream<Uint8Array>;
   try {
     stream = streamAnthropicChat({
@@ -248,7 +310,7 @@ export async function POST(req: Request) {
       maxTokens: agent?.maxTokens ?? 2000,
       temperature: agent?.temperature ?? 0.7,
       maxSteps: 3,
-      tools: [saveMemory, searchMemory],
+      tools: [saveMemory, searchMemory, calculateTool, listMemories],
       onFinish: async ({ text, totalTokens }) => {
         try {
           await databases.createDocument(DB_ID, COLLECTIONS.MESSAGES, ID.unique(), {
