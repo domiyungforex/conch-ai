@@ -320,7 +320,7 @@ export function InteractiveMemoryDemo() {
                     className="mt-4 text-xs text-emerald-400 flex items-center gap-1.5"
                   >
                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                    Pinecone indexed · embedding stored
+                    Vector indexed · embedding stored
                   </motion.div>
                 )}
               </AnimatePresence>

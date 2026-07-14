@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "@/components/ui/toaster";
 import type { AgentDoc, AppwriteDoc } from "@/lib/db";
 
 type Agent = AppwriteDoc<AgentDoc>;
@@ -72,13 +73,22 @@ export function useAgent() {
 
   const invalidate = () => qc.invalidateQueries({ queryKey: key });
 
-  const create = useMutation({ mutationFn: createAgent, onSuccess: invalidate });
+  const create = useMutation({
+    mutationFn: createAgent,
+    onSuccess: () => { invalidate(); toast({ title: "Agent created" }); },
+    onError: (err: Error) => toast({ title: "Failed to create agent", description: err.message, variant: "destructive" }),
+  });
   const update = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Parameters<typeof updateAgent>[1] }) =>
       updateAgent(id, data),
-    onSuccess: invalidate,
+    onSuccess: () => { invalidate(); toast({ title: "Agent updated" }); },
+    onError: (err: Error) => toast({ title: "Failed to update agent", description: err.message, variant: "destructive" }),
   });
-  const remove = useMutation({ mutationFn: deleteAgent, onSuccess: invalidate });
+  const remove = useMutation({
+    mutationFn: deleteAgent,
+    onSuccess: () => { invalidate(); toast({ title: "Agent deleted" }); },
+    onError: (err: Error) => toast({ title: "Failed to delete agent", description: err.message, variant: "destructive" }),
+  });
 
   return { ...query, create, update, remove };
 }

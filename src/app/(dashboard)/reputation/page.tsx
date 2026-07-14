@@ -33,5 +33,6 @@ export default async function ReputationPage() {
 
   if (!reputation) redirect("/dashboard");
 
-  return <ReputationView reputation={reputation} counts={counts} />;
+  // Appwrite SDK documents aren't plain objects, which RSC rejects as Client Component props.
+  return <ReputationView reputation={JSON.parse(JSON.stringify(reputation))} counts={counts} />;
 }

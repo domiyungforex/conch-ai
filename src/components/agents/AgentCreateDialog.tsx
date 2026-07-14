@@ -8,9 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { useAgent } from "@/hooks/useAgent";
 
-const MODELS = ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo"];
+const MODELS = ["claude-opus-4-8", "claude-sonnet-5", "claude-haiku-4-5-20251001"];
 
 interface Props { open: boolean; onClose: () => void; }
 
@@ -18,18 +19,22 @@ export function AgentCreateDialog({ open, onClose }: Props) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
-  const [modelId, setModelId] = useState("gpt-4o");
+  const [modelId, setModelId] = useState("claude-haiku-4-5-20251001");
   const [temperature, setTemperature] = useState(0.7);
   const [maxTokens, setMaxTokens] = useState(2000);
   const { create } = useAgent();
 
-  const reset = () => { setName(""); setDescription(""); setSystemPrompt(""); setModelId("gpt-4o"); setTemperature(0.7); setMaxTokens(2000); };
+  const reset = () => { setName(""); setDescription(""); setSystemPrompt(""); setModelId("claude-haiku-4-5-20251001"); setTemperature(0.7); setMaxTokens(2000); };
 
   const handleSubmit = async () => {
     if (!name.trim() || !systemPrompt.trim()) return;
-    await create.mutateAsync({ name, description, systemPrompt, modelId, temperature, maxTokens });
-    reset();
-    onClose();
+    try {
+      await create.mutateAsync({ name, description, systemPrompt, modelId, temperature, maxTokens });
+      reset();
+      onClose();
+    } catch {
+      // Error toast already shown by the mutation's onError handler
+    }
   };
 
   return (
@@ -75,6 +80,7 @@ export function AgentCreateDialog({ open, onClose }: Props) {
         <div className="flex gap-3 mt-4 justify-end">
           <Button variant="secondary" onClick={() => { reset(); onClose(); }}>Cancel</Button>
           <Button onClick={handleSubmit} disabled={!name.trim() || !systemPrompt.trim() || create.isPending}>
+            {create.isPending && <LoadingSpinner size="sm" />}
             {create.isPending ? "Creating…" : "Create Agent"}
           </Button>
         </div>

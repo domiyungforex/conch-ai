@@ -10,9 +10,8 @@
     "postinstall": "echo ok"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^1",
+    "@ai-sdk/anthropic": "^1.2.12",
     "@clerk/nextjs": "^7.4.2",
-    "@pinecone-database/pinecone": "^4",
     "@radix-ui/react-accordion": "^1",
     "@radix-ui/react-avatar": "^1",
     "@radix-ui/react-dialog": "^1",
@@ -37,7 +36,6 @@
     "lucide-react": "^0.469",
     "next": "15.5.18",
     "node-appwrite": "^25.2.0",
-    "openai": "^4",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-markdown": "^9",
@@ -54,6 +52,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "15.5.18",
     "tailwindcss": "^4",

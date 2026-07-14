@@ -30,7 +30,7 @@ export interface MemoryDoc {
   content: string;
   category: MemoryCategory;
   tags: string[];
-  pineconeId: string | null;
+  embedding: number[];
   importance: number;
   accessCount: number;
   lastAccessed: string | null;

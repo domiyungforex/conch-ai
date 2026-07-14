@@ -21,43 +21,61 @@ export async function GET() {
     errors.db = String(err).slice(0, 150);
   }
 
-  // ── OpenAI ───────────────────────────────────────────────────────────────
-  if (!process.env.OPENAI_API_KEY) {
-    results.openai = "missing_key";
+  // ── Anthropic (raw API, matches what /api/chat actually uses) ─────────────
+  if (!process.env.ANTHROPIC_API_KEY) {
+    results.anthropic = "missing_key";
   } else {
     try {
-      const { OpenAI } = await import("openai");
-      const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-      await client.embeddings.create({ model: "text-embedding-3-small", input: "health", dimensions: 8 });
-      results.openai = "ok";
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "x-api-key": process.env.ANTHROPIC_API_KEY,
+          "anthropic-version": "2023-06-01",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-5",
+          max_tokens: 1,
+          thinking: { type: "adaptive" },
+          output_config: { effort: "low" },
+          messages: [{ role: "user", content: "hi" }],
+        }),
+      });
+      if (!res.ok) throw new Error(`${res.status}: ${(await res.text()).slice(0, 200)}`);
+      results.anthropic = "ok";
     } catch (err) {
       const msg = String(err);
-      if (msg.includes("401") || msg.includes("invalid_api_key") || msg.includes("Incorrect API key")) {
-        results.openai = "invalid_key";
+      if (msg.includes("401") || msg.includes("authentication_error") || msg.includes("invalid x-api-key")) {
+        results.anthropic = "invalid_key";
       } else if (msg.includes("429") || msg.includes("rate_limit")) {
-        results.openai = "rate_limited";
+        results.anthropic = "rate_limited";
       } else if (msg.includes("404") && msg.includes("model")) {
-        results.openai = "model_not_found";
+        results.anthropic = "model_not_found";
       } else {
-        results.openai = "error";
+        results.anthropic = "error";
       }
-      errors.openai = msg.slice(0, 150);
+      errors.anthropic = msg.slice(0, 150);
     }
   }
 
-  // ── Pinecone ─────────────────────────────────────────────────────────────
-  if (!process.env.PINECONE_API_KEY) {
-    results.pinecone = "missing_key";
+  // ── Voyage AI (embeddings) ────────────────────────────────────────────────
+  if (!process.env.VOYAGE_API_KEY) {
+    results.voyage = "missing_key";
   } else {
     try {
-      const { Pinecone } = await import("@pinecone-database/pinecone");
-      const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
-      const indexName = process.env.PINECONE_INDEX_NAME ?? "conch-memories";
-      await pc.index(indexName).describeIndexStats();
-      results.pinecone = "ok";
+      const { generateEmbedding } = await import("@/lib/embeddings");
+      await generateEmbedding("health");
+      results.voyage = "ok";
     } catch (err) {
-      results.pinecone = "error";
-      errors.pinecone = String(err).slice(0, 150);
+      const msg = String(err);
+      if (msg.includes("401") || msg.includes("403")) {
+        results.voyage = "invalid_key";
+      } else if (msg.includes("429")) {
+        results.voyage = "rate_limited";
+      } else {
+        results.voyage = "error";
+      }
+      errors.voyage = msg.slice(0, 150);
     }
   }
 

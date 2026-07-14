@@ -8,11 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { useAgent } from "@/hooks/useAgent";
 import type { AgentDoc, AppwriteDoc } from "@/lib/db";
 type Agent = AppwriteDoc<AgentDoc>;
 
-const MODELS = ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo"];
+const MODELS = ["claude-opus-4-8", "claude-sonnet-5", "claude-haiku-4-5-20251001"];
 
 interface Props { agent: Agent | null; onClose: () => void; }
 
@@ -20,7 +21,7 @@ export function AgentEditDialog({ agent, onClose }: Props) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
-  const [modelId, setModelId] = useState("gpt-4o");
+  const [modelId, setModelId] = useState("claude-haiku-4-5-20251001");
   const [temperature, setTemperature] = useState(0.7);
   const [maxTokens, setMaxTokens] = useState(2000);
   const { update } = useAgent();
@@ -28,15 +29,19 @@ export function AgentEditDialog({ agent, onClose }: Props) {
   useEffect(() => {
     if (agent) {
       setName(agent.name); setDescription(agent.description ?? "");
-      setSystemPrompt(agent.systemPrompt); setModelId(agent.modelId ?? "gpt-4o");
+      setSystemPrompt(agent.systemPrompt); setModelId(agent.modelId ?? "claude-haiku-4-5-20251001");
       setTemperature(agent.temperature); setMaxTokens(agent.maxTokens);
     }
   }, [agent]);
 
   const handleSubmit = async () => {
     if (!agent || !name.trim() || !systemPrompt.trim()) return;
-    await update.mutateAsync({ id: agent.$id, data: { name, description, systemPrompt, modelId, temperature, maxTokens } });
-    onClose();
+    try {
+      await update.mutateAsync({ id: agent.$id, data: { name, description, systemPrompt, modelId, temperature, maxTokens } });
+      onClose();
+    } catch {
+      // Error toast already shown by the mutation's onError handler
+    }
   };
 
   return (
@@ -76,6 +81,7 @@ export function AgentEditDialog({ agent, onClose }: Props) {
         <div className="flex gap-3 mt-4 justify-end">
           <Button variant="secondary" onClick={onClose}>Cancel</Button>
           <Button onClick={handleSubmit} disabled={!name.trim() || !systemPrompt.trim() || update.isPending}>
+            {update.isPending && <LoadingSpinner size="sm" />}
             {update.isPending ? "Saving…" : "Save Changes"}
           </Button>
         </div>

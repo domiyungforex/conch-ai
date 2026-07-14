@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "@/components/ui/toaster";
 import type { MemoryDoc, MemoryCategory, AppwriteDoc } from "@/lib/db";
 
 type Memory = AppwriteDoc<MemoryDoc>;
@@ -85,23 +86,37 @@ export function useMemory(category?: string) {
 
   const create = useMutation({
     mutationFn: createMemory,
-    onSuccess: invalidate,
+    onSuccess: () => {
+      invalidate();
+      toast({ title: "Memory saved" });
+    },
+    onError: (err: Error) => toast({ title: "Failed to save memory", description: err.message, variant: "destructive" }),
   });
 
   const update = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Parameters<typeof updateMemory>[1] }) =>
       updateMemory(id, data),
-    onSuccess: invalidate,
+    onSuccess: () => {
+      invalidate();
+      toast({ title: "Memory updated" });
+    },
+    onError: (err: Error) => toast({ title: "Failed to update memory", description: err.message, variant: "destructive" }),
   });
 
   const archive = useMutation({
     mutationFn: (id: string) => updateMemory(id, { isArchived: true }),
-    onSuccess: invalidate,
+    onSuccess: () => {
+      invalidate();
+      toast({ title: "Memory archived" });
+    },
   });
 
   const remove = useMutation({
     mutationFn: deleteMemory,
-    onSuccess: invalidate,
+    onSuccess: () => {
+      invalidate();
+      toast({ title: "Memory deleted" });
+    },
   });
 
   return { ...query, create, update, archive, remove };

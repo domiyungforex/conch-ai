@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { useMemory } from "@/hooks/useMemory";
 import type { MemoryCategory } from "@/lib/db";
 
@@ -42,9 +43,13 @@ export function MemoryCreateDialog({ open, onClose }: Props) {
 
   const handleSubmit = async () => {
     if (!content.trim()) return;
-    await create.mutateAsync({ content, category, tags, importance });
-    reset();
-    onClose();
+    try {
+      await create.mutateAsync({ content, category, tags, importance });
+      reset();
+      onClose();
+    } catch {
+      // Error toast already shown by the mutation's onError handler
+    }
   };
 
   return (
@@ -120,6 +125,7 @@ export function MemoryCreateDialog({ open, onClose }: Props) {
         <div className="flex gap-3 mt-4 justify-end">
           <Button variant="secondary" onClick={() => { reset(); onClose(); }}>Cancel</Button>
           <Button onClick={handleSubmit} disabled={!content.trim() || create.isPending}>
+            {create.isPending && <LoadingSpinner size="sm" />}
             {create.isPending ? "Saving…" : "Save Memory"}
           </Button>
         </div>

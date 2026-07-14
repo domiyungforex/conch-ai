@@ -57,5 +57,5 @@ export const SearchSchema = z.object({
   query: z.string().min(1).max(500),
   topK: z.number().min(1).max(20).default(10),
   category: z.enum(["EPISODIC", "SEMANTIC", "PREFERENCE", "PROCEDURAL"]).optional(),
-  minScore: z.number().min(0).max(1).default(0.65),
+  minScore: z.number().min(0).max(1).default(0.3),
 });

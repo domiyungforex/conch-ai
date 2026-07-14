@@ -75,8 +75,8 @@ async function setupCollections() {
     ["content",      () => db.createStringAttribute(DB_ID, "memories", "content",      50000, true)],
     ["category",     () => db.createEnumAttribute(DB_ID,   "memories", "category",     ["EPISODIC","SEMANTIC","PREFERENCE","PROCEDURAL"], true, "SEMANTIC")],
     ["tags",         () => db.createStringAttribute(DB_ID, "memories", "tags",         256,   false, undefined, true)],
-    ["pineconeId",   () => db.createStringAttribute(DB_ID, "memories", "pineconeId",   36,    false)],
-    ["importance",   () => db.createFloatAttribute(DB_ID,  "memories", "importance",   false, 0.5)],
+    ["embedding",    () => db.createFloatAttribute(DB_ID,  "memories", "embedding", false, undefined, undefined, undefined, true)],
+    ["importance",   () => db.createFloatAttribute(DB_ID,  "memories", "importance",   false, 0, 1, 0.5)],
     ["accessCount",  () => db.createIntegerAttribute(DB_ID,"memories", "accessCount",  false, 0)],
     ["lastAccessed", () => db.createStringAttribute(DB_ID, "memories", "lastAccessed", 64,    false)],
     ["source",       () => db.createStringAttribute(DB_ID, "memories", "source",       512,   false)],
@@ -87,9 +87,6 @@ async function setupCollections() {
   }
   await tryCreate("index: memories.userId", () =>
     db.createIndex(DB_ID, "memories", "idx_userId", IndexType.Key, ["userId"])
-  );
-  await tryCreate("index: memories.pineconeId", () =>
-    db.createIndex(DB_ID, "memories", "idx_pineconeId", IndexType.Unique, ["pineconeId"])
   );
 
   // ── conversations ──────────────────────────────────────────────────────────
@@ -137,9 +134,9 @@ async function setupCollections() {
     ["avatarUrl",    () => db.createStringAttribute(DB_ID, "agents", "avatarUrl",    2048,  false)],
     ["status",       () => db.createEnumAttribute(DB_ID,   "agents", "status",       ["ACTIVE","PAUSED","ARCHIVED"], true, "ACTIVE")],
     ["memoryScope",  () => db.createStringAttribute(DB_ID, "agents", "memoryScope",  64,    true, "user")],
-    ["modelId",      () => db.createStringAttribute(DB_ID, "agents", "modelId",      64,    true, "gpt-4o")],
-    ["temperature",  () => db.createFloatAttribute(DB_ID,  "agents", "temperature",  false, 0.7)],
-    ["maxTokens",    () => db.createIntegerAttribute(DB_ID,"agents", "maxTokens",    false, 2000)],
+    ["modelId",      () => db.createStringAttribute(DB_ID, "agents", "modelId",      64,    true, "claude-haiku-4-5-20251001")],
+    ["temperature",  () => db.createFloatAttribute(DB_ID,  "agents", "temperature",  false, 0, 2, 0.7)],
+    ["maxTokens",    () => db.createIntegerAttribute(DB_ID,"agents", "maxTokens",    false, 100, 4000, 2000)],
   ] as [string, () => Promise<unknown>][]) {
     await tryCreate(`  attr agents.${key}`, fn);
   }

@@ -30,7 +30,7 @@ const faqs = [
   },
   {
     q: "How does semantic search work?",
-    a: "When you search or start a conversation, Conch generates a vector embedding of your query using OpenAI's embedding model and searches your memories in Pinecone's vector database. The most semantically similar memories are retrieved in milliseconds.",
+    a: "When you search or start a conversation, Conch generates a vector embedding of your query using Voyage AI and ranks it against your stored memories by similarity. The most semantically similar memories are retrieved in milliseconds.",
   },
   {
     q: "What happens to my data if I cancel?",

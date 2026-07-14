@@ -1,16 +1,13 @@
 import { auth } from "@clerk/nextjs/server";
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type AgentDoc, type ConversationDoc, type MessageDoc, type ReputationDoc, type AppwriteDoc } from "@/lib/db";
-import { streamText, tool } from "ai";
-import { openai as aiSdkOpenai } from "@ai-sdk/openai";
+import { streamAnthropicChat, type AnthropicToolDef } from "@/lib/anthropicRaw";
 import { retrieveRelevantMemories, buildSystemPrompt } from "@/lib/memory";
 import { generateEmbedding } from "@/lib/embeddings";
-import { getPineconeIndex } from "@/lib/pinecone";
 import type { MemoryWithScore } from "@/lib/memory";
 import { ChatRequestSchema } from "@/lib/validators";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 import { Query, ID } from "node-appwrite";
-import { z } from "zod";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -20,7 +17,7 @@ export async function POST(req: Request) {
   if (!userId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   const appwriteId = userId;
 
-  if (!process.env.OPENAI_API_KEY) {
+  if (!process.env.ANTHROPIC_API_KEY) {
     return new Response(
       JSON.stringify({ error: "AI service is not configured. Please contact support." }),
       { status: 503 }
@@ -145,22 +142,40 @@ export async function POST(req: Request) {
     .map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
 
   // Tool: save a memory when the AI is instructed to remember something
-  const saveMemory = tool({
+  const saveMemory: AnthropicToolDef = {
+    name: "saveMemory",
     description: "Save an important piece of information to the user's persistent memory. Use this when the user asks you to remember something, or when they share a preference, fact, or experience worth preserving.",
-    parameters: z.object({
-      content: z.string().describe("The exact memory content to save (be concise and specific)"),
-      category: z.enum(["EPISODIC", "SEMANTIC", "PREFERENCE", "PROCEDURAL"]).describe(
-        "EPISODIC: personal events/experiences; SEMANTIC: facts/knowledge; PREFERENCE: likes/dislikes/preferences; PROCEDURAL: how-to knowledge or workflows"
-      ),
-      importance: z.number().min(0).max(1).describe("Importance score (0.5 = normal, 0.8 = very important, 1.0 = critical)"),
-      tags: z.array(z.string().max(30)).max(5).describe("Short descriptive tags"),
-    }),
-    execute: async ({ content, category, importance, tags }) => {
+    input_schema: {
+      type: "object",
+      properties: {
+        content: { type: "string", description: "The exact memory content to save (be concise and specific)" },
+        category: {
+          type: "string",
+          enum: ["EPISODIC", "SEMANTIC", "PREFERENCE", "PROCEDURAL"],
+          description: "EPISODIC: personal events/experiences; SEMANTIC: facts/knowledge; PREFERENCE: likes/dislikes/preferences; PROCEDURAL: how-to knowledge or workflows",
+        },
+        importance: { type: "number", description: "Importance score (0.5 = normal, 0.8 = very important, 1.0 = critical)" },
+        tags: { type: "array", items: { type: "string" }, description: "Short descriptive tags (max 5)" },
+      },
+      required: ["content", "category", "importance", "tags"],
+    },
+    execute: async (input) => {
+      const { content, category, importance, tags } = input as {
+        content: string; category: string; importance: number; tags: string[];
+      };
       try {
         const memId = ID.unique();
+
+        let embedding: number[] = [];
+        try {
+          embedding = await generateEmbedding(content);
+        } catch {
+          // Memory saved even if embedding generation fails
+        }
+
         await databases.createDocument(DB_ID, COLLECTIONS.MEMORIES, memId, {
           userId: appwriteId,
-          pineconeId: memId,
+          embedding,
           content,
           category,
           importance,
@@ -171,19 +186,6 @@ export async function POST(req: Request) {
           accessCount: 0,
           lastAccessed: null,
         });
-
-        // Upsert to Pinecone for future retrieval
-        try {
-          const embedding = await generateEmbedding(content);
-          const index = getPineconeIndex();
-          await index.upsert([{
-            id: memId,
-            values: embedding,
-            metadata: { userId: appwriteId, category, memoryId: memId },
-          }]);
-        } catch {
-          // Memory saved even if vector upsert fails
-        }
 
         // Increment reputation memory count
         try {
@@ -206,32 +208,54 @@ export async function POST(req: Request) {
         return { saved: false, error: "Failed to save memory" };
       }
     },
-  });
+  };
 
-  let result;
+  // Tool: actively search memory when the auto-retrieved context isn't enough
+  const searchMemory: AnthropicToolDef = {
+    name: "searchMemory",
+    description: "Search the user's full memory for anything relevant to a specific topic or question. Use this when the memories already shown to you don't cover what the user is asking about.",
+    input_schema: {
+      type: "object",
+      properties: {
+        query: { type: "string", description: "What to search for (a topic, question, or keyword phrase)" },
+      },
+      required: ["query"],
+    },
+    execute: async (input) => {
+      const { query } = input as { query: string };
+      try {
+        const found = await retrieveRelevantMemories(appwriteId, query, 8);
+        for (const m of found) {
+          if (!memories.some((existing) => existing.$id === m.$id)) memories.push(m);
+        }
+        return {
+          results: found.map((m) => ({ content: m.content, category: m.category, createdAt: m.$createdAt })),
+        };
+      } catch (err) {
+        console.error("[chat] searchMemory tool failed:", err);
+        return { results: [], error: "Search failed" };
+      }
+    },
+  };
+
+  let stream: ReadableStream<Uint8Array>;
   try {
-    result = streamText({
-      model: aiSdkOpenai(agent?.modelId ?? "gpt-4o"),
+    stream = streamAnthropicChat({
+      apiKey: process.env.ANTHROPIC_API_KEY!,
+      model: agent?.modelId ?? "claude-haiku-4-5-20251001",
       system: systemPrompt,
       messages: [...history, { role: "user", content: message }],
       maxTokens: agent?.maxTokens ?? 2000,
       temperature: agent?.temperature ?? 0.7,
       maxSteps: 3,
-      tools: { saveMemory },
-      onError: ({ error }) => {
-        const msg = String(error);
-        const isRateLimit  = msg.includes("429") || msg.includes("rate_limit");
-        const isAuth       = msg.includes("401") || msg.includes("invalid_api_key") || msg.includes("Incorrect API key");
-        const isModelError = msg.includes("model") && msg.includes("404");
-        console.error("[chat] stream error:", { isRateLimit, isAuth, isModelError, raw: msg.slice(0, 200) });
-      },
-      onFinish: async ({ text, usage }) => {
+      tools: [saveMemory, searchMemory],
+      onFinish: async ({ text, totalTokens }) => {
         try {
           await databases.createDocument(DB_ID, COLLECTIONS.MESSAGES, ID.unique(), {
             conversationId: convId,
             role: "assistant",
             content: text,
-            tokensUsed: usage?.totalTokens ?? null,
+            tokensUsed: totalTokens ?? null,
             memoryIds: memories.map((m) => m.$id),
           });
 
@@ -250,16 +274,18 @@ export async function POST(req: Request) {
       },
     });
   } catch (err) {
-    console.error("[chat] streamText init failed:", err);
+    console.error("[chat] streamAnthropicChat init failed:", err);
     const isKeyMissing = String(err).includes("API key") || String(err).includes("401");
     return new Response(
-      JSON.stringify({ error: isKeyMissing ? "AI service not configured. Check OPENAI_API_KEY." : "AI service unavailable. Please try again." }),
+      JSON.stringify({ error: isKeyMissing ? "AI service not configured. Check ANTHROPIC_API_KEY." : "AI service unavailable. Please try again." }),
       { status: 503 }
     );
   }
 
-  const response = result.toDataStreamResponse();
-  const newHeaders = new Headers(response.headers);
-  newHeaders.set("X-Conversation-Id", convId);
-  return new Response(response.body, { status: response.status, headers: newHeaders });
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Conversation-Id": convId,
+    },
+  });
 }

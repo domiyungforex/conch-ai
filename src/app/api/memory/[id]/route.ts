@@ -2,7 +2,6 @@ import { auth } from "@clerk/nextjs/server";
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type MemoryDoc, type ReputationDoc, type AppwriteDoc } from "@/lib/db";
 import { generateEmbedding } from "@/lib/embeddings";
-import { getPineconeIndex } from "@/lib/pinecone";
 import { MemoryUpdateSchema } from "@/lib/validators";
 import { Query } from "node-appwrite";
 
@@ -48,19 +47,14 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     return new Response(JSON.stringify({ error: "Invalid request", details: parsed.error.flatten() }), { status: 400 });
   }
 
-  const memory = await databases.updateDocument(DB_ID, COLLECTIONS.MEMORIES, id, parsed.data) as unknown as AppwriteDoc<MemoryDoc>;
+  let memory = await databases.updateDocument(DB_ID, COLLECTIONS.MEMORIES, id, parsed.data) as unknown as AppwriteDoc<MemoryDoc>;
 
   if (parsed.data.content && parsed.data.content !== existing.content) {
     try {
       const embedding = await generateEmbedding(memory.content);
-      const index = getPineconeIndex();
-      await index.upsert([{
-        id: memory.$id,
-        values: embedding,
-        metadata: { userId: appwriteId, category: memory.category, memoryId: memory.$id },
-      }]);
+      memory = await databases.updateDocument(DB_ID, COLLECTIONS.MEMORIES, id, { embedding }) as unknown as AppwriteDoc<MemoryDoc>;
     } catch {
-      // Continue even if vector update fails
+      // Continue even if embedding update fails
     }
   }
 
@@ -83,15 +77,6 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
   }
 
   if (memory.userId !== appwriteId) return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
-
-  if (memory.pineconeId) {
-    try {
-      const index = getPineconeIndex();
-      await index.deleteOne(memory.pineconeId);
-    } catch {
-      // Continue with DB delete even if Pinecone delete fails
-    }
-  }
 
   await databases.deleteDocument(DB_ID, COLLECTIONS.MEMORIES, id);
 

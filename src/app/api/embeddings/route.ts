@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
+import { createAdminClient } from "@/lib/appwrite";
+import { DB_ID, COLLECTIONS, type MemoryDoc, type AppwriteDoc } from "@/lib/db";
 import { generateEmbedding } from "@/lib/embeddings";
-import { getPineconeIndex } from "@/lib/pinecone";
 import { z } from "zod";
 
 const EmbeddingSchema = z.object({
@@ -21,12 +22,15 @@ export async function POST(req: Request) {
   const embedding = await generateEmbedding(parsed.data.text);
 
   if (parsed.data.memoryId) {
-    const index = getPineconeIndex();
-    await index.upsert([{
-      id: parsed.data.memoryId,
-      values: embedding,
-      metadata: { userId: appwriteId },
-    }]);
+    const { databases } = createAdminClient();
+    const memory = await databases.getDocument(
+      DB_ID, COLLECTIONS.MEMORIES, parsed.data.memoryId
+    ) as unknown as AppwriteDoc<MemoryDoc>;
+
+    if (memory.userId !== appwriteId) {
+      return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
+    }
+    await databases.updateDocument(DB_ID, COLLECTIONS.MEMORIES, parsed.data.memoryId, { embedding });
   }
 
   return Response.json({ dimensions: embedding.length });

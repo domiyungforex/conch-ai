@@ -22,26 +22,27 @@ No test suite exists. Install deps with `--legacy-peer-deps` due to React 19 pee
 - `src/app/(dashboard)/` — all authenticated pages sharing a sidebar layout
 - `src/app/api/` — REST API routes (all server-side)
 
-**Auth** (`src/lib/appwrite.ts` / `src/lib/appwrite-client.ts`):
-- Appwrite Cloud handles auth. Server-side: `auth()` returns `{ userId }` from the session cookie. Client-side: `account` singleton from `appwrite-client.ts`.
-- Middleware (`src/middleware.ts`) does a cookie-presence check only — no Appwrite round-trip at the edge. Actual session verification happens inside each API route via `auth()`.
-- Sign-up creates the `users` document synchronously in `POST /api/auth/sign-up` — no webhook delay. If DB write fails, the Appwrite account is rolled back.
+**Auth** (`@clerk/nextjs`):
+- Clerk handles all authentication — sign-in/sign-up pages, session cookies, and `auth()` in every API route (server-side `{ userId }` is the Clerk user ID, used directly as the id for the corresponding Appwrite documents).
+- `src/middleware.ts` uses `clerkMiddleware`/`createRouteMatcher` to protect routes.
+- Appwrite's `Users` service is never used — Appwrite is data storage only.
 
 **Database** (`src/lib/db.ts`, `src/lib/appwrite.ts`):
-- Appwrite Databases (NoSQL). `COLLECTIONS` constants and TypeScript doc types are in `src/lib/db.ts`.
-- The Appwrite auth `$id` IS the `users` document `$id` — no join needed. All routes get `appwriteId` from `auth()` and use it directly as the user document ID.
+- Appwrite Databases (NoSQL) is the sole datastore — memories, conversations, messages, agents, reputations, wallets, shared contexts, API keys. `COLLECTIONS` constants and TypeScript doc types are in `src/lib/db.ts`.
+- Clerk's `userId` is used directly as the `userId` field on every document (no separate `users` collection join needed for auth purposes).
 - Documents are returned as `AppwriteDoc<T>` which has `$id`, `$createdAt`, `$updatedAt` (strings) plus all domain fields.
 - No atomic increment: fetch-then-update for reputation counters.
 - Setup: run `npx tsx scripts/setup-appwrite-db.ts` once after adding `APPWRITE_DATABASE_ID` to `.env`.
 
-**Memory pipeline** (`src/lib/memory.ts`):
-- Memories are stored in Appwrite (source of truth) and mirrored to Pinecone for vector search.
-- `retrieveRelevantMemories(userId, query, topK, category, minScore=0.65)` — queries Pinecone then hydrates from Appwrite `Query.equal('pineconeId', ids)`.
+**Memory pipeline** (`src/lib/memory.ts`, `src/lib/vectorSearch.ts`):
+- Memories are stored entirely in Appwrite — the `embedding` float-array attribute holds the vector alongside the rest of the document, no separate vector service.
+- `retrieveRelevantMemories(userId, query, topK, category, minScore=0.65)` fetches the user's candidate memories from Appwrite (bounded scan, see `MAX_CANDIDATES`) and ranks them in-process via `topKBySimilarity` (cosine similarity) in `src/lib/vectorSearch.ts`. Brute-force by design — fine at personal/small-team scale.
 - `buildSystemPrompt(agentSystemPrompt, memories)` — assembles the final system prompt for chat.
 
 **AI chat** (`src/app/api/chat/route.ts`):
-- Uses Vercel AI SDK `streamText` with `@ai-sdk/openai`. Response is a data stream with an `X-Conversation-Id` header injected for client-side URL routing.
+- Uses Vercel AI SDK `streamText` with `@ai-sdk/anthropic` (Claude). Response is a data stream with an `X-Conversation-Id` header injected for client-side URL routing.
 - Client hook `useChat` (`src/hooks/useChat.ts`) reads that header to update the URL on new conversations.
+- Embeddings (`src/lib/embeddings.ts`) come from Voyage AI (`voyage-3.5`) via direct REST call — Anthropic has no embeddings endpoint.
 
 **Rate limiting** (`src/lib/rateLimit.ts`):
 - In-memory `Map` keyed on `{feature}:{userId}` (e.g., `chat:xyz`, `memory:create:xyz`). Resets per window. Not persisted — resets on server restart.
@@ -64,8 +65,9 @@ No test suite exists. Install deps with `--legacy-peer-deps` due to React 19 pee
 | `APPWRITE_API_KEY` | Server-only API key (users.read + users.write + databases) |
 | `APPWRITE_DATABASE_ID` | ID of the Appwrite database (create in console, then run setup script) |
 | `APPWRITE_SESSION_COOKIE` | Cookie name (default: `appwrite-session`) |
-| `OPENAI_API_KEY` | GPT-4o for chat + text-embedding-3-small for vectors |
-| `PINECONE_API_KEY` / `PINECONE_INDEX_NAME` | Vector store (index: `conch-memories`, dim 1536) |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` / `CLERK_SECRET_KEY` | Clerk auth |
+| `ANTHROPIC_API_KEY` | Claude for chat (`claude-sonnet-5` default) |
+| `VOYAGE_API_KEY` | Voyage AI embeddings (`voyage-3.5`, 1024 dims) for memory vectors |
 
 ## Notable constraints
 

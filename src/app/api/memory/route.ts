@@ -2,7 +2,6 @@ import { auth } from "@clerk/nextjs/server";
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type MemoryDoc, type ReputationDoc, type AppwriteDoc } from "@/lib/db";
 import { generateEmbedding } from "@/lib/embeddings";
-import { getPineconeIndex } from "@/lib/pinecone";
 import { MemoryCreateSchema } from "@/lib/validators";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 import { Query, ID } from "node-appwrite";
@@ -50,23 +49,22 @@ export async function POST(req: Request) {
 
   const { databases } = createAdminClient();
   const memId = ID.unique();
+
+  let embedding: number[] = [];
+  try {
+    embedding = await generateEmbedding(parsed.data.content);
+  } catch {
+    // Memory saved even if embedding generation fails
+  }
+
   const memory = await databases.createDocument(DB_ID, COLLECTIONS.MEMORIES, memId, {
     userId: appwriteId,
-    pineconeId: memId,
+    embedding,
+    isArchived: false,
+    accessCount: 0,
+    lastAccessed: null,
     ...parsed.data,
   }) as unknown as AppwriteDoc<MemoryDoc>;
-
-  try {
-    const embedding = await generateEmbedding(memory.content);
-    const index = getPineconeIndex();
-    await index.upsert([{
-      id: memory.$id,
-      values: embedding,
-      metadata: { userId: appwriteId, category: memory.category, memoryId: memory.$id },
-    }]);
-  } catch {
-    // Memory saved to DB even if vector upsert fails
-  }
 
   try {
     const repResult = await databases.listDocuments(DB_ID, COLLECTIONS.REPUTATIONS, [

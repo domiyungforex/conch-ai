@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { useMemory } from "@/hooks/useMemory";
 import type { MemoryDoc, MemoryCategory, AppwriteDoc } from "@/lib/db";
 type Memory = AppwriteDoc<MemoryDoc>;
@@ -50,8 +51,12 @@ export function MemoryEditDialog({ memory, onClose }: Props) {
 
   const handleSubmit = async () => {
     if (!memory || !content.trim()) return;
-    await update.mutateAsync({ id: memory.$id, data: { content, category, tags, importance } });
-    onClose();
+    try {
+      await update.mutateAsync({ id: memory.$id, data: { content, category, tags, importance } });
+      onClose();
+    } catch {
+      // Error toast already shown by the mutation's onError handler
+    }
   };
 
   return (
@@ -106,6 +111,7 @@ export function MemoryEditDialog({ memory, onClose }: Props) {
         <div className="flex gap-3 mt-4 justify-end">
           <Button variant="secondary" onClick={onClose}>Cancel</Button>
           <Button onClick={handleSubmit} disabled={!content.trim() || update.isPending}>
+            {update.isPending && <LoadingSpinner size="sm" />}
             {update.isPending ? "Saving…" : "Save Changes"}
           </Button>
         </div>

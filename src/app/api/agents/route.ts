@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     avatarUrl: null,
     status: "ACTIVE",
     memoryScope: parsed.data.memoryScope ?? "user",
-    modelId: parsed.data.modelId ?? "gpt-4o",
+    modelId: parsed.data.modelId ?? "claude-haiku-4-5-20251001",
     temperature: parsed.data.temperature ?? 0.7,
     maxTokens: parsed.data.maxTokens ?? 2000,
   }) as unknown as AppwriteDoc<AgentDoc>;

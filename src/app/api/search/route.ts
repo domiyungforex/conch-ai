@@ -2,10 +2,12 @@ import { auth } from "@clerk/nextjs/server";
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type MemoryDoc, type AppwriteDoc } from "@/lib/db";
 import { generateEmbedding } from "@/lib/embeddings";
-import { getPineconeIndex } from "@/lib/pinecone";
+import { topKBySimilarity } from "@/lib/vectorSearch";
 import { SearchSchema } from "@/lib/validators";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 import { Query } from "node-appwrite";
+
+const MAX_CANDIDATES = 1000;
 
 export async function POST(req: Request) {
   const { userId } = await auth();
@@ -31,34 +33,19 @@ export async function POST(req: Request) {
   }
 
   try {
-    const index = getPineconeIndex();
-    const filter: Record<string, string> = { userId: appwriteId };
-    if (category) filter.category = category;
-
-    const pineconeResults = await index.query({
-      vector: queryVector,
-      topK,
-      filter,
-      includeMetadata: true,
-    });
-
-    const relevant = pineconeResults.matches.filter((m) => (m.score ?? 0) >= minScore);
-    if (relevant.length === 0) return Response.json({ results: [] });
-
-    const ids = relevant.map((m) => m.id);
     const { databases } = createAdminClient();
-    const result = await databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, [
-      Query.equal("pineconeId", ids),
-      Query.equal("isArchived", false),
+    const filters = [
       Query.equal("userId", appwriteId),
-      Query.limit(ids.length),
-    ]);
+      Query.equal("isArchived", false),
+      Query.limit(MAX_CANDIDATES),
+    ];
+    if (category) filters.push(Query.equal("category", category));
 
+    const result = await databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, filters);
     const memories = result.documents as unknown as AppwriteDoc<MemoryDoc>[];
-    const scoreMap = new Map(relevant.map((m) => [m.id, m.score ?? 0]));
-    const results = memories
-      .map((m) => ({ memory: m, score: scoreMap.get(m.pineconeId!) ?? 0 }))
-      .sort((a, b) => b.score - a.score);
+
+    const relevant = topKBySimilarity(queryVector, memories, topK, minScore);
+    const results = relevant.map(({ score, ...memory }) => ({ memory, score }));
 
     return Response.json({ results });
   } catch (err) {

@@ -63,17 +63,21 @@ export default async function DashboardPage() {
     const recentMemories = recentMemResult.documents as unknown as AppwriteDoc<MemoryDoc>[];
     const recentConversations = recentConvResult.documents as unknown as AppwriteDoc<ConversationDoc>[];
 
+    // Appwrite SDK documents aren't plain objects (they carry SDK prototype methods),
+    // which React Server Components reject when passing props to a Client Component.
+    const toPlain = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
+
     return (
       <DashboardHome
-        user={user}
-        stats={{
+        user={toPlain(user)}
+        stats={toPlain({
           memoryCount: memCount.total,
           conversationCount: convCount.total,
           agentCount: agentCount.total,
           reputation,
-        }}
-        recentMemories={recentMemories}
-        recentConversations={recentConversations}
+        })}
+        recentMemories={toPlain(recentMemories)}
+        recentConversations={toPlain(recentConversations)}
       />
     );
   } catch (err) {
