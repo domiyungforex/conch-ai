@@ -43,7 +43,8 @@ export default async function DashboardPage() {
           chatCount: 0,
           level: "beginner",
         });
-      } catch {
+      } catch (provisionErr) {
+        console.error("[dashboard] user provisioning failed:", provisionErr);
         return <SetupRetry />;
       }
     }
