@@ -70,8 +70,8 @@ export function Footer() {
             © {new Date().getFullYear()} Conch. All rights reserved.
           </p>
           <div className="flex items-center gap-1 text-xs text-slate-600">
-            <span>Built on</span>
-            <span className="gradient-text font-semibold mx-1">DOMIYUNG</span>
+            <span>Built by</span>
+            <span className="gradient-text font-semibold mx-1">DMON</span>
             <span>with ♥ for the CONCH</span>
           </div>
         </div>
