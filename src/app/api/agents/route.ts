@@ -1,13 +1,14 @@
-import { auth } from "@clerk/nextjs/server";
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type AgentDoc, type ReputationDoc, type AppwriteDoc } from "@/lib/db";
 import { AgentCreateSchema } from "@/lib/validators";
+import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
 import { Query, ID } from "node-appwrite";
 
-export async function GET() {
-  const { userId } = await auth();
-  if (!userId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
-  const appwriteId = userId;
+export async function GET(req: Request) {
+  const resolved = await resolveAuth(req);
+  if (!resolved) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  if (!scopeAllows(resolved.scope, "read")) return forbiddenScope();
+  const { userId: appwriteId } = resolved;
 
   const { databases } = createAdminClient();
   const result = await databases.listDocuments(DB_ID, COLLECTIONS.AGENTS, [
@@ -22,9 +23,10 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const { userId } = await auth();
-  if (!userId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
-  const appwriteId = userId;
+  const resolved = await resolveAuth(req);
+  if (!resolved) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  if (!scopeAllows(resolved.scope, "write")) return forbiddenScope();
+  const { userId: appwriteId } = resolved;
 
   const parsed = AgentCreateSchema.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) {

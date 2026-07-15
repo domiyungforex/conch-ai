@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { UserMenu } from "./UserMenu";
 import {
-  LayoutDashboard, MessageSquare, Brain, Bot, Share2, Star, Wallet, Settings,
+  LayoutDashboard, MessageSquare, Brain, Bot, Share2, Star, Wallet, Settings, Code2,
   ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { Logo } from "@/components/shared/Logo";
@@ -27,6 +27,7 @@ const navItems: NavItem[] = [
   { href: "/shared",    icon: Share2,          label: "Shared Contexts", section: "social" },
   { href: "/reputation",icon: Star,            label: "Reputation",      section: "social" },
   { href: "/wallet",    icon: Wallet,          label: "Wallet",          section: "utility" },
+  { href: "/developers",icon: Code2,           label: "API Docs",        section: "utility" },
   { href: "/settings",  icon: Settings,        label: "Settings",        section: "utility" },
 ];
 
