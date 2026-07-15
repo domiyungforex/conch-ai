@@ -21,6 +21,22 @@ export function InteractiveMemoryDemo() {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const typeRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const charRef = useRef(0);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [minGridHeight, setMinGridHeight] = useState(0);
+
+  // Lock the demo grid to the tallest phase it has rendered so far, so
+  // cycling between phases (which mount/unmount different numbers of
+  // message bubbles) never shrinks the card and shoves the rest of the
+  // page up and down underneath it.
+  useEffect(() => {
+    const el = gridRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(() => {
+      setMinGridHeight((prev) => Math.max(prev, el.scrollHeight));
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const targetText = phase === 0 ? USER_MESSAGE_0 : phase === 1 ? USER_MESSAGE_1 : "";
 
@@ -96,7 +112,11 @@ export function InteractiveMemoryDemo() {
           transition={{ duration: 0.7, delay: 0.15 }}
           className="glass rounded-3xl border border-white/10 p-6 md:p-10"
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+          <div
+            ref={gridRef}
+            style={{ minHeight: minGridHeight || undefined }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 transition-[min-height] duration-300 ease-out"
+          >
             {/* Left: Simulated chat */}
             <div className="flex flex-col gap-4">
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2">Conversation</p>
