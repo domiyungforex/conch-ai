@@ -14,29 +14,62 @@ const fraunces = Fraunces({
   axes: ["opsz", "SOFT", "WONK"],
 });
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://conchportal.com";
+const SITE_DESCRIPTION =
+  "Conch is an AI with persistent memory — it remembers what you tell it, carries agents that can do real math and keep business records, and gives you a portable AI identity you own across apps, devices, and chains.";
+
 export const metadata: Metadata = {
   title: { default: "Conch — Own Your AI Memory", template: "%s | Conch" },
-  description:
-    "Conch is a decentralized AI identity and memory platform. Own, manage, and carry your AI memory across apps, devices, chains, and agents.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://conch.ai"),
+  description: SITE_DESCRIPTION,
+  metadataBase: new URL(APP_URL),
+  alternates: { canonical: "/" },
+  robots: { index: true, follow: true },
+  applicationName: "Conch",
   openGraph: {
     title: "Conch — Own Your AI Memory",
-    description: "A decentralized AI identity and memory platform.",
+    description: SITE_DESCRIPTION,
     type: "website",
-    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
+    url: APP_URL,
+    siteName: "Conch",
   },
   twitter: {
     card: "summary_large_image",
     title: "Conch — Own Your AI Memory",
-    description: "A decentralized AI identity and memory platform.",
-    images: ["/og-image.png"],
+    description: SITE_DESCRIPTION,
   },
-  keywords: ["AI memory", "decentralized identity", "AI agents", "Web3 AI"],
+  keywords: [
+    "Conch",
+    "Conch AI",
+    "AI memory",
+    "AI agent with memory",
+    "persistent AI memory",
+    "AI identity",
+    "decentralized identity",
+    "AI agents",
+    "Web3 AI",
+  ],
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "Conch",
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Web",
+  url: APP_URL,
+  description: SITE_DESCRIPTION,
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} antialiased`}>
         <ClerkProvider>
           <Web3Provider>

@@ -239,6 +239,56 @@ export async function POST(req: Request) {
     },
   };
 
+  // Tool: actually delete memories on request, rather than deflecting to "contact support"
+  const forgetMemory: AnthropicToolDef = {
+    name: "forgetMemory",
+    description: "Permanently delete memories matching a topic. Use this whenever the user asks you to forget, delete, or remove something you remember about them — you have direct access to their memory store, so never claim you can't do this or tell them to contact support. If the request is vague (e.g. \"delete everything\"), ask them to confirm or narrow it down in your text response instead of calling this tool.",
+    input_schema: {
+      type: "object",
+      properties: {
+        query: { type: "string", description: "The topic or content to find and delete (e.g. \"my old phone number\", \"the supplier named Kira\")" },
+      },
+      required: ["query"],
+    },
+    execute: async (input) => {
+      const { query } = input as { query: string };
+      try {
+        // Stricter threshold than normal recall — deleting the wrong memory is worse
+        // than missing one, so only remove close, confident matches.
+        const matches = await retrieveRelevantMemories(appwriteId, query, 10, undefined, 0.5);
+        if (matches.length === 0) return { deletedCount: 0, deleted: [] };
+
+        for (const m of matches) {
+          await databases.deleteDocument(DB_ID, COLLECTIONS.MEMORIES, m.$id);
+          const idx = memories.findIndex((existing) => existing.$id === m.$id);
+          if (idx !== -1) memories.splice(idx, 1);
+        }
+
+        try {
+          const repResult = await databases.listDocuments(DB_ID, COLLECTIONS.REPUTATIONS, [
+            Query.equal("userId", appwriteId), Query.limit(1),
+          ]);
+          if (repResult.documents.length > 0) {
+            const rep = repResult.documents[0] as unknown as AppwriteDoc<ReputationDoc>;
+            await databases.updateDocument(DB_ID, COLLECTIONS.REPUTATIONS, rep.$id, {
+              memoryCount: Math.max(0, rep.memoryCount - matches.length),
+            });
+          }
+        } catch {
+          // Non-critical
+        }
+
+        return {
+          deletedCount: matches.length,
+          deleted: matches.map((m) => ({ content: m.content, category: m.category })),
+        };
+      } catch (err) {
+        console.error("[chat] forgetMemory tool failed:", err);
+        return { deletedCount: 0, deleted: [], error: "Delete failed" };
+      }
+    },
+  };
+
   // Tool: precise math instead of the model estimating it in its head
   const calculateTool: AnthropicToolDef = {
     name: "calculate",
@@ -318,7 +368,7 @@ export async function POST(req: Request) {
       maxTokens: agent?.maxTokens ?? 2000,
       temperature: agent?.temperature ?? 0.7,
       maxSteps: 3,
-      tools: [saveMemory, searchMemory, calculateTool, listMemories],
+      tools: [saveMemory, searchMemory, calculateTool, listMemories, forgetMemory],
       onFinish: async ({ text, totalTokens }) => {
         try {
           await databases.createDocument(DB_ID, COLLECTIONS.MESSAGES, ID.unique(), {
