@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     return new Response(JSON.stringify({ error: "Invalid request", details: parsed.error.flatten() }), { status: 400 });
   }
 
-  const { conversationId, agentId, message } = parsed.data;
+  const { conversationId, agentId, message, images } = parsed.data;
   const { databases } = createAdminClient();
 
   let agent: AppwriteDoc<AgentDoc> | null = null;
@@ -358,13 +358,24 @@ export async function POST(req: Request) {
     },
   };
 
+  // Images (if any) precede the text block, matching Anthropic's documented convention.
+  const finalUserContent = images && images.length > 0
+    ? [
+        ...images.map((img) => ({
+          type: "image" as const,
+          source: { type: "base64" as const, media_type: img.mediaType, data: img.data },
+        })),
+        { type: "text" as const, text: message },
+      ]
+    : message;
+
   let stream: ReadableStream<Uint8Array>;
   try {
     stream = streamAnthropicChat({
       apiKey: process.env.ANTHROPIC_API_KEY!,
       model: agent?.modelId ?? "claude-haiku-4-5-20251001",
       system: systemPrompt,
-      messages: [...history, { role: "user", content: message }],
+      messages: [...history, { role: "user", content: finalUserContent }],
       maxTokens: agent?.maxTokens ?? 2000,
       temperature: agent?.temperature ?? 0.7,
       maxSteps: 3,

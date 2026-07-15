@@ -1,9 +1,17 @@
 import { z } from "zod";
 
+const MAX_IMAGE_BASE64_CHARS = 5_000_000; // ~3.6MB raw, under Anthropic's 5MB/image limit
+
+export const ChatImageSchema = z.object({
+  mediaType: z.enum(["image/png", "image/jpeg", "image/webp", "image/gif"]),
+  data: z.string().min(1).max(MAX_IMAGE_BASE64_CHARS),
+});
+
 export const ChatRequestSchema = z.object({
   conversationId: z.string().nullable().optional(),
   agentId: z.string().nullable().optional(),
   message: z.string().min(1).max(10000),
+  images: z.array(ChatImageSchema).max(3).optional(),
 });
 
 export const MemoryCreateSchema = z.object({

@@ -50,7 +50,22 @@ export function ChatMessage({ message, isStreaming, streamingContent, onRetry }:
           )}
         >
           {isUser ? (
-            <p className="whitespace-pre-wrap">{content}</p>
+            <>
+              {message.images && message.images.length > 0 && (
+                <div className="flex gap-2 mb-2 flex-wrap justify-end">
+                  {message.images.map((img, i) => (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      key={i}
+                      src={`data:${img.mediaType};base64,${img.data}`}
+                      alt="Attached"
+                      className="w-20 h-20 rounded-lg object-cover border border-white/10"
+                    />
+                  ))}
+                </div>
+              )}
+              {content && <p className="whitespace-pre-wrap">{content}</p>}
+            </>
           ) : (
             <div className="prose-conch">
               {isStreaming ? (

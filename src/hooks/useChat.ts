@@ -2,6 +2,11 @@
 
 import { useState, useRef, useCallback } from "react";
 
+export interface ChatImage {
+  mediaType: "image/png" | "image/jpeg" | "image/webp" | "image/gif";
+  data: string; // base64, no data: URL prefix
+}
+
 export interface ChatMessage {
   id: string;
   role: "user" | "assistant";
@@ -9,6 +14,7 @@ export interface ChatMessage {
   memoryIds?: string[];
   createdAt: Date;
   isError?: boolean;
+  images?: ChatImage[];
 }
 
 const GENERIC_AI_ERROR = "An error occurred.";
@@ -40,13 +46,13 @@ export function useChat({ conversationId, agentId, onConversationCreated }: UseC
   const [isLoading, setIsLoading] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
   const abortRef = useRef<AbortController | null>(null);
-  const lastUserMsgRef = useRef<string>("");
+  const lastUserMsgRef = useRef<{ content: string; images?: ChatImage[] }>({ content: "" });
 
-  const sendMessage = useCallback(async (content: string) => {
-    if (!content.trim() || isLoading) return;
+  const sendMessage = useCallback(async (content: string, images?: ChatImage[]) => {
+    if ((!content.trim() && !images?.length) || isLoading) return;
 
-    lastUserMsgRef.current = content;
-    const userMsg: ChatMessage = { id: crypto.randomUUID(), role: "user", content, createdAt: new Date() };
+    lastUserMsgRef.current = { content, images };
+    const userMsg: ChatMessage = { id: crypto.randomUUID(), role: "user", content, createdAt: new Date(), images };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setIsLoading(true);
@@ -58,7 +64,7 @@ export function useChat({ conversationId, agentId, onConversationCreated }: UseC
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ conversationId, agentId, message: content }),
+        body: JSON.stringify({ conversationId, agentId, message: content, images }),
         signal: abortRef.current.signal,
       });
 
@@ -174,7 +180,8 @@ export function useChat({ conversationId, agentId, onConversationCreated }: UseC
   }, []);
 
   const retryLast = useCallback(() => {
-    if (!lastUserMsgRef.current || isLoading) return;
+    if (!lastUserMsgRef.current.content && !lastUserMsgRef.current.images?.length) return;
+    if (isLoading) return;
     // Remove the error message; also remove the user message so sendMessage can re-add it cleanly
     setMessages((prev) => {
       const withoutError = prev[prev.length - 1]?.isError ? prev.slice(0, -1) : prev;
@@ -182,7 +189,7 @@ export function useChat({ conversationId, agentId, onConversationCreated }: UseC
         ? withoutError.slice(0, -1)
         : withoutError;
     });
-    sendMessage(lastUserMsgRef.current);
+    sendMessage(lastUserMsgRef.current.content, lastUserMsgRef.current.images);
   }, [isLoading, sendMessage]);
 
   return { messages, input, setInput, isLoading, streamingContent, sendMessage, stop, loadMessages, retryLast };
