@@ -6,8 +6,10 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Unlink, ExternalLink, Copy } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "@/components/ui/toaster";
 import type { WalletPublic } from "@/types/api";
 
 async function fetchWallet(): Promise<WalletPublic | null> {
@@ -52,12 +54,19 @@ export function WalletConnectCard() {
 
   const verify = useMutation({
     mutationFn: verifyWallet,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["wallet"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["wallet"] });
+      toast({ title: "Wallet linked" });
+    },
   });
 
   const unlink = useMutation({
     mutationFn: unlinkWallet,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["wallet"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["wallet"] });
+      toast({ title: "Wallet unlinked" });
+    },
+    onError: (err: Error) => toast({ title: "Failed to unlink wallet", description: err.message, variant: "destructive" }),
   });
 
   useEffect(() => {
@@ -167,7 +176,7 @@ export function WalletConnectCard() {
             onClick={() => unlink.mutate()}
             disabled={unlink.isPending}
           >
-            <Unlink className="w-3.5 h-3.5" />
+            {unlink.isPending ? <LoadingSpinner size="sm" /> : <Unlink className="w-3.5 h-3.5" />}
             {unlink.isPending ? "Unlinking…" : "Unlink Wallet"}
           </Button>
         </div>

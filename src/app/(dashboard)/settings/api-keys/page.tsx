@@ -12,6 +12,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { toast } from "@/components/ui/toaster";
 import { formatDate } from "@/lib/utils";
 import type { ApiKeyPublic, ApiKeyCreated } from "@/types/api";
 
@@ -39,7 +41,11 @@ async function createKey(data: { name: string; scope: string }): Promise<ApiKeyC
 }
 
 async function revokeKey(id: string): Promise<void> {
-  await fetch(`/api/api-keys/${id}`, { method: "DELETE" });
+  const res = await fetch(`/api/api-keys/${id}`, { method: "DELETE" });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { error?: string }).error ?? "Failed to revoke key");
+  }
 }
 
 export default function ApiKeysPage() {
@@ -58,12 +64,18 @@ export default function ApiKeysPage() {
       setNewKey(data);
       setCreateOpen(false);
       setName(""); setScope("FULL");
+      toast({ title: "API key created" });
     },
+    onError: (err: Error) => toast({ title: "Failed to create key", description: err.message, variant: "destructive" }),
   });
 
   const revoke = useMutation({
     mutationFn: revokeKey,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["api-keys"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["api-keys"] });
+      toast({ title: "Key revoked" });
+    },
+    onError: (err: Error) => toast({ title: "Failed to revoke key", description: err.message, variant: "destructive" }),
   });
 
   const copyKey = () => {
@@ -106,8 +118,14 @@ export default function ApiKeysPage() {
                 </div>
               </div>
               {!k.isRevoked && (
-                <Button variant="destructive" size="sm" onClick={() => revoke.mutate(k.$id)} className="h-7 px-2 text-xs shrink-0">
-                  <Trash2 className="w-3.5 h-3.5" />
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => revoke.mutate(k.$id)}
+                  disabled={revoke.isPending && revoke.variables === k.$id}
+                  className="h-7 px-2 text-xs shrink-0"
+                >
+                  {revoke.isPending && revoke.variables === k.$id ? <LoadingSpinner size="sm" /> : <Trash2 className="w-3.5 h-3.5" />}
                 </Button>
               )}
             </GlassCard>
@@ -140,6 +158,7 @@ export default function ApiKeysPage() {
           <div className="flex gap-3 mt-4 justify-end">
             <Button variant="secondary" onClick={() => setCreateOpen(false)}>Cancel</Button>
             <Button onClick={() => create.mutate({ name, scope })} disabled={!name.trim() || create.isPending}>
+              {create.isPending && <LoadingSpinner size="sm" />}
               {create.isPending ? "Creating…" : "Create Key"}
             </Button>
           </div>

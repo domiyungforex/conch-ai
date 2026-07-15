@@ -1,4 +1,3 @@
-import { auth } from "@clerk/nextjs/server";
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type AgentDoc, type ConversationDoc, type MessageDoc, type ReputationDoc, type MemoryDoc, type AppwriteDoc } from "@/lib/db";
 import { streamAnthropicChat, type AnthropicToolDef } from "@/lib/anthropicRaw";
@@ -8,15 +7,17 @@ import { calculate } from "@/lib/calculator";
 import type { MemoryWithScore } from "@/lib/memory";
 import { ChatRequestSchema } from "@/lib/validators";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
+import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
 import { Query, ID } from "node-appwrite";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
-  const { userId } = await auth();
-  if (!userId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
-  const appwriteId = userId;
+  const resolved = await resolveAuth(req);
+  if (!resolved) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  if (!scopeAllows(resolved.scope, "chat")) return forbiddenScope();
+  const { userId: appwriteId } = resolved;
 
   if (!process.env.ANTHROPIC_API_KEY) {
     return new Response(

@@ -1,18 +1,19 @@
-import { auth } from "@clerk/nextjs/server";
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type MemoryDoc, type AppwriteDoc } from "@/lib/db";
 import { generateEmbedding } from "@/lib/embeddings";
 import { topKBySimilarity } from "@/lib/vectorSearch";
 import { SearchSchema } from "@/lib/validators";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
+import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
 import { Query } from "node-appwrite";
 
 const MAX_CANDIDATES = 1000;
 
 export async function POST(req: Request) {
-  const { userId } = await auth();
-  if (!userId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
-  const appwriteId = userId;
+  const resolved = await resolveAuth(req);
+  if (!resolved) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  if (!scopeAllows(resolved.scope, "read")) return forbiddenScope();
+  const { userId: appwriteId } = resolved;
 
   const rateCheck = checkRateLimit(`search:${appwriteId}`, 30, 60_000);
   if (!rateCheck.success) return rateLimitResponse(rateCheck.resetAt);
