@@ -250,7 +250,7 @@ export function InteractiveMemoryDemo() {
             </div>
 
             {/* Right: Memory node visualization */}
-            <div className="flex flex-col justify-center items-center relative">
+            <div className="flex flex-col justify-start items-center relative pt-8 md:pt-12">
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-6 self-start">
                 Memory Store
               </p>

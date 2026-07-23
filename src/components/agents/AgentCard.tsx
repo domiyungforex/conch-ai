@@ -74,7 +74,7 @@ export function AgentCard({ agent, onEdit, onToggleStatus, onDelete }: Props) {
           </span>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-500 hover:text-white opacity-0 group-hover:opacity-100">
+              <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-500 hover:text-white opacity-100 md:opacity-0 md:group-hover:opacity-100">
                 <MoreHorizontal className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>

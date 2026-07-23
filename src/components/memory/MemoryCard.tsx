@@ -79,8 +79,8 @@ export function MemoryCard({ memory, onEdit, onArchive, onDelete, onVerify, veri
               variant="ghost"
               size="icon"
               className={cn(
-                "h-7 w-7 text-slate-500 hover:text-white",
-                !menuOpen && "opacity-0 group-hover:opacity-100"
+                "h-7 w-7 text-slate-500 hover:text-white opacity-100",
+                !menuOpen && "md:opacity-0 md:group-hover:opacity-100"
               )}
             >
               <MoreHorizontal className="w-4 h-4" />
