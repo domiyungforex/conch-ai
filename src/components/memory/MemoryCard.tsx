@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MoreHorizontal, Archive, Trash2, Edit2, Brain } from "lucide-react";
+import { MoreHorizontal, Archive, Trash2, Edit2, Brain, ShieldCheck, Link2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
@@ -26,9 +26,11 @@ interface Props {
   onEdit: (memory: Memory) => void;
   onArchive: (id: string) => void;
   onDelete: (id: string) => void;
+  onVerify?: (id: string) => void;
+  verifying?: boolean;
 }
 
-export function MemoryCard({ memory, onEdit, onArchive, onDelete }: Props) {
+export function MemoryCard({ memory, onEdit, onArchive, onDelete, onVerify, verifying }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   if (!memory?.$id) return null;
@@ -91,6 +93,11 @@ export function MemoryCard({ memory, onEdit, onArchive, onDelete }: Props) {
             <DropdownMenuItem onClick={() => onArchive(memory.$id)}>
               <Archive className="w-4 h-4 text-slate-400" /> Archive
             </DropdownMenuItem>
+            {onVerify && memory.verificationStatus !== "verified" && (
+              <DropdownMenuItem onClick={() => onVerify(memory.$id)} disabled={verifying}>
+                <Link2 className="w-4 h-4 text-slate-400" /> {verifying ? "Verifying…" : "Verify on-chain"}
+              </DropdownMenuItem>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="text-red-400 focus:text-red-300 focus:bg-red-500/10"
@@ -126,7 +133,20 @@ export function MemoryCard({ memory, onEdit, onArchive, onDelete }: Props) {
 
       {/* Footer */}
       <div className="flex items-center justify-between pt-1 border-t border-white/5">
-        <span className="text-xs text-slate-600">{formatRelativeTime(createdAt)}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-slate-600">{formatRelativeTime(createdAt)}</span>
+          {memory.verificationStatus === "verified" && memory.attestationUid && (
+            <a
+              href={`https://base.easscan.org/attestation/view/${memory.attestationUid}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs text-teal-400 hover:text-teal-300"
+              title="Verified on Base — view attestation"
+            >
+              <ShieldCheck className="w-3 h-3" /> Verified
+            </a>
+          )}
+        </div>
         <div className="flex items-center gap-1.5">
           <div
             className={`importance-dot importance-dot--${importanceTier}`}

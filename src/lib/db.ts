@@ -25,6 +25,8 @@ export interface UserDoc {
   onboarded: boolean;
 }
 
+export type MemoryVerificationStatus = "none" | "pending" | "verified";
+
 export interface MemoryDoc {
   userId: string;
   content: string;
@@ -37,6 +39,10 @@ export interface MemoryDoc {
   source: string | null;
   agentId: string | null;
   isArchived: boolean;
+  verificationStatus?: MemoryVerificationStatus;
+  attestationUid?: string | null;
+  attestationTxHash?: string | null;
+  contentHash?: string | null;
 }
 
 export interface ConversationDoc {

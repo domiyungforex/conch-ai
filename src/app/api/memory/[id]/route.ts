@@ -3,7 +3,7 @@ import { DB_ID, COLLECTIONS, type MemoryDoc, type ReputationDoc, type AppwriteDo
 import { generateEmbedding } from "@/lib/embeddings";
 import { MemoryUpdateSchema } from "@/lib/validators";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
-import { Query } from "node-appwrite";
+import { Query, Permission, Role } from "node-appwrite";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const resolved = await resolveAuth(req);
@@ -49,12 +49,21 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     return new Response(JSON.stringify({ error: "Invalid request", details: parsed.error.flatten() }), { status: 400 });
   }
 
-  let memory = await databases.updateDocument(DB_ID, COLLECTIONS.MEMORIES, id, parsed.data) as unknown as AppwriteDoc<MemoryDoc>;
+  const ownerPermissions = [
+    Permission.read(Role.user(appwriteId)),
+    Permission.update(Role.user(appwriteId)),
+    Permission.delete(Role.user(appwriteId)),
+  ];
+
+  // Also (re-)grants owner permissions on documents created before live sync
+  // shipped, so an edited pre-existing memory becomes realtime-eligible
+  // without a separate backfill.
+  let memory = await databases.updateDocument(DB_ID, COLLECTIONS.MEMORIES, id, parsed.data, ownerPermissions) as unknown as AppwriteDoc<MemoryDoc>;
 
   if (parsed.data.content && parsed.data.content !== existing.content) {
     try {
       const embedding = await generateEmbedding(memory.content);
-      memory = await databases.updateDocument(DB_ID, COLLECTIONS.MEMORIES, id, { embedding }) as unknown as AppwriteDoc<MemoryDoc>;
+      memory = await databases.updateDocument(DB_ID, COLLECTIONS.MEMORIES, id, { embedding }, ownerPermissions) as unknown as AppwriteDoc<MemoryDoc>;
     } catch {
       // Continue even if embedding update fails
     }

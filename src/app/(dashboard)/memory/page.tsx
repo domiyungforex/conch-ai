@@ -12,6 +12,7 @@ import { MemoryEditDialog } from "@/components/memory/MemoryEditDialog";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { MemoryErrorBoundary } from "@/components/memory/MemoryErrorBoundary";
 import { useMemory } from "@/hooks/useMemory";
+import { useVerifyMemory } from "@/hooks/useVerifyMemory";
 import { toast } from "@/components/ui/toaster";
 import type { MemoryDoc, AppwriteDoc } from "@/lib/db";
 type Memory = AppwriteDoc<MemoryDoc>;
@@ -31,6 +32,7 @@ export default function MemoryPage() {
   const { data: memories, isLoading, isError, error, refetch, archive, remove } = useMemory(
     category !== "ALL" ? category : undefined
   );
+  const verify = useVerifyMemory();
 
   const handleSearch = async () => {
     if (!search.trim()) {
@@ -210,6 +212,8 @@ onError: () => toast({ title: "Delete failed", description: "Could not delete th
                       onEdit={setEditTarget}
                       onArchive={handleArchive}
                       onDelete={handleDelete}
+                      onVerify={(id) => verify.mutate(id)}
+                      verifying={verify.isPending && verify.variables === m.$id}
                     />
                   ) : null
                 )}

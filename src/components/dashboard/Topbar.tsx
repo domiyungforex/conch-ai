@@ -8,6 +8,8 @@ import { Logo } from "@/components/shared/Logo";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { MobileSidebar } from "./MobileSidebar";
+import { useRealtimeStatus } from "@/providers/AppwriteRealtimeProvider";
+import { cn } from "@/lib/utils";
 
 const breadcrumbMap: Record<string, string> = {
   "/dashboard":             "Dashboard",
@@ -17,6 +19,7 @@ const breadcrumbMap: Record<string, string> = {
   "/shared":                "Shared Contexts",
   "/reputation":            "Reputation",
   "/wallet":                "Wallet",
+  "/developers":            "API Docs",
   "/settings":              "Settings",
   "/settings/profile":      "Profile",
   "/settings/notifications":"Notifications",
@@ -26,6 +29,7 @@ const breadcrumbMap: Record<string, string> = {
 
 export function Topbar() {
   const pathname = usePathname();
+  const realtimeStatus = useRealtimeStatus();
   const segments = pathname.split("/").filter(Boolean);
   const currentPage = breadcrumbMap[pathname] ?? segments[segments.length - 1] ?? "Dashboard";
 
@@ -58,6 +62,18 @@ export function Topbar() {
       <div className="flex-1" />
 
       {/* Actions */}
+      <div
+        className="hidden sm:flex items-center gap-1.5 text-xs text-slate-500"
+        title={realtimeStatus === "live" ? "Live sync connected" : "Live sync offline"}
+      >
+        <span
+          className={cn(
+            "w-1.5 h-1.5 rounded-full",
+            realtimeStatus === "live" ? "bg-teal-400" : realtimeStatus === "connecting" ? "bg-gold-500 animate-pulse" : "bg-slate-600"
+          )}
+        />
+        Live
+      </div>
       <Button variant="ghost" size="icon" className="text-slate-400">
         <Bell className="h-5 w-5" />
       </Button>

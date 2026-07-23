@@ -4,7 +4,7 @@ import { generateEmbedding } from "@/lib/embeddings";
 import { MemoryCreateSchema } from "@/lib/validators";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
-import { Query, ID } from "node-appwrite";
+import { Query, ID, Permission, Role } from "node-appwrite";
 
 export async function GET(req: Request) {
   const resolved = await resolveAuth(req);
@@ -66,7 +66,11 @@ export async function POST(req: Request) {
     accessCount: 0,
     lastAccessed: null,
     ...parsed.data,
-  }) as unknown as AppwriteDoc<MemoryDoc>;
+  }, [
+    Permission.read(Role.user(appwriteId)),
+    Permission.update(Role.user(appwriteId)),
+    Permission.delete(Role.user(appwriteId)),
+  ]) as unknown as AppwriteDoc<MemoryDoc>;
 
   try {
     const repResult = await databases.listDocuments(DB_ID, COLLECTIONS.REPUTATIONS, [

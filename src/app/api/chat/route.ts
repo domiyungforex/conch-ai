@@ -8,7 +8,7 @@ import type { MemoryWithScore } from "@/lib/memory";
 import { ChatRequestSchema } from "@/lib/validators";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
-import { Query, ID } from "node-appwrite";
+import { Query, ID, Permission, Role } from "node-appwrite";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -187,7 +187,11 @@ export async function POST(req: Request) {
           isArchived: false,
           accessCount: 0,
           lastAccessed: null,
-        });
+        }, [
+          Permission.read(Role.user(appwriteId)),
+          Permission.update(Role.user(appwriteId)),
+          Permission.delete(Role.user(appwriteId)),
+        ]);
 
         // Increment reputation memory count
         try {

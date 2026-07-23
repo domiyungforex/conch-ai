@@ -22,6 +22,11 @@ export const MemoryCreateSchema = z.object({
   source: z.string().optional(),
 });
 
+export const MemoryVerifyConfirmSchema = z.object({
+  attestationUid: z.string().regex(/^0x[0-9a-fA-F]{64}$/),
+  txHash: z.string().regex(/^0x[0-9a-fA-F]{64}$/),
+});
+
 export const MemoryUpdateSchema = z.object({
   content: z.string().min(1).max(5000).optional(),
   category: z.enum(["EPISODIC", "SEMANTIC", "PREFERENCE", "PROCEDURAL"]).optional(),
