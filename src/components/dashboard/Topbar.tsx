@@ -22,6 +22,7 @@ const breadcrumbMap: Record<string, string> = {
   "/developers":            "API Docs",
   "/settings":              "Settings",
   "/settings/profile":      "Profile",
+  "/settings/billing":      "Billing",
   "/settings/notifications":"Notifications",
   "/settings/api-keys":     "API Keys",
   "/settings/privacy":      "Privacy",

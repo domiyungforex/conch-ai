@@ -41,7 +41,7 @@ const plans = [
       "Priority support",
     ],
     cta: "Start Pro",
-    href: "/dashboard",
+    href: "/settings/billing",
     highlight: true,
   },
   {

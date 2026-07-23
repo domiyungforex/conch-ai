@@ -10,11 +10,13 @@ export const COLLECTIONS = {
   WALLETS: "wallets",
   SHARED_CONTEXTS: "shared_contexts",
   API_KEYS: "api_keys",
+  PAYMENTS: "payments",
 } as const;
 
 export type MemoryCategory = "EPISODIC" | "SEMANTIC" | "PREFERENCE" | "PROCEDURAL";
 export type AgentStatus = "ACTIVE" | "PAUSED" | "ARCHIVED";
 export type ApiKeyScope = "FULL" | "MEMORY_READ" | "MEMORY_WRITE" | "CHAT";
+export type BillingCycle = "monthly" | "annual";
 
 export interface UserDoc {
   email: string;
@@ -97,6 +99,20 @@ export interface WalletDoc {
   badgeMinted: boolean;
   badgeTokenId: string | null;
   verifiedAt: string | null;
+}
+
+export interface PaymentDoc {
+  userId: string;
+  txHash: string;
+  walletAddress: string;
+  chainId: number;
+  plan: string;
+  billingCycle: BillingCycle;
+  amountUsdcBaseUnits: number;
+  periodStart: string;
+  periodEnd: string;
+  blockNumber: number;
+  confirmedAt: string;
 }
 
 export interface SharedContextDoc {

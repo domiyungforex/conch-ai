@@ -36,6 +36,11 @@ export const MemoryVerifyConfirmSchema = z.object({
   txHash: z.string().regex(/^0x[0-9a-fA-F]{64}$/),
 });
 
+export const SubscriptionConfirmSchema = z.object({
+  txHash: z.string().regex(/^0x[0-9a-fA-F]{64}$/),
+  billingCycle: z.enum(["monthly", "annual"]),
+});
+
 export const MemoryUpdateSchema = z.object({
   content: z.string().min(1).max(5000).optional(),
   category: z.enum(["EPISODIC", "SEMANTIC", "PREFERENCE", "PROCEDURAL"]).optional(),
