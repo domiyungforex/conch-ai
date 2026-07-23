@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
 import { Logo } from "@/components/shared/Logo";
 import { Button } from "@/components/ui/button";
 import { SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs";
@@ -17,7 +15,6 @@ const links = [
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
@@ -25,100 +22,57 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handler);
   }, []);
 
-  useEffect(() => {
-    if (!mobileOpen) return;
-    document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = ""; };
-  }, [mobileOpen]);
-
   return (
-    <>
-      <nav className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${scrolled ? "glass border-b border-white/8 shadow-xl" : "bg-transparent"}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center h-16 gap-8">
-            <Logo />
+    <nav className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${scrolled ? "glass border-b border-white/8 shadow-xl" : "bg-transparent"}`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center h-16 gap-8">
+          <Logo />
 
-            {/* Desktop links */}
-            <div className="hidden md:flex items-center gap-1 flex-1">
-              {links.map(({ label, href }) => (
-                <a
-                  key={label}
-                  href={href}
-                  className="px-3 py-1.5 text-sm text-slate-400 hover:text-white rounded-lg hover:bg-white/5 transition-all"
-                >
-                  {label}
-                </a>
-              ))}
-            </div>
+          {/* Desktop links */}
+          <div className="hidden md:flex items-center gap-1 flex-1">
+            {links.map(({ label, href }) => (
+              <a
+                key={label}
+                href={href}
+                className="px-3 py-1.5 text-sm text-slate-400 hover:text-white rounded-lg hover:bg-white/5 transition-all"
+              >
+                {label}
+              </a>
+            ))}
+          </div>
 
-            <div className="hidden md:flex items-center gap-3 ml-auto">
-              <Show when="signed-out">
-                <SignInButton mode="modal">
-                  <Button variant="ghost" size="sm">Sign In</Button>
-                </SignInButton>
-                <SignUpButton mode="modal">
-                  <Button size="sm">Get Started Free</Button>
-                </SignUpButton>
-              </Show>
-              <Show when="signed-in">
-                <Button size="sm" asChild>
-                  <Link href="/dashboard">Dashboard</Link>
-                </Button>
-                <UserButton />
-              </Show>
-            </div>
+          <div className="hidden md:flex items-center gap-3 ml-auto">
+            <Show when="signed-out">
+              <SignInButton mode="modal">
+                <Button variant="ghost" size="sm">Sign In</Button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <Button size="sm">Get Started Free</Button>
+              </SignUpButton>
+            </Show>
+            <Show when="signed-in">
+              <Button size="sm" asChild>
+                <Link href="/dashboard">Dashboard</Link>
+              </Button>
+              <UserButton />
+            </Show>
+          </div>
 
-            {/* Mobile menu button */}
-            <button
-              className="md:hidden ml-auto text-slate-400 hover:text-white transition-colors"
-              onClick={() => setMobileOpen((o) => !o)}
-            >
-              {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
+          {/* Mobile: a single clear CTA, no menu */}
+          <div className="md:hidden ml-auto">
+            <Show when="signed-out">
+              <SignUpButton mode="modal">
+                <Button size="sm">Get Started</Button>
+              </SignUpButton>
+            </Show>
+            <Show when="signed-in">
+              <Button size="sm" asChild>
+                <Link href="/dashboard">Dashboard</Link>
+              </Button>
+            </Show>
           </div>
         </div>
-      </nav>
-
-      {/* Mobile menu */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-x-0 top-16 z-40 glass border-b border-white/10 shadow-2xl md:hidden"
-          >
-            <div className="px-4 py-4 space-y-2">
-              {links.map(({ label, href }) => (
-                <a
-                  key={label}
-                  href={href}
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center px-3 py-2.5 text-sm text-slate-300 hover:text-white hover:bg-white/5 rounded-xl transition-all"
-                >
-                  {label}
-                </a>
-              ))}
-              <div className="pt-3 border-t border-white/10 flex flex-col gap-2">
-                <Show when="signed-out">
-                  <SignInButton mode="modal">
-                    <Button variant="secondary" size="sm" className="w-full">Sign In</Button>
-                  </SignInButton>
-                  <SignUpButton mode="modal">
-                    <Button size="sm" className="w-full">Get Started Free</Button>
-                  </SignUpButton>
-                </Show>
-                <Show when="signed-in">
-                  <Button size="sm" className="w-full" asChild>
-                    <Link href="/dashboard">Dashboard</Link>
-                  </Button>
-                </Show>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+      </div>
+    </nav>
   );
 }
