@@ -22,6 +22,15 @@ export const MemoryCreateSchema = z.object({
   source: z.string().optional(),
 });
 
+export const UserSettingsUpdateSchema = z.object({
+  publicProfile: z.boolean().optional(),
+  notifyChatSummaries: z.boolean().optional(),
+  notifyMemoryInsights: z.boolean().optional(),
+  notifyAgentAlerts: z.boolean().optional(),
+  notifyWeeklyDigest: z.boolean().optional(),
+  notifyProductUpdates: z.boolean().optional(),
+});
+
 export const MemoryVerifyConfirmSchema = z.object({
   attestationUid: z.string().regex(/^0x[0-9a-fA-F]{64}$/),
   txHash: z.string().regex(/^0x[0-9a-fA-F]{64}$/),

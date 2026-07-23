@@ -23,6 +23,12 @@ export interface UserDoc {
   plan: string;
   planExpiresAt: string | null;
   onboarded: boolean;
+  publicProfile?: boolean;
+  notifyChatSummaries?: boolean;
+  notifyMemoryInsights?: boolean;
+  notifyAgentAlerts?: boolean;
+  notifyWeeklyDigest?: boolean;
+  notifyProductUpdates?: boolean;
 }
 
 export type MemoryVerificationStatus = "none" | "pending" | "verified";

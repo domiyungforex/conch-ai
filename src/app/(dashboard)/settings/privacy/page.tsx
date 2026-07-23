@@ -7,12 +7,14 @@ import { GlassCard } from "@/components/shared/GlassCard";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useUserSettings } from "@/hooks/useUserSettings";
 
 export default function PrivacyPage() {
   const router = useRouter();
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [publicProfile, setPublicProfile] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const { data: settings, isLoading, isError, update } = useUserSettings();
 
   const handleExport = async () => {
     try {
@@ -49,15 +51,24 @@ export default function PrivacyPage() {
     <div className="space-y-6">
       <GlassCard className="p-6">
         <h2 className="text-base font-semibold text-white mb-6">Privacy Controls</h2>
-        <div className="space-y-5">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <Label className="text-sm font-medium text-white">Public Profile</Label>
-              <p className="text-xs text-slate-400 mt-0.5">Allow others to see your public agent personas.</p>
+        {isLoading ? (
+          <Skeleton className="h-10 rounded-lg bg-white/5" />
+        ) : isError || !settings ? (
+          <p className="text-sm text-red-400">Couldn&apos;t load your privacy settings. Try refreshing.</p>
+        ) : (
+          <div className="space-y-5">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <Label className="text-sm font-medium text-white">Public Profile</Label>
+                <p className="text-xs text-slate-400 mt-0.5">Allow others to see your public agent personas.</p>
+              </div>
+              <Switch
+                checked={settings.publicProfile}
+                onCheckedChange={(checked) => update.mutate({ publicProfile: checked })}
+              />
             </div>
-            <Switch checked={publicProfile} onCheckedChange={setPublicProfile} />
           </div>
-        </div>
+        )}
       </GlassCard>
 
       <GlassCard className="p-6">
