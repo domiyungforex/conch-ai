@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserMenu } from "./UserMenu";
-import { LayoutDashboard, MessageSquare, Brain, Bot, Share2, Star, Wallet, Settings } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Brain, Bot, Share2, Star, Wallet, Settings, Code2 } from "lucide-react";
 import { Logo } from "@/components/shared/Logo";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +15,7 @@ const navItems = [
   { href: "/shared",      icon: Share2,          label: "Shared Contexts", section: "SOCIAL" },
   { href: "/reputation",  icon: Star,            label: "Reputation",      section: "SOCIAL" },
   { href: "/wallet",      icon: Wallet,          label: "Wallet",          section: "SETTINGS" },
+  { href: "/developers",  icon: Code2,           label: "API Docs",        section: "SETTINGS" },
   { href: "/settings",    icon: Settings,        label: "Settings",        section: "SETTINGS" },
 ];
 

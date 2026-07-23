@@ -3,7 +3,7 @@ import { Topbar } from "@/components/dashboard/Topbar";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="flex h-dvh overflow-hidden bg-background">
       {/* Sidebar — hidden on mobile */}
       <div className="hidden md:flex shrink-0">
         <Sidebar />
