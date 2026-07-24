@@ -17,7 +17,20 @@ type ContentBlock =
   | { type: "text"; text: string }
   | { type: "tool_use"; id: string; name: string; input: Record<string, unknown> }
   | { type: "tool_result"; tool_use_id: string; content: string }
-  | { type: "image"; source: { type: "base64"; media_type: string; data: string } };
+  | { type: "image"; source: { type: "base64"; media_type: string; data: string } }
+  // Anthropic's own server-tool blocks (server_tool_use, web_search_tool_result,
+  // code_execution_tool_result, and whatever else dynamic-filtering search emits
+  // under the hood) are passed through as opaque records rather than typed here —
+  // see the raw-passthrough note in runOneTurn for why.
+  | { type: string; [key: string]: unknown };
+
+// Server-side web search — Anthropic runs the search itself and injects the
+// result mid-generation; we never execute this one, just declare it and pass
+// its blocks through. The dynamic-filtering variant only works on newer
+// models; everything else needs the basic variant.
+function webSearchTool(isFlagship: boolean) {
+  return { type: isFlagship ? "web_search_20260209" : "web_search_20250305", name: "web_search" };
+}
 
 type AnthropicMessage = { role: "user" | "assistant"; content: string | ContentBlock[] };
 
@@ -84,9 +97,10 @@ async function runOneTurn(params: {
     messages,
     stream: true,
   };
-  if (tools.length > 0) {
-    body.tools = tools.map((t) => ({ name: t.name, description: t.description, input_schema: t.input_schema }));
-  }
+  body.tools = [
+    ...tools.map((t) => ({ name: t.name, description: t.description, input_schema: t.input_schema })),
+    webSearchTool(isFlagship),
+  ];
   if (isFlagship) {
     body.thinking = { type: "adaptive" };
     body.output_config = { effort: "medium" };
@@ -109,7 +123,16 @@ async function runOneTurn(params: {
     throw new Error(`Anthropic API error ${res.status}: ${errBody.slice(0, 300)}`);
   }
 
-  const blocks: Array<{ type: string; text: string; toolId?: string; toolName?: string; jsonBuf: string }> = [];
+  // Enabling web search means the stream can carry block types beyond plain
+  // text/tool_use/thinking — server_tool_use, web_search_tool_result, and
+  // (since dynamic-filtering search runs via code execution under the hood)
+  // code_execution_tool_result, each carrying fields specific to that type
+  // (e.g. a `caller` back-reference). Rather than modeling every one of
+  // these narrowly and risk silently dropping a field Anthropic adds later,
+  // each block keeps its own raw content_block payload verbatim and we only
+  // ever touch the two things that actually stream via deltas: `text` and
+  // `input` (as JSON text, for tool_use/server_tool_use blocks).
+  const blocks: Array<{ raw: Record<string, unknown>; text: string; jsonBuf: string }> = [];
   let stopReason: string | null = null;
   let outputTokens = 0;
 
@@ -120,11 +143,7 @@ async function runOneTurn(params: {
     const parsed = JSON.parse(data);
 
     if (parsed.type === "content_block_start") {
-      const cb = parsed.content_block;
-      blocks[parsed.index] =
-        cb.type === "tool_use"
-          ? { type: "tool_use", text: "", toolId: cb.id, toolName: cb.name, jsonBuf: "" }
-          : { type: cb.type, text: "", jsonBuf: "" };
+      blocks[parsed.index] = { raw: { ...parsed.content_block }, text: "", jsonBuf: "" };
     } else if (parsed.type === "content_block_delta") {
       const block = blocks[parsed.index];
       if (parsed.delta.type === "text_delta") {
@@ -140,16 +159,18 @@ async function runOneTurn(params: {
     }
   }
 
-  // Only text (non-empty) and tool_use blocks are valid to replay in a follow-up request.
-  // "thinking" blocks are intentionally dropped here — they're not needed for the
-  // adaptive-thinking tool loop and an empty one would produce an invalid empty text block.
+  // Drop "thinking" blocks entirely (not needed for the tool loop, and an
+  // empty one would be invalid to replay) and empty text blocks. Everything
+  // else — tool_use, and every server-tool block Anthropic sent — replays
+  // as received, with `input` filled in from the accumulated JSON delta for
+  // block types that actually stream one (tool_use/server_tool_use).
   const content: ContentBlock[] = blocks
-    .filter((b) => b.type === "tool_use" || (b.type === "text" && b.text.length > 0))
-    .map((b) =>
-      b.type === "tool_use"
-        ? { type: "tool_use", id: b.toolId!, name: b.toolName!, input: b.jsonBuf ? JSON.parse(b.jsonBuf) : {} }
-        : { type: "text", text: b.text }
-    );
+    .filter((b) => b.raw.type !== "thinking" && !(b.raw.type === "text" && b.text.length === 0))
+    .map((b): ContentBlock => {
+      if (b.raw.type === "text") return { type: "text", text: b.text };
+      if (b.jsonBuf) return { ...b.raw, input: JSON.parse(b.jsonBuf) } as ContentBlock;
+      return b.raw as ContentBlock;
+    });
 
   return { content, stopReason, outputTokens };
 }
@@ -182,7 +203,7 @@ export function streamAnthropicChat(params: StreamChatParams): ReadableStream<Ui
             const tool = tools.find((t) => t.name === block.name);
             let resultText: string;
             try {
-              resultText = JSON.stringify(tool ? await tool.execute(block.input) : { error: "Unknown tool" });
+              resultText = JSON.stringify(tool ? await tool.execute(block.input as Record<string, unknown>) : { error: "Unknown tool" });
             } catch (err) {
               resultText = JSON.stringify({ error: String(err).slice(0, 200) });
             }

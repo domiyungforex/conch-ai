@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { erc20Abi } from "viem";
+import { base } from "wagmi/chains";
+import { erc20Abi, BaseError } from "viem";
 import { useQuery } from "@tanstack/react-query";
 import { CheckCircle2, ExternalLink, Wallet as WalletIcon } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
@@ -79,10 +80,19 @@ export default function BillingPage() {
         abi: erc20Abi,
         functionName: "transfer",
         args: [TREASURY, amount],
+        chainId: base.id, // force Base explicitly — most wallets default to Ethereum
+        // mainnet, and without this the wallet can silently refuse (wrong
+        // chain) rather than ever opening its approval prompt at all.
       });
       setPendingHash(hash);
-    } catch {
-      // user rejected the transaction in their wallet, or it failed to send — no-op
+    } catch (err) {
+      const rejected = err instanceof BaseError && err.walk((e) => e instanceof Error && e.name === "UserRejectedRequestError");
+      if (rejected) {
+        toast({ title: "Cancelled" });
+      } else {
+        const message = err instanceof BaseError ? err.shortMessage : "Could not open your wallet to send the payment.";
+        toast({ title: "Payment couldn't be started", description: message, variant: "destructive" });
+      }
     }
   };
 
