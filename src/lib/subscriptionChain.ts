@@ -1,10 +1,22 @@
-import { createPublicClient, http, decodeEventLog, erc20Abi, type Hash, type Address } from "viem";
-import { base } from "viem/chains";
+import { createPublicClient, http, decodeEventLog, erc20Abi, type Chain, type Hash, type Address } from "viem";
 
 // Base mainnet USDC ("Circle: USDC Token"), confirmed against Circle's own
 // docs and Basescan's contract label — not recalled from memory.
 export const USDC_ADDRESS_BASE: Address = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 export const USDC_DECIMALS = 6;
+
+// Defined inline rather than imported from "viem/chains" — that barrel pulls
+// in every chain definition viem ships (including one with an internal
+// dynamic-require pattern webpack can't statically analyze), which surfaces
+// as a "Critical dependency: the request of a dependency is an expression"
+// build warning for something this file never uses. All getTransactionReceipt
+// needs is the chain id.
+const base: Chain = {
+  id: 8453,
+  name: "Base",
+  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: { default: { http: ["https://mainnet.base.org"] } },
+};
 
 const RPC_URL = process.env.BASE_RPC_URL ?? "https://mainnet.base.org";
 const publicClient = createPublicClient({ chain: base, transport: http(RPC_URL) });

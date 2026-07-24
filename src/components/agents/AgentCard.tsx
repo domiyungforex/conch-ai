@@ -2,7 +2,6 @@
 
 import { MoreHorizontal, Play, Pause, Trash2, Edit2, MessageSquare, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuSeparator, DropdownMenuTrigger,

@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Brain, MessageSquare, Users, Share2, ChevronDown } from "lucide-react";
+import { Brain, MessageSquare, Users, Share2 } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
