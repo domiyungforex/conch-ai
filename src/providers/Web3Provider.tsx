@@ -2,6 +2,7 @@
 
 import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultConfig, RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
+import { metaMaskWallet, coinbaseWallet, phantomWallet, rabbyWallet, walletConnectWallet } from "@rainbow-me/rainbowkit/wallets";
 import { WagmiProvider } from "wagmi";
 import { base } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -11,6 +12,12 @@ const config = getDefaultConfig({
   appName: "Conch",
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ?? "YOUR_PROJECT_ID",
   chains: [base],
+  wallets: [
+    {
+      groupName: "Popular",
+      wallets: [metaMaskWallet, coinbaseWallet, phantomWallet, rabbyWallet, walletConnectWallet],
+    },
+  ],
   ssr: true,
 });
 
