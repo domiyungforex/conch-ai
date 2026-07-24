@@ -219,7 +219,7 @@ function FieldInput({ field, value, onChange }: { field: FieldSpec; value: strin
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={field.placeholder}
-        className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 text-xs min-h-[70px]"
+        className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 text-base md:text-xs min-h-[70px]"
       />
     );
   }
@@ -229,7 +229,7 @@ function FieldInput({ field, value, onChange }: { field: FieldSpec; value: strin
       onChange={(e) => onChange(e.target.value)}
       placeholder={field.placeholder}
       type={field.kind === "number" ? "number" : "text"}
-      className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 h-9 text-xs"
+      className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 h-9 text-base md:text-xs"
     />
   );
 }
@@ -543,7 +543,7 @@ export function ApiDocsConsole() {
                   value={apiKeyValue}
                   onChange={(e) => setApiKeyValue(e.target.value)}
                   placeholder="cnch_..."
-                  className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 h-9 text-xs font-mono"
+                  className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 h-9 text-base md:text-xs font-mono"
                 />
               </div>
             )}

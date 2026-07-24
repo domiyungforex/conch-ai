@@ -60,7 +60,7 @@ export function AgentEditDialog({ agent, onClose }: Props) {
           <div>
             <Label className="text-slate-300 mb-1.5 block">System Prompt * ({systemPrompt.length}/4000)</Label>
             <Textarea value={systemPrompt} onChange={(e) => setSystemPrompt(e.target.value.slice(0, 4000))} rows={5}
-              className="bg-white/5 border-white/10 text-white resize-none font-mono text-xs" />
+              className="bg-white/5 border-white/10 text-white resize-none font-mono text-base md:text-xs" />
           </div>
           <div>
             <Label className="text-slate-300 mb-1.5 block">Model</Label>
