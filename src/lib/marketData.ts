@@ -36,6 +36,11 @@ export interface MarketAnalysis {
   trend: "up" | "down" | "flat";
   candleCount: number;
   asOf: string;
+  // Chronological (oldest first) OHLC for the model to read actual price structure from —
+  // swing highs/lows, order blocks, liquidity zones, imbalances — rather than only
+  // reasoning over aggregate indicators, which isn't enough for structure-based analysis
+  // (e.g. Smart Money Concepts) that depends on candle-by-candle shape, not just averages.
+  recentCandles: { time: string; open: number; high: number; low: number; close: number }[];
 }
 
 const cache = new Map<string, { data: MarketAnalysis; expiresAt: number }>();
@@ -132,6 +137,16 @@ export async function getMarketAnalysis(apiKey: string, symbol: string, interval
     trend,
     candleCount: data.values.length,
     asOf: data.values[0].datetime,
+    recentCandles: data.values
+      .slice(0, 30)
+      .map((v) => ({
+        time: v.datetime,
+        open: parseFloat(v.open),
+        high: parseFloat(v.high),
+        low: parseFloat(v.low),
+        close: parseFloat(v.close),
+      }))
+      .reverse(),
   };
 
   cache.set(cacheKey, { data: result, expiresAt: Date.now() + CACHE_TTL_MS });

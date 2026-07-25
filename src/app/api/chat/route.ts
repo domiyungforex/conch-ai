@@ -384,7 +384,7 @@ export async function POST(req: Request) {
   const marketDataTool: AnthropicToolDef = {
     name: "getMarketData",
     description:
-      "Fetch price and technical analysis for a forex pair, gold/commodity, crypto, or stock symbol — current price, 24h change, SMA20/50, EMA20, RSI14, recent high/low, and trend direction. Use this for ANY question about a current price or technical setup; never guess or use a remembered price. Data is cached for about a minute, so treat it as near-real-time, not tick-by-tick.",
+      "Fetch price and technical data for a forex pair, gold/commodity, crypto, or stock symbol — current price, 24h change, SMA20/50, EMA20, RSI14, recent high/low, trend direction, and the last 30 candles' raw OHLC (chronological) for reading actual price structure. Use this for ANY question about a current price or technical setup; never guess or use a remembered price. Data is cached for about a minute, so treat it as near-real-time, not tick-by-tick.",
     input_schema: {
       type: "object",
       properties: {
