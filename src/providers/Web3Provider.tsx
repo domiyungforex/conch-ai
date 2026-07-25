@@ -15,7 +15,11 @@ const config = getDefaultConfig({
   wallets: [
     {
       groupName: "Popular",
-      wallets: [metaMaskWallet, coinbaseWallet, phantomWallet, rabbyWallet, walletConnectWallet],
+      wallets: [metaMaskWallet, coinbaseWallet],
+    },
+    {
+      groupName: "All other wallets",
+      wallets: [walletConnectWallet, phantomWallet, rabbyWallet],
     },
   ],
   ssr: true,
