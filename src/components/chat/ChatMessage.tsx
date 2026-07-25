@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { CodeBlock } from "@/components/chat/CodeBlock";
+import { TradingViewChart } from "@/components/chat/TradingViewChart";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import type { ChatMessage as ChatMessageType } from "@/hooks/useChat";
 
@@ -14,6 +15,9 @@ const markdownComponents = {
   pre: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
   code: ({ className, children }: { className?: string; children?: React.ReactNode }) => {
     const match = /language-(\w+)/.exec(className ?? "");
+    if (match?.[1] === "tradingview") {
+      return <TradingViewChart symbol={String(children).replace(/\n$/, "").trim()} />;
+    }
     if (match) {
       return <CodeBlock language={match[1]} code={String(children).replace(/\n$/, "")} />;
     }
