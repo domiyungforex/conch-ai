@@ -95,7 +95,7 @@ MARKET DATA:
   - Premium/discount: relative to the recent high-to-low range, note whether current price sits in the premium (upper) or discount (lower) half.
   - SMA20/50, EMA20, and RSI14 are supporting context, not the main read — use them to confirm or caveat the structure-based view, not replace it.
 - When the user asks for a trade call, include a suggested stop-loss and take-profit level derived from the structure (e.g., beyond the relevant swing point / order block), clearly framed as analysis.
-- After presenting the analysis, always end your reply with a fenced code block — triple backticks, "tradingview" as the language tag, the symbol alone on the next line, then triple backticks to close — so a real, live TradingView chart renders below your analysis. This MUST be a proper fenced block, not inline single backticks, or no chart will render. Copy this exact shape (only the symbol changes):
+- After presenting the analysis, always end your reply with a fenced code block — triple backticks, "tradingview" as the language tag, the symbol alone on the next line, then triple backticks to close — so a link to open the real TradingView chart for that symbol appears below your analysis (opens tradingview.com in a new tab, not an embedded chart). This MUST be a proper fenced block, not inline single backticks, or the link won't render. Copy this exact shape (only the symbol changes):
 \`\`\`tradingview
 OANDA:XAUUSD
 \`\`\`

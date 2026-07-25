@@ -1,60 +1,33 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { LineChart, ExternalLink } from "lucide-react";
 
 interface Props {
   symbol: string;
 }
 
-// TradingView's own free embeddable widget — a real TradingView chart (their UI, their
-// indicators), loaded via their documented script-injection pattern. This is the actual
-// TradingView, unlike the SMC analysis elsewhere which reads Twelve Data candles — the
-// two are separate: this is the visual, that's the numeric feed Claude reasons over.
+// A link to the real tradingview.com chart for this symbol, opened in a new tab —
+// not an embedded widget. An embedded chart was tried first but was too cramped on
+// both small and large screens (confirmed by the user on both); this gives the full,
+// proper-sized, real TradingView experience instead.
 export function TradingViewChart({ symbol }: Props) {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    container.innerHTML = "";
-
-    const widgetDiv = document.createElement("div");
-    widgetDiv.className = "tradingview-widget-container__widget";
-    widgetDiv.style.height = "100%";
-    widgetDiv.style.width = "100%";
-
-    const script = document.createElement("script");
-    script.type = "text/javascript";
-    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
-    script.async = true;
-    script.textContent = JSON.stringify({
-      autosize: true,
-      symbol,
-      interval: "60",
-      timezone: "Etc/UTC",
-      theme: "dark",
-      style: "1",
-      locale: "en",
-      allow_symbol_change: true,
-      calendar: false,
-      support_host: "https://www.tradingview.com",
-    });
-
-    container.appendChild(widgetDiv);
-    container.appendChild(script);
-  }, [symbol]);
+  const url = `https://www.tradingview.com/chart/?symbol=${encodeURIComponent(symbol)}`;
 
   return (
-    <div className="my-3 rounded-xl overflow-hidden border border-white/10 not-prose">
-      <div className="flex items-center justify-between px-3 py-1.5 bg-white/5 border-b border-white/10">
-        <span className="text-xs font-mono text-slate-400">TradingView — {symbol}</span>
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="my-3 flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 hover:bg-white/10 transition-colors not-prose no-underline"
+    >
+      <div className="w-9 h-9 rounded-lg bg-linear-to-br from-coral-600 to-gold-600 flex items-center justify-center shrink-0">
+        <LineChart className="w-4 h-4 text-white" />
       </div>
-      {/* TradingView's script sets height:100% inline on .tradingview-widget-container itself —
-          an explicit height here would get silently overridden. The actual responsive size lives
-          on this outer wrapper, matching TradingView's own documented nesting. */}
-      <div className="w-full h-[280px] sm:h-[420px]">
-        <div className="tradingview-widget-container w-full h-full" ref={containerRef} />
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-white">Open {symbol} on TradingView</p>
+        <p className="text-xs text-slate-400">Full chart, all their tools, opens in a new tab</p>
       </div>
-    </div>
+      <ExternalLink className="w-4 h-4 text-slate-400 shrink-0" />
+    </a>
   );
 }
