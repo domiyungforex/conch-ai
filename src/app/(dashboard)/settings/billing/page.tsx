@@ -89,6 +89,12 @@ export default function BillingPage() {
         functionName: "transfer",
         args: [TREASURY, amount],
         chainId: base.id,
+        // A plain ERC-20 transfer costs well under 100k gas. Set this
+        // explicitly rather than relying on automatic estimation — right
+        // after a chain switch, estimation against the wallet's not-yet-
+        // settled provider state can fall back to a wildly oversized
+        // default (observed: 140,000,000, over 5x Base's 25M per-tx cap).
+        gas: BigInt(100_000),
       });
       setPendingHash(hash);
     } catch (err) {
