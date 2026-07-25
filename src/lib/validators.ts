@@ -86,3 +86,7 @@ export const SearchSchema = z.object({
   category: z.enum(["EPISODIC", "SEMANTIC", "PREFERENCE", "PROCEDURAL"]).optional(),
   minScore: z.number().min(0).max(1).default(0.3),
 });
+
+export const CodeRunSchema = z.object({
+  code: z.string().min(1).max(20000),
+});

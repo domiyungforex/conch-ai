@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { Copy, Check, Download, Play, X, ExternalLink } from "lucide-react";
+import { Copy, Check, Download, Play, X, ExternalLink, Loader2 } from "lucide-react";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Button } from "@/components/ui/button";
 
@@ -22,9 +22,16 @@ const EXT_MAP: Record<string, string> = {
   php: "php", swift: "swift", kotlin: "kt", kt: "kt",
 };
 
-const PREVIEWABLE = new Set(["html", "htm", "jsx", "tsx"]);
+type PreviewKind = "render" | "console" | "python" | null;
 
-function buildHtmlPreview(lang: string, code: string): string {
+function getPreviewKind(lang: string): PreviewKind {
+  if (lang === "html" || lang === "htm" || lang === "jsx" || lang === "tsx") return "render";
+  if (lang === "js" || lang === "javascript" || lang === "ts" || lang === "typescript") return "console";
+  if (lang === "py" || lang === "python") return "python";
+  return null;
+}
+
+function buildRenderPreview(lang: string, code: string): string {
   if (lang === "html" || lang === "htm") return code;
 
   const defaultFn = code.match(/export\s+default\s+function\s+(\w+)/);
@@ -68,6 +75,61 @@ ${body}
 </body></html>`;
 }
 
+function buildConsolePreview(lang: string, code: string): string {
+  const isTs = lang === "ts" || lang === "typescript";
+  const body = code.replace(/^\s*import\s+.*?;?\s*$/gm, "").replace(/^\s*export\s+/gm, "");
+
+  const scriptTag = isTs
+    ? `<script type="text/babel" data-presets="typescript">\n${body}\n</script>`
+    : `<script>\n${body}\n</script>`;
+
+  return `<!DOCTYPE html><html><head><meta charset="utf-8" />
+${isTs ? '<script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>' : ""}
+<style>
+body{font-family:ui-monospace,Menlo,monospace;margin:0;padding:12px;background:#0d1117;color:#c9d1d9;font-size:12.5px;white-space:pre-wrap;word-break:break-word}
+.err{color:#f87171}
+.empty{color:#6b7280;font-style:italic}
+</style>
+</head><body>
+<div id="out"></div>
+<script>
+var out = document.getElementById("out");
+var hasOutput = false;
+function fmt(a) {
+  if (typeof a === "string") return a;
+  try { return JSON.stringify(a, null, 2); } catch (e) { return String(a); }
+}
+function write(text, cls) {
+  hasOutput = true;
+  var line = document.createElement("div");
+  if (cls) line.className = cls;
+  line.textContent = text;
+  out.appendChild(line);
+}
+console.log = function () { write(Array.prototype.map.call(arguments, fmt).join(" ")); };
+console.error = function () { write(Array.prototype.map.call(arguments, fmt).join(" "), "err"); };
+console.warn = function () {
+  var msg = Array.prototype.map.call(arguments, fmt).join(" ");
+  if (msg.indexOf("in-browser Babel transformer") !== -1) return;
+  write(msg, "err");
+};
+window.onerror = function (msg) { write(String(msg), "err"); return true; };
+window.addEventListener("load", function () {
+  setTimeout(function () {
+    if (!hasOutput) write("(no console output)", "empty");
+  }, 100);
+});
+</script>
+${scriptTag}
+</body></html>`;
+}
+
+interface PyResult {
+  stdout: string;
+  stderr: string;
+  returnCode: number | null;
+}
+
 interface Props {
   language: string;
   code: string;
@@ -76,9 +138,17 @@ interface Props {
 export function CodeBlock({ language, code }: Props) {
   const [copied, setCopied] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [pyLoading, setPyLoading] = useState(false);
+  const [pyResult, setPyResult] = useState<PyResult | null>(null);
+  const [pyError, setPyError] = useState<string | null>(null);
+
   const lang = language.toLowerCase();
-  const canPreview = PREVIEWABLE.has(lang);
-  const previewSrc = useMemo(() => (canPreview ? buildHtmlPreview(lang, code) : ""), [canPreview, lang, code]);
+  const kind = getPreviewKind(lang);
+  const previewSrc = useMemo(() => {
+    if (kind === "render") return buildRenderPreview(lang, code);
+    if (kind === "console") return buildConsolePreview(lang, code);
+    return "";
+  }, [kind, lang, code]);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(code);
@@ -103,20 +173,50 @@ export function CodeBlock({ language, code }: Props) {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
+  const runPython = async () => {
+    setPyLoading(true);
+    setPyError(null);
+    try {
+      const res = await fetch("/api/code/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Execution failed");
+      setPyResult(data);
+    } catch (err) {
+      setPyError(err instanceof Error ? err.message : "Execution failed");
+    } finally {
+      setPyLoading(false);
+    }
+  };
+
+  const handleTogglePython = () => {
+    if (showPreview) {
+      setShowPreview(false);
+      return;
+    }
+    setShowPreview(true);
+    if (!pyResult && !pyLoading) runPython();
+  };
+
+  const buttonLabel = kind === "render" ? "Preview" : "Run";
+
   return (
     <div className="my-3 rounded-xl overflow-hidden border border-white/10 bg-[#0d1117] not-prose">
       <div className="flex items-center justify-between px-3 py-1.5 bg-white/5 border-b border-white/10">
         <span className="text-xs font-mono text-slate-400">{language || "text"}</span>
         <div className="flex items-center gap-1">
-          {canPreview && (
+          {kind && (
             <Button
               variant="ghost"
               size="sm"
               className="h-6 px-2 text-xs gap-1 text-slate-400 hover:text-white"
-              onClick={() => setShowPreview((v) => !v)}
+              onClick={kind === "python" ? handleTogglePython : () => setShowPreview((v) => !v)}
             >
               {showPreview ? <X className="w-3 h-3" /> : <Play className="w-3 h-3" />}
-              {showPreview ? "Hide preview" : "Preview"}
+              {showPreview ? `Hide ${buttonLabel.toLowerCase()}` : buttonLabel}
             </Button>
           )}
           <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-400 hover:text-white" onClick={handleDownload} title="Download">
@@ -128,7 +228,7 @@ export function CodeBlock({ language, code }: Props) {
         </div>
       </div>
 
-      {showPreview && canPreview && (
+      {showPreview && kind === "render" && (
         <div className="border-b border-white/10 bg-white">
           <div className="flex items-center justify-end px-2 py-1 bg-slate-100">
             <button onClick={handleOpenNewTab} className="text-[11px] text-slate-500 hover:text-slate-800 flex items-center gap-1">
@@ -136,6 +236,33 @@ export function CodeBlock({ language, code }: Props) {
             </button>
           </div>
           <iframe srcDoc={previewSrc} sandbox="allow-scripts" className="w-full h-80 border-0" title="Code preview" />
+        </div>
+      )}
+
+      {showPreview && kind === "console" && (
+        <div className="border-b border-white/10">
+          <iframe srcDoc={previewSrc} sandbox="allow-scripts" className="w-full h-48 border-0" title="Console output" />
+        </div>
+      )}
+
+      {showPreview && kind === "python" && (
+        <div className="border-b border-white/10 bg-[#0d1117] px-3 py-2 font-mono text-xs">
+          {pyLoading ? (
+            <div className="flex items-center gap-2 text-slate-400 py-2">
+              <Loader2 className="w-3.5 h-3.5 animate-spin" /> Running…
+            </div>
+          ) : pyError ? (
+            <p className="text-red-400 whitespace-pre-wrap">{pyError}</p>
+          ) : pyResult ? (
+            <div className="space-y-1">
+              {pyResult.stdout && <pre className="whitespace-pre-wrap text-slate-300">{pyResult.stdout}</pre>}
+              {pyResult.stderr && <pre className="whitespace-pre-wrap text-red-400">{pyResult.stderr}</pre>}
+              {!pyResult.stdout && !pyResult.stderr && <p className="text-slate-500 italic">(no output)</p>}
+              <button onClick={runPython} className="text-[11px] text-slate-500 hover:text-slate-300 mt-1">
+                Run again
+              </button>
+            </div>
+          ) : null}
         </div>
       )}
 
