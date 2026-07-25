@@ -49,7 +49,7 @@ export function TradingViewChart({ symbol }: Props) {
       <div className="flex items-center justify-between px-3 py-1.5 bg-white/5 border-b border-white/10">
         <span className="text-xs font-mono text-slate-400">TradingView — {symbol}</span>
       </div>
-      <div className="tradingview-widget-container" style={{ height: 420, width: "100%" }} ref={containerRef} />
+      <div className="tradingview-widget-container w-full h-[280px] sm:h-[420px]" ref={containerRef} />
     </div>
   );
 }
