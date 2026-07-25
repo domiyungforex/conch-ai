@@ -30,7 +30,7 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return new Response(JSON.stringify({ error: "Invalid request", details: parsed.error.flatten() }), { status: 400 });
   }
-  const { txHash, billingCycle } = parsed.data;
+  const { txHash, billingCycle, plan: planId } = parsed.data;
 
   const { databases } = createAdminClient();
 
@@ -56,7 +56,7 @@ export async function POST(req: Request) {
     return new Response(JSON.stringify({ error: "Could not read this transaction from chain" }), { status: 400 });
   }
 
-  const expectedAmount = usdToUsdcBaseUnits(planPriceUsd("pro", billingCycle));
+  const expectedAmount = usdToUsdcBaseUnits(planPriceUsd(planId, billingCycle));
 
   const valid =
     transfer.to.toLowerCase() === treasury.toLowerCase() &&
@@ -86,7 +86,7 @@ export async function POST(req: Request) {
       txHash,
       walletAddress: transfer.from,
       chainId: CHAIN_ID_BASE,
-      plan: "pro",
+      plan: planId,
       billingCycle,
       amountUsdcBaseUnits: Number(expectedAmount),
       periodStart: periodStart.toISOString(),
@@ -112,7 +112,7 @@ export async function POST(req: Request) {
   let updatedUser: AppwriteDoc<UserDoc>;
   try {
     updatedUser = await databases.updateDocument(DB_ID, COLLECTIONS.USERS, appwriteId, {
-      plan: "pro",
+      plan: planId,
       planExpiresAt: periodEnd.toISOString(),
     }) as unknown as AppwriteDoc<UserDoc>;
   } catch (err) {

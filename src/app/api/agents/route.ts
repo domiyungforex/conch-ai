@@ -2,7 +2,7 @@ import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type AgentDoc, type ReputationDoc, type AppwriteDoc } from "@/lib/db";
 import { AgentCreateSchema } from "@/lib/validators";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
-import { checkAgentQuota } from "@/lib/planLimits";
+import { checkAgentQuota, upgradeHint } from "@/lib/planLimits";
 import { Query, ID } from "node-appwrite";
 
 export async function GET(req: Request) {
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
   const quota = await checkAgentQuota(databases, appwriteId);
   if (!quota.allowed) {
     return new Response(JSON.stringify({
-      error: `Your plan is limited to ${quota.limit} agent${quota.limit === 1 ? "" : "s"}. Upgrade to Pro for more.`,
+      error: `Your plan is limited to ${quota.limit} agent${quota.limit === 1 ? "" : "s"}. ${upgradeHint(quota.plan)} for more.`,
       code: "QUOTA_EXCEEDED",
     }), { status: 403 });
   }

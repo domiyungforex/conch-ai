@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PAID_PLAN_IDS } from "./plans";
 
 const MAX_IMAGE_BASE64_CHARS = 5_000_000; // ~3.6MB raw, under Anthropic's 5MB/image limit
 
@@ -39,6 +40,7 @@ export const MemoryVerifyConfirmSchema = z.object({
 export const SubscriptionConfirmSchema = z.object({
   txHash: z.string().regex(/^0x[0-9a-fA-F]{64}$/),
   billingCycle: z.enum(["monthly", "annual"]),
+  plan: z.enum(PAID_PLAN_IDS),
 });
 
 export const MemoryUpdateSchema = z.object({

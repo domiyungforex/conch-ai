@@ -16,11 +16,17 @@ import { toast } from "@/components/ui/toaster";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useWalletLink } from "@/hooks/useWalletLink";
 import { hasProAccess } from "@/lib/subscription";
-import { planPriceUsd, usdToUsdcBaseUnits } from "@/lib/plans";
+import { PLANS, planPriceUsd, usdToUsdcBaseUnits, PAID_PLAN_IDS, type PaidPlanId, type PlanId } from "@/lib/plans";
 import { USDC_ADDRESS_BASE } from "@/lib/subscriptionChain";
+import { cn } from "@/lib/utils";
 import type { BillingCycle } from "@/lib/db";
 
 const TREASURY = process.env.NEXT_PUBLIC_SUBSCRIPTION_TREASURY_ADDRESS_BASE as `0x${string}` | undefined;
+
+const PLAN_BLURB: Record<PaidPlanId, string> = {
+  pro: "1,000 memories, 10 agents, unlimited chat",
+  premium: "Unlimited memories, agents & chat — everything",
+};
 
 function formatDate(iso: string | null) {
   if (!iso) return "—";
@@ -29,6 +35,7 @@ function formatDate(iso: string | null) {
 
 export default function BillingPage() {
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
+  const [plan, setPlan] = useState<PaidPlanId>("pro");
   const { isConnected, address, chainId } = useAccount();
   const { switchChainAsync } = useSwitchChain();
   const { wallet, isLoading: walletLoading, signing, verify } = useWalletLink();
@@ -43,14 +50,14 @@ export default function BillingPage() {
   // just tells it which transaction to go check.
   useEffect(() => {
     if (mined && pendingHash) {
-      confirm.mutate({ txHash: pendingHash, billingCycle: cycle });
+      confirm.mutate({ txHash: pendingHash, billingCycle: cycle, plan });
       setPendingHash(undefined);
     }
     if (mineError && pendingHash) {
       toast({ title: "Transaction failed", description: "The transfer didn't confirm on-chain.", variant: "destructive" });
       setPendingHash(undefined);
     }
-  }, [mined, mineError, pendingHash, cycle, confirm]);
+  }, [mined, mineError, pendingHash, cycle, plan, confirm]);
 
   const handleUpgrade = async () => {
     if (!TREASURY) {
@@ -74,7 +81,7 @@ export default function BillingPage() {
       if (chainId !== base.id) {
         await switchChainAsync({ chainId: base.id });
       }
-      const amount = usdToUsdcBaseUnits(planPriceUsd("pro", cycle));
+      const amount = usdToUsdcBaseUnits(planPriceUsd(plan, cycle));
       const hash = await writeContractAsync({
         address: USDC_ADDRESS_BASE,
         abi: erc20Abi,
@@ -103,7 +110,9 @@ export default function BillingPage() {
   const awaitingChain = sending || (!!pendingHash && !mined && !mineError);
   const status = sub?.status;
   const isPro = status ? hasProAccess(status) : false;
-  const price = planPriceUsd("pro", cycle);
+  const currentPlanId: PlanId = isPro && sub?.plan && sub.plan in PLANS ? (sub.plan as PlanId) : "free";
+  const currentPlanLabel = PLANS[currentPlanId].label;
+  const isRenewal = isPro && currentPlanId === plan;
 
   return (
     <div className="space-y-6">
@@ -118,7 +127,7 @@ export default function BillingPage() {
             ) : (
               <div className="flex items-center gap-2">
                 <Badge className={isPro ? "bg-coral-500/15 text-coral-300 border-coral-500/30" : "bg-slate-500/15 text-slate-300 border-slate-500/30"}>
-                  {isPro ? "Pro" : "Free"}
+                  {currentPlanLabel}
                 </Badge>
                 {status === "grace" && (
                   <Badge className="bg-amber-500/15 text-amber-300 border-amber-500/30">Renewal overdue</Badge>
@@ -138,7 +147,7 @@ export default function BillingPage() {
       <GlassCard className="p-6">
         <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
           <h2 className="text-base font-semibold text-white">
-            {isPro ? "Renew Pro" : "Upgrade to Pro"}
+            {isRenewal ? `Renew ${currentPlanLabel}` : currentPlanId === "free" ? "Upgrade your plan" : "Change your plan"}
           </h2>
           <Tabs value={cycle} onValueChange={(v) => setCycle(v as BillingCycle)}>
             <TabsList className="glass border border-white/10 h-9">
@@ -148,9 +157,33 @@ export default function BillingPage() {
           </Tabs>
         </div>
 
-        <div className="flex items-baseline gap-1 mb-6">
-          <span className="text-3xl font-bold text-white">${price}</span>
-          <span className="text-sm text-slate-400">/ {cycle === "annual" ? "year" : "month"}</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+          {PAID_PLAN_IDS.map((id) => {
+            const active = plan === id;
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setPlan(id)}
+                className={cn(
+                  "text-left p-4 rounded-xl border transition-colors",
+                  active ? "border-coral-500/50 bg-coral-500/10" : "border-white/8 bg-white/5 hover:bg-white/8"
+                )}
+              >
+                <div className="flex items-center justify-between mb-1 gap-2">
+                  <span className="text-sm font-semibold text-white">{PLANS[id].label}</span>
+                  {currentPlanId === id && isPro && (
+                    <Badge className="text-xs bg-emerald-500/15 text-emerald-300 border-emerald-500/30">Current</Badge>
+                  )}
+                </div>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-2xl font-bold text-white">${planPriceUsd(id, cycle)}</span>
+                  <span className="text-xs text-slate-400">/ {cycle === "annual" ? "year" : "month"}</span>
+                </div>
+                <p className="text-xs text-slate-400 mt-1">{PLAN_BLURB[id]}</p>
+              </button>
+            );
+          })}
         </div>
 
         {!isConnected ? (
@@ -190,7 +223,17 @@ export default function BillingPage() {
         ) : (
           <Button onClick={handleUpgrade} disabled={awaitingChain || confirm.isPending} className="gap-2">
             {(awaitingChain || confirm.isPending) && <LoadingSpinner size="sm" />}
-            {sending ? "Confirm in your wallet…" : awaitingChain ? "Waiting for confirmation…" : confirm.isPending ? "Activating…" : isPro ? "Renew now" : "Upgrade to Pro"}
+            {sending
+              ? "Confirm in your wallet…"
+              : awaitingChain
+              ? "Waiting for confirmation…"
+              : confirm.isPending
+              ? "Activating…"
+              : isRenewal
+              ? "Renew now"
+              : currentPlanId === "free"
+              ? `Subscribe to ${PLANS[plan].label}`
+              : `Switch to ${PLANS[plan].label}`}
           </Button>
         )}
       </GlassCard>
@@ -208,7 +251,9 @@ export default function BillingPage() {
                 <div className="flex items-center gap-2 min-w-0">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                   <div className="min-w-0">
-                    <p className="text-white capitalize">Pro · {p.billingCycle}</p>
+                    <p className="text-white capitalize">
+                      {p.plan in PLANS ? PLANS[p.plan as PlanId].label : p.plan} · {p.billingCycle}
+                    </p>
                     <p className="text-xs text-slate-500">{formatDate(p.confirmedAt)}</p>
                   </div>
                 </div>

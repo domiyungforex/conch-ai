@@ -2,7 +2,8 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type UserDoc, type AppwriteDoc } from "@/lib/db";
-import { getSubscriptionStatus, hasProAccess } from "@/lib/subscription";
+import { getSubscriptionStatus, getEffectivePlan } from "@/lib/subscription";
+import { PLANS } from "@/lib/plans";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
@@ -21,7 +22,7 @@ export default async function ProfilePage() {
 
   const initial = (user.name?.[0] ?? user.email[0] ?? "?").toUpperCase();
   const status = getSubscriptionStatus(user);
-  const planLabel = hasProAccess(status) ? "Pro" : "Free";
+  const planLabel = PLANS[getEffectivePlan(user)].label;
 
   return (
     <div className="space-y-6">

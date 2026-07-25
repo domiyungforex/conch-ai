@@ -2,14 +2,24 @@ import type { BillingCycle } from "./db";
 import { USDC_DECIMALS } from "./subscriptionChain";
 
 // Matches the prices already advertised on the landing page
-// (src/components/landing/PricingSection.tsx) — $19/mo, or $15/mo billed
-// annually ($180/yr). Keep these in sync if either changes.
+// (src/components/landing/PricingSection.tsx). Keep these in sync if either
+// changes.
 export const PLANS = {
   free: { id: "free", label: "Free", priceMonthlyUsd: 0, priceAnnualUsd: 0 },
   pro: { id: "pro", label: "Pro", priceMonthlyUsd: 19, priceAnnualUsd: 180 },
+  premium: { id: "premium", label: "Premium", priceMonthlyUsd: 39, priceAnnualUsd: 374 },
 } as const;
 
 export type PlanId = keyof typeof PLANS;
+
+// Any plan a user can actually be subscribed to and pay for (excludes "free",
+// which is the default state rather than something purchased).
+export const PAID_PLAN_IDS = ["pro", "premium"] as const satisfies readonly PlanId[];
+export type PaidPlanId = (typeof PAID_PLAN_IDS)[number];
+
+export function isPaidPlanId(id: string): id is PaidPlanId {
+  return (PAID_PLAN_IDS as readonly string[]).includes(id);
+}
 
 export function planPriceUsd(planId: PlanId, cycle: BillingCycle): number {
   const plan = PLANS[planId];

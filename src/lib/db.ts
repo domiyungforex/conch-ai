@@ -62,6 +62,7 @@ export interface ConversationDoc {
 
 export interface MessageDoc {
   conversationId: string;
+  userId: string;
   role: string;
   content: string;
   tokensUsed: number | null;

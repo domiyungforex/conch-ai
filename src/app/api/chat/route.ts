@@ -9,7 +9,7 @@ import type { MemoryWithScore } from "@/lib/memory";
 import { ChatRequestSchema } from "@/lib/validators";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
-import { checkConversationQuota, checkMemoryQuota } from "@/lib/planLimits";
+import { checkConversationQuota, checkMemoryQuota, checkChatMessageQuota, upgradeHint } from "@/lib/planLimits";
 import { Query, ID, Permission, Role } from "node-appwrite";
 
 export const runtime = "nodejs";
@@ -31,6 +31,16 @@ export async function POST(req: Request) {
   const rateCheck = checkRateLimit(`chat:${appwriteId}`, 30, 60_000);
   if (!rateCheck.success) return rateLimitResponse(rateCheck.resetAt);
 
+  const { databases } = createAdminClient();
+
+  const chatQuota = await checkChatMessageQuota(databases, appwriteId);
+  if (!chatQuota.allowed) {
+    return new Response(JSON.stringify({
+      error: `Free plan is limited to ${chatQuota.limit} messages a day. ${upgradeHint(chatQuota.plan)} for unlimited chat.`,
+      code: "QUOTA_EXCEEDED",
+    }), { status: 403 });
+  }
+
   let body: unknown;
   try {
     body = await req.json();
@@ -44,7 +54,6 @@ export async function POST(req: Request) {
   }
 
   const { conversationId, agentId, message, images } = parsed.data;
-  const { databases } = createAdminClient();
 
   let agent: AppwriteDoc<AgentDoc> | null = null;
   let convId!: string;
@@ -84,6 +93,7 @@ export async function POST(req: Request) {
 
       await databases.createDocument(DB_ID, COLLECTIONS.MESSAGES, ID.unique(), {
         conversationId: convId,
+        userId: appwriteId,
         role: "user",
         content: message,
         tokensUsed: null,
@@ -108,6 +118,7 @@ export async function POST(req: Request) {
 
       await databases.createDocument(DB_ID, COLLECTIONS.MESSAGES, ID.unique(), {
         conversationId: convId,
+        userId: appwriteId,
         role: "user",
         content: message,
         tokensUsed: null,
@@ -178,7 +189,7 @@ export async function POST(req: Request) {
       try {
         const quota = await checkMemoryQuota(databases, appwriteId);
         if (!quota.allowed) {
-          return { saved: false, error: `Free plan is limited to ${quota.limit} memories. Let the user know they'd need to upgrade to Pro for unlimited memories.` };
+          return { saved: false, error: `Your plan is limited to ${quota.limit} memories. Let the user know they'd need to ${upgradeHint(quota.plan).toLowerCase()} for more memory space.` };
         }
 
         const memId = ID.unique();
@@ -439,6 +450,7 @@ export async function POST(req: Request) {
         try {
           await databases.createDocument(DB_ID, COLLECTIONS.MESSAGES, ID.unique(), {
             conversationId: convId,
+            userId: appwriteId,
             role: "assistant",
             content: text,
             tokensUsed: totalTokens ?? null,

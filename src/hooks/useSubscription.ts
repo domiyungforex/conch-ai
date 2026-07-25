@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/components/ui/toaster";
 import type { SubscriptionStatus } from "@/lib/subscription";
+import type { PaidPlanId } from "@/lib/plans";
 import type { PaymentDoc, AppwriteDoc, BillingCycle } from "@/lib/db";
 
 interface SubscriptionData {
@@ -18,7 +19,7 @@ async function fetchSubscription(): Promise<SubscriptionData> {
   return res.json();
 }
 
-async function confirmPayment(data: { txHash: string; billingCycle: BillingCycle }) {
+async function confirmPayment(data: { txHash: string; billingCycle: BillingCycle; plan: PaidPlanId }) {
   const res = await fetch("/api/subscription/confirm", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

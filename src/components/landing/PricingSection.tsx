@@ -6,17 +6,20 @@ import { motion } from "framer-motion";
 import { Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GlassCard } from "@/components/shared/GlassCard";
+import { PLANS } from "@/lib/plans";
 
 const plans = [
   {
-    name: "Free",
-    monthly: 0,
-    yearly: 0,
+    name: PLANS.free.label,
+    monthly: PLANS.free.priceMonthlyUsd,
+    yearly: Math.round(PLANS.free.priceAnnualUsd / 12),
+    annualTotal: PLANS.free.priceAnnualUsd,
     description: "Perfect for getting started",
     features: [
       "100 memories",
       "1 AI agent",
       "50 conversations/month",
+      "20 chat messages/day",
       "Semantic search",
       "Basic memory categories",
       "Community support",
@@ -26,14 +29,16 @@ const plans = [
     highlight: false,
   },
   {
-    name: "Pro",
-    monthly: 19,
-    yearly: 15,
+    name: PLANS.pro.label,
+    monthly: PLANS.pro.priceMonthlyUsd,
+    yearly: Math.round(PLANS.pro.priceAnnualUsd / 12),
+    annualTotal: PLANS.pro.priceAnnualUsd,
     description: "For serious AI power users",
     features: [
-      "Unlimited memories",
+      "1,000 memories",
       "10 AI agents",
       "Unlimited conversations",
+      "Unlimited chat",
       "Advanced semantic search",
       "Wallet identity proof",
       "Memory export & import",
@@ -45,22 +50,23 @@ const plans = [
     highlight: true,
   },
   {
-    name: "Enterprise",
-    monthly: null,
-    yearly: null,
-    description: "For teams and organizations",
+    name: PLANS.premium.label,
+    monthly: PLANS.premium.priceMonthlyUsd,
+    yearly: Math.round(PLANS.premium.priceAnnualUsd / 12),
+    annualTotal: PLANS.premium.priceAnnualUsd,
+    description: "Every limit removed",
     features: [
+      "Unlimited memories",
+      "Unlimited AI agents",
+      "Unlimited conversations",
+      "Unlimited chat",
       "Everything in Pro",
-      "Unlimited agents & teams",
-      "Custom memory architecture",
-      "SSO & advanced auth",
-      "On-chain reputation system",
-      "Dedicated infrastructure",
-      "SLA guarantee",
-      "White-glove onboarding",
+      "Wallet identity proof",
+      "API access",
+      "Priority support",
     ],
-    cta: "Contact Sales",
-    href: "mailto:sales@conch.ai",
+    cta: "Start Premium",
+    href: "/settings/billing",
     highlight: false,
   },
 ];
@@ -142,7 +148,7 @@ export function PricingSection() {
                   <div className="text-3xl font-bold text-white">Custom</div>
                 )}
                 {yearly && plan.monthly !== null && plan.monthly > 0 && (
-                  <p className="text-xs text-emerald-400 mt-1">Billed annually — save ${(plan.monthly - plan.yearly!) * 12}/year</p>
+                  <p className="text-xs text-emerald-400 mt-1">Billed annually — save ${plan.monthly * 12 - plan.annualTotal}/year</p>
                 )}
               </div>
 
