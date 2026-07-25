@@ -6,8 +6,24 @@ import { Brain, RefreshCw, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { CodeBlock } from "@/components/chat/CodeBlock";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import type { ChatMessage as ChatMessageType } from "@/hooks/useChat";
+
+const markdownComponents = {
+  pre: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
+  code: ({ className, children }: { className?: string; children?: React.ReactNode }) => {
+    const match = /language-(\w+)/.exec(className ?? "");
+    if (match) {
+      return <CodeBlock language={match[1]} code={String(children).replace(/\n$/, "")} />;
+    }
+    return (
+      <code className="px-1 py-0.5 rounded bg-white/10 text-coral-300 text-[0.85em] font-mono">
+        {children}
+      </code>
+    );
+  },
+};
 
 interface Props {
   message: ChatMessageType;
@@ -80,7 +96,7 @@ export function ChatMessage({ message, isStreaming, streamingContent, onRetry }:
                   <span className="inline-block w-0.5 h-4 bg-coral-400 ml-0.5 align-middle animate-pulse" />
                 </motion.p>
               ) : content ? (
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+                <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>{content}</ReactMarkdown>
               ) : null}
             </div>
           )}
