@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type ConversationDoc, type AppwriteDoc } from "@/lib/db";
 import { ConversationCreateSchema } from "@/lib/validators";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
+import { checkConversationQuota } from "@/lib/planLimits";
 import { Query, ID } from "node-appwrite";
 
 export async function GET(req: Request) {
@@ -37,6 +38,15 @@ export async function POST(req: Request) {
   if (!parsed.success) return new Response(JSON.stringify({ error: "Invalid request" }), { status: 400 });
 
   const { databases } = createAdminClient();
+
+  const quota = await checkConversationQuota(databases, appwriteId);
+  if (!quota.allowed) {
+    return new Response(JSON.stringify({
+      error: `Free plan is limited to ${quota.limit} new conversations a month. Upgrade to Pro for unlimited.`,
+      code: "QUOTA_EXCEEDED",
+    }), { status: 403 });
+  }
+
   const conversation = await databases.createDocument(DB_ID, COLLECTIONS.CONVERSATIONS, ID.unique(), {
     userId: appwriteId,
     agentId: parsed.data.agentId ?? null,

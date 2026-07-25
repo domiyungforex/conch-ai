@@ -4,6 +4,7 @@ import { generateEmbedding } from "@/lib/embeddings";
 import { MemoryCreateSchema } from "@/lib/validators";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
+import { checkMemoryQuota } from "@/lib/planLimits";
 import { Query, ID, Permission, Role } from "node-appwrite";
 
 export async function GET(req: Request) {
@@ -50,6 +51,15 @@ export async function POST(req: Request) {
   }
 
   const { databases } = createAdminClient();
+
+  const quota = await checkMemoryQuota(databases, appwriteId);
+  if (!quota.allowed) {
+    return new Response(JSON.stringify({
+      error: `Free plan is limited to ${quota.limit} memories. Upgrade to Pro for unlimited.`,
+      code: "QUOTA_EXCEEDED",
+    }), { status: 403 });
+  }
+
   const memId = ID.unique();
 
   let embedding: number[] = [];

@@ -8,6 +8,7 @@ import type { MemoryWithScore } from "@/lib/memory";
 import { ChatRequestSchema } from "@/lib/validators";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
+import { checkConversationQuota, checkMemoryQuota } from "@/lib/planLimits";
 import { Query, ID, Permission, Role } from "node-appwrite";
 
 export const runtime = "nodejs";
@@ -88,6 +89,14 @@ export async function POST(req: Request) {
         memoryIds: [],
       });
     } else {
+      const quota = await checkConversationQuota(databases, appwriteId);
+      if (!quota.allowed) {
+        return new Response(JSON.stringify({
+          error: `Free plan is limited to ${quota.limit} new conversations a month. Upgrade to Pro for unlimited.`,
+          code: "QUOTA_EXCEEDED",
+        }), { status: 403 });
+      }
+
       const conv = await databases.createDocument(DB_ID, COLLECTIONS.CONVERSATIONS, ID.unique(), {
         userId: appwriteId,
         agentId: agent?.$id ?? null,
@@ -166,6 +175,11 @@ export async function POST(req: Request) {
         content: string; category: string; importance: number; tags: string[];
       };
       try {
+        const quota = await checkMemoryQuota(databases, appwriteId);
+        if (!quota.allowed) {
+          return { saved: false, error: `Free plan is limited to ${quota.limit} memories. Let the user know they'd need to upgrade to Pro for unlimited memories.` };
+        }
+
         const memId = ID.unique();
 
         let embedding: number[] = [];
