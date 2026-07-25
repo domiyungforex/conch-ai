@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { useAccount, useWriteContract, useWaitForTransactionReceipt, useSwitchChain } from "wagmi";
 import { base } from "wagmi/chains";
 import { erc20Abi, BaseError } from "viem";
 import { useQuery } from "@tanstack/react-query";
@@ -37,7 +37,8 @@ function formatDate(iso: string | null) {
 
 export default function BillingPage() {
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
-  const { isConnected, address } = useAccount();
+  const { isConnected, address, chainId } = useAccount();
+  const { switchChainAsync } = useSwitchChain();
   const { data: wallet } = useQuery({ queryKey: ["wallet"], queryFn: fetchWallet });
   const { data: sub, isLoading: subLoading, isError: subError, confirm } = useSubscription();
 
@@ -74,15 +75,20 @@ export default function BillingPage() {
       return;
     }
     try {
+      // Most wallets default to Ethereum mainnet. Passing chainId alone to
+      // writeContractAsync doesn't prompt a switch — it just rejects the
+      // mismatch outright — so request the switch explicitly first and let
+      // the wallet's own network-switch prompt handle it.
+      if (chainId !== base.id) {
+        await switchChainAsync({ chainId: base.id });
+      }
       const amount = usdToUsdcBaseUnits(planPriceUsd("pro", cycle));
       const hash = await writeContractAsync({
         address: USDC_ADDRESS_BASE,
         abi: erc20Abi,
         functionName: "transfer",
         args: [TREASURY, amount],
-        chainId: base.id, // force Base explicitly — most wallets default to Ethereum
-        // mainnet, and without this the wallet can silently refuse (wrong
-        // chain) rather than ever opening its approval prompt at all.
+        chainId: base.id,
       });
       setPendingHash(hash);
     } catch (err) {
