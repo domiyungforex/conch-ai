@@ -19,13 +19,17 @@ export const PRO_LIMITS = {
   agents: 10,
 };
 
-export async function getPlan(databases: Databases, userId: string): Promise<PlanId> {
+async function getUser(databases: Databases, userId: string): Promise<AppwriteDoc<UserDoc> | null> {
   try {
-    const user = await databases.getDocument(DB_ID, COLLECTIONS.USERS, userId) as unknown as AppwriteDoc<UserDoc>;
-    return getEffectivePlan(user);
+    return await databases.getDocument(DB_ID, COLLECTIONS.USERS, userId) as unknown as AppwriteDoc<UserDoc>;
   } catch {
-    return "free";
+    return null;
   }
+}
+
+export async function getPlan(databases: Databases, userId: string): Promise<PlanId> {
+  const user = await getUser(databases, userId);
+  return user ? getEffectivePlan(user) : "free";
 }
 
 interface QuotaResult {
@@ -42,8 +46,13 @@ export function upgradeHint(plan: PlanId): string {
 }
 
 export async function checkMemoryQuota(databases: Databases, userId: string): Promise<QuotaResult> {
-  const plan = await getPlan(databases, userId);
-  if (plan === "premium") return { allowed: true, plan };
+  const user = await getUser(databases, userId);
+  const plan = user ? getEffectivePlan(user) : "free";
+  // Anyone who was already an active/grace Pro subscriber when the 1,000
+  // cap was introduced keeps unlimited memory — see the field comment on
+  // UserDoc.grandfatheredUnlimitedMemory in db.ts.
+  const grandfathered = plan === "pro" && user?.grandfatheredUnlimitedMemory === true;
+  if (plan === "premium" || grandfathered) return { allowed: true, plan };
   const limit = plan === "pro" ? PRO_LIMITS.memories : FREE_LIMITS.memories;
   const result = await databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, [
     Query.equal("userId", userId), Query.equal("isArchived", false), Query.limit(1),

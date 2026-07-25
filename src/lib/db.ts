@@ -25,6 +25,12 @@ export interface UserDoc {
   plan: string;
   planExpiresAt: string | null;
   onboarded: boolean;
+  // Set once, at the moment the Pro memory cap was introduced, for whoever
+  // was already an active/grace Pro subscriber at that point — so tightening
+  // the limit for new signups never retroactively blocks someone who already
+  // paid under the old unlimited-memory terms. Never set for anyone after
+  // that one-time migration; new Pro subscribers get the real cap.
+  grandfatheredUnlimitedMemory?: boolean;
   publicProfile?: boolean;
   notifyChatSummaries?: boolean;
   notifyMemoryInsights?: boolean;
