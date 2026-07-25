@@ -4,6 +4,7 @@ import { streamAnthropicChat, type AnthropicToolDef } from "@/lib/anthropicRaw";
 import { retrieveRelevantMemories, buildSystemPrompt } from "@/lib/memory";
 import { generateEmbedding } from "@/lib/embeddings";
 import { calculate } from "@/lib/calculator";
+import { getMarketAnalysis } from "@/lib/marketData";
 import type { MemoryWithScore } from "@/lib/memory";
 import { ChatRequestSchema } from "@/lib/validators";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
@@ -377,6 +378,41 @@ export async function POST(req: Request) {
     },
   };
 
+  // Tool: real price + technical analysis (SMA/EMA/RSI, recent high/low, trend) for
+  // forex, gold, crypto, and stocks — never a substitute for the calculate tool, and
+  // never a stand-in for the user's own decision to enter a trade.
+  const marketDataTool: AnthropicToolDef = {
+    name: "getMarketData",
+    description:
+      "Fetch price and technical analysis for a forex pair, gold/commodity, crypto, or stock symbol — current price, 24h change, SMA20/50, EMA20, RSI14, recent high/low, and trend direction. Use this for ANY question about a current price or technical setup; never guess or use a remembered price. Data is cached for about a minute, so treat it as near-real-time, not tick-by-tick.",
+    input_schema: {
+      type: "object",
+      properties: {
+        symbol: {
+          type: "string",
+          description:
+            "Symbol in Twelve Data format. Forex pairs: \"EUR/USD\", \"GBP/JPY\". Gold: \"XAU/USD\". Crypto: \"BTC/USD\", \"ETH/USD\". Stocks: ticker, e.g. \"AAPL\".",
+        },
+        interval: {
+          type: "string",
+          enum: ["1min", "5min", "15min", "30min", "1h", "4h", "1day"],
+          description: "Candle interval. Default \"1h\" for general questions, \"1day\" for longer-term trend questions.",
+        },
+      },
+      required: ["symbol"],
+    },
+    execute: async (input) => {
+      const { symbol, interval } = input as { symbol: string; interval?: string };
+      const apiKey = process.env.TWELVEDATA_API_KEY;
+      if (!apiKey) return { error: "Market data isn't configured yet." };
+      try {
+        return await getMarketAnalysis(apiKey, symbol, interval ?? "1h");
+      } catch (err) {
+        return { error: err instanceof Error ? err.message : "Could not fetch market data" };
+      }
+    },
+  };
+
   // Images (if any) precede the text block, matching Anthropic's documented convention.
   const finalUserContent = images && images.length > 0
     ? [
@@ -398,7 +434,7 @@ export async function POST(req: Request) {
       maxTokens: agent?.maxTokens ?? 2000,
       temperature: agent?.temperature ?? 0.7,
       maxSteps: 3,
-      tools: [saveMemory, searchMemory, calculateTool, listMemories, forgetMemory],
+      tools: [saveMemory, searchMemory, calculateTool, listMemories, forgetMemory, marketDataTool],
       onFinish: async ({ text, totalTokens }) => {
         try {
           await databases.createDocument(DB_ID, COLLECTIONS.MESSAGES, ID.unique(), {
