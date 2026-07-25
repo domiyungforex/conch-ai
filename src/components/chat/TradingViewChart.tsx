@@ -49,7 +49,12 @@ export function TradingViewChart({ symbol }: Props) {
       <div className="flex items-center justify-between px-3 py-1.5 bg-white/5 border-b border-white/10">
         <span className="text-xs font-mono text-slate-400">TradingView — {symbol}</span>
       </div>
-      <div className="tradingview-widget-container w-full h-[280px] sm:h-[420px]" ref={containerRef} />
+      {/* TradingView's script sets height:100% inline on .tradingview-widget-container itself —
+          an explicit height here would get silently overridden. The actual responsive size lives
+          on this outer wrapper, matching TradingView's own documented nesting. */}
+      <div className="w-full h-[280px] sm:h-[420px]">
+        <div className="tradingview-widget-container w-full h-full" ref={containerRef} />
+      </div>
     </div>
   );
 }
