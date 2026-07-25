@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Menu, Bell } from "lucide-react";
 import { UserMenu } from "./UserMenu";
 import { Logo } from "@/components/shared/Logo";
@@ -75,6 +76,14 @@ export function Topbar() {
         />
         Live
       </div>
+      {/* Global wallet connect/status — reachable from every page so a live
+          session (which can drop independently of the linked wallet on file)
+          is never a dead end stuck behind a specific page. */}
+      <ConnectButton
+        showBalance={false}
+        chainStatus="none"
+        accountStatus={{ smallScreen: "avatar", largeScreen: "address" }}
+      />
       <Button variant="ghost" size="icon" className="text-slate-400">
         <Bell className="h-5 w-5" />
       </Button>

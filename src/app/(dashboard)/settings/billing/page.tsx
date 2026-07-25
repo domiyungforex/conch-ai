@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt, useSwitchChain } from "wagmi";
 import { base } from "wagmi/chains";
 import { erc20Abi, BaseError } from "viem";
-import { useQuery } from "@tanstack/react-query";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { CheckCircle2, ExternalLink, Wallet as WalletIcon } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
@@ -15,20 +14,13 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/toaster";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useWalletLink } from "@/hooks/useWalletLink";
 import { hasProAccess } from "@/lib/subscription";
 import { planPriceUsd, usdToUsdcBaseUnits } from "@/lib/plans";
 import { USDC_ADDRESS_BASE } from "@/lib/subscriptionChain";
-import type { WalletPublic } from "@/types/api";
 import type { BillingCycle } from "@/lib/db";
 
 const TREASURY = process.env.NEXT_PUBLIC_SUBSCRIPTION_TREASURY_ADDRESS_BASE as `0x${string}` | undefined;
-
-async function fetchWallet(): Promise<WalletPublic | null> {
-  const res = await fetch("/api/wallet");
-  if (!res.ok) return null;
-  const data = await res.json();
-  return data.wallet ?? null;
-}
 
 function formatDate(iso: string | null) {
   if (!iso) return "—";
@@ -39,7 +31,7 @@ export default function BillingPage() {
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
   const { isConnected, address, chainId } = useAccount();
   const { switchChainAsync } = useSwitchChain();
-  const { data: wallet } = useQuery({ queryKey: ["wallet"], queryFn: fetchWallet });
+  const { wallet, isLoading: walletLoading, signing, verify } = useWalletLink();
   const { data: sub, isLoading: subLoading, isError: subError, confirm } = useSubscription();
 
   const { writeContractAsync, isPending: sending } = useWriteContract();
@@ -161,15 +153,30 @@ export default function BillingPage() {
           <span className="text-sm text-slate-400">/ {cycle === "annual" ? "year" : "month"}</span>
         </div>
 
-        {!isConnected || !wallet ? (
-          <div className="flex items-start gap-3 p-4 bg-white/5 rounded-xl border border-white/8">
-            <WalletIcon className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
+        {!isConnected ? (
+          <div className="flex items-center justify-between gap-3 p-4 bg-white/5 rounded-xl border border-white/8 flex-wrap">
+            <div className="flex items-start gap-3">
+              <WalletIcon className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm text-white">Connect a wallet to subscribe</p>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Payment is a direct USDC transfer on Base from your own wallet — connect right here to pay.
+                </p>
+              </div>
+            </div>
+            <ConnectButton showBalance={false} chainStatus="none" accountStatus="address" />
+          </div>
+        ) : walletLoading || signing || verify.isPending ? (
+          <div className="flex items-center gap-3 p-4 bg-white/5 rounded-xl border border-white/8 text-sm text-slate-300">
+            <LoadingSpinner size="sm" />
+            {signing ? "Sign the message in your wallet to verify it…" : verify.isPending ? "Verifying signature…" : "Checking your wallet…"}
+          </div>
+        ) : !wallet ? (
+          <div className="flex items-start gap-3 p-4 bg-amber-500/10 rounded-xl border border-amber-500/20">
+            <WalletIcon className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
             <div>
-              <p className="text-sm text-white">Link a wallet to subscribe</p>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Payment is a direct USDC transfer on Base from your own wallet.{" "}
-                <Link href="/wallet" className="text-coral-400 hover:text-coral-300 underline">Connect one on the Wallet page</Link>.
-              </p>
+              <p className="text-sm text-amber-200">Couldn&apos;t verify this wallet.</p>
+              {verify.isError && <p className="text-xs text-amber-300/80 mt-0.5">Try connecting again and approve the signature request.</p>}
             </div>
           </div>
         ) : address?.toLowerCase() !== wallet.address.toLowerCase() ? (

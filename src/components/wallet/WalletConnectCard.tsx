@@ -1,95 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useAccount, useSignMessage, useDisconnect } from "wagmi";
+import { useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, Unlink, ExternalLink, Copy } from "lucide-react";
+import { CheckCircle2, Unlink, ExternalLink, Copy, WifiOff } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/toaster";
-import type { WalletPublic } from "@/types/api";
-
-async function fetchWallet(): Promise<WalletPublic | null> {
-  const res = await fetch("/api/wallet");
-  if (!res.ok) return null;
-  const data = await res.json();
-  return data.wallet ?? null;
-}
-
-async function verifyWallet(data: { address: string; signature: string; message: string }): Promise<WalletPublic> {
-  const res = await fetch("/api/wallet", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) throw new Error("Failed to verify wallet");
-  const body = await res.json();
-  return body.wallet;
-}
-
-async function unlinkWallet(): Promise<void> {
-  const res = await fetch("/api/wallet", { method: "DELETE" });
-  if (!res.ok) throw new Error("Failed to unlink wallet");
-}
+import { useWalletLink } from "@/hooks/useWalletLink";
 
 function truncateAddress(addr: string) {
   return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
 }
 
 export function WalletConnectCard() {
-  const qc = useQueryClient();
-  const { address, isConnected, chain } = useAccount();
-  const { disconnect } = useDisconnect();
-  const { signMessageAsync } = useSignMessage();
+  const { wallet, isLoading, isConnected, chain, signing, verify, unlink } = useWalletLink();
   const [copied, setCopied] = useState(false);
-  const [signing, setSigning] = useState(false);
-
-  const { data: wallet, isLoading } = useQuery({
-    queryKey: ["wallet"],
-    queryFn: fetchWallet,
-  });
-
-  const verify = useMutation({
-    mutationFn: verifyWallet,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["wallet"] });
-      toast({ title: "Wallet linked" });
-    },
-  });
-
-  const unlink = useMutation({
-    mutationFn: unlinkWallet,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["wallet"] });
-      toast({ title: "Wallet unlinked" });
-    },
-    onError: (err: Error) => toast({ title: "Failed to unlink wallet", description: err.message, variant: "destructive" }),
-  });
-
-  useEffect(() => {
-    if (isConnected && address && !wallet && !signing && !verify.isPending) {
-      handleSign();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isConnected, address]);
-
-  const handleSign = async () => {
-    if (!address) return;
-    setSigning(true);
-    try {
-      const message = `Sign in to Conch: ${Date.now()}`;
-      const signature = await signMessageAsync({ message });
-      await verify.mutateAsync({ address, signature, message });
-    } catch {
-      // user rejected or error — disconnect so they can retry
-      disconnect();
-    } finally {
-      setSigning(false);
-    }
-  };
 
   const copyAddress = () => {
     if (!wallet?.address) return;
@@ -169,11 +96,26 @@ export function WalletConnectCard() {
             <p className="text-xs text-emerald-400">Address copied!</p>
           )}
 
+          {/* Linking to Conch never expires, but the live session in this browser
+              can — a new device, cleared storage, or an expired mobile
+              WalletConnect session all drop `isConnected` without unlinking the
+              wallet. Surface a reconnect path right here instead of leaving the
+              user stuck on a page with no connect button at all. */}
+          {!isConnected && (
+            <div className="flex items-center justify-between gap-3 p-3 bg-amber-500/10 rounded-xl border border-amber-500/20 flex-wrap">
+              <div className="flex items-center gap-2 text-xs text-amber-200">
+                <WifiOff className="w-3.5 h-3.5 shrink-0" />
+                Not connected in this browser right now — reconnect to pay or manage your wallet.
+              </div>
+              <ConnectButton showBalance={false} chainStatus="none" accountStatus="address" />
+            </div>
+          )}
+
           <Button
             variant="destructive"
             size="sm"
             className="gap-1.5"
-            onClick={() => unlink.mutate()}
+            onClick={() => unlink.mutate(undefined, { onSuccess: () => toast({ title: "Wallet unlinked" }), onError: (err: Error) => toast({ title: "Failed to unlink wallet", description: err.message, variant: "destructive" }) })}
             disabled={unlink.isPending}
           >
             {unlink.isPending ? <LoadingSpinner size="sm" /> : <Unlink className="w-3.5 h-3.5" />}
