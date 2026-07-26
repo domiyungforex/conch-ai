@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserMenu } from "./UserMenu";
-import { LayoutDashboard, MessageSquare, Brain, Bot, Share2, Star, Wallet, Settings, Code2 } from "lucide-react";
+import {
+  LayoutDashboard, MessageSquare, Brain, Bot, Share2, Star, Wallet, Settings, Code2,
+  Building2, Landmark, Lightbulb, TrendingUp, Store,
+} from "lucide-react";
 import { Logo } from "@/components/shared/Logo";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +17,11 @@ const navItems = [
   { href: "/agents",      icon: Bot,             label: "Agents",          section: "WORKSPACE" },
   { href: "/shared",      icon: Share2,          label: "Shared Contexts", section: "SOCIAL" },
   { href: "/reputation",  icon: Star,            label: "Reputation",      section: "SOCIAL" },
+  { href: "/business",      icon: Building2,     label: "Business",        section: "MODULES" },
+  { href: "/financial",     icon: Landmark,      label: "Financial",       section: "MODULES" },
+  { href: "/opportunities", icon: Lightbulb,     label: "Opportunities",   section: "MODULES" },
+  { href: "/economic",      icon: TrendingUp,    label: "Economic",        section: "MODULES" },
+  { href: "/marketplace",   icon: Store,         label: "Marketplace",     section: "MODULES" },
   { href: "/wallet",      icon: Wallet,          label: "Wallet",          section: "SETTINGS" },
   { href: "/developers",  icon: Code2,           label: "API Docs",        section: "SETTINGS" },
   { href: "/settings",    icon: Settings,        label: "Settings",        section: "SETTINGS" },

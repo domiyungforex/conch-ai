@@ -2,7 +2,8 @@
 
 import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultConfig, RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
-import { injectedWallet, coinbaseWallet, phantomWallet, rabbyWallet, walletConnectWallet } from "@rainbow-me/rainbowkit/wallets";
+import { coinbaseWallet, phantomWallet, rabbyWallet, walletConnectWallet } from "@rainbow-me/rainbowkit/wallets";
+import { fastMetaMaskWallet } from "@/lib/wallets/fastMetaMask";
 import { WagmiProvider } from "wagmi";
 import { base } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -14,15 +15,12 @@ const config = getDefaultConfig({
   chains: [base],
   wallets: [
     {
-      // RainbowKit's metaMaskWallet always routes through @metamask/sdk, which
-      // does its own async init() handshake before connecting even when the
-      // extension is already injected — several real seconds of avoidable lag.
-      // injectedWallet uses wagmi's plain injected() connector instead: a
-      // direct eth_requestAccounts call against window.ethereum, no SDK layer.
-      // It detects MetaMask (or whatever extension is present) just as well,
-      // just faster.
       groupName: "Popular",
-      wallets: [injectedWallet, coinbaseWallet],
+      // fastMetaMaskWallet: real MetaMask name/icon (from RainbowKit's own
+      // metaMaskWallet), connected via wagmi's plain injected() connector
+      // instead of @metamask/sdk — same identification, without the SDK's
+      // multi-second init handshake. See src/lib/wallets/fastMetaMask.ts.
+      wallets: [fastMetaMaskWallet, coinbaseWallet],
     },
     {
       groupName: "All other wallets",

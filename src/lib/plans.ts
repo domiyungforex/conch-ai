@@ -30,6 +30,18 @@ export function usdToUsdcBaseUnits(usd: number): bigint {
   return BigInt(Math.round(usd * 10 ** USDC_DECIMALS));
 }
 
+// Modules that will eventually need their own separate pricing ladder
+// (their own Free/Pro/Team/Enterprise-style tiers) rather than being folded
+// into the Personal AI plans above — Developer AI (Free/Pro/Team/
+// Enterprise), Business AI (Starter/Growth/Pro/Enterprise), Economic
+// Intelligence (Free/Premium/Professional/Enterprise) per the platform
+// roadmap. No prices exist yet — inventing them now would be presenting a
+// guess as a decision. When one of these activates, give it its own
+// `{module}Plans.ts` following this file's exact shape (id/label/
+// priceMonthlyUsd/priceAnnualUsd) and its own confirm-route plan enum, the
+// same pattern PLANS/PAID_PLAN_IDS/subscriptionConfirm already establish.
+export const FUTURE_PRODUCT_LINES = ["developer_ai", "business_ai", "economic_intelligence"] as const;
+
 export function addBillingPeriod(from: Date, cycle: BillingCycle): Date {
   const d = new Date(from);
   const day = d.getUTCDate();

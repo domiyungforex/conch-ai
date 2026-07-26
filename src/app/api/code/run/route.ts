@@ -2,6 +2,7 @@ import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 import { CodeRunSchema } from "@/lib/validators";
 import { runPythonSnippet } from "@/lib/codeExecution";
+import { isFeatureEnabled } from "@/lib/featureFlags";
 
 export const runtime = "nodejs";
 
@@ -10,6 +11,10 @@ export async function POST(req: Request) {
   if (!resolved) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   if (!scopeAllows(resolved.scope, "chat")) return forbiddenScope();
   const { userId } = resolved;
+
+  if (!isFeatureEnabled("codeExecution")) {
+    return new Response(JSON.stringify({ error: "Code execution is temporarily unavailable." }), { status: 503 });
+  }
 
   const rateCheck = checkRateLimit(`code:run:${userId}`, 10, 5 * 60_000);
   if (!rateCheck.success) return rateLimitResponse(rateCheck.resetAt);

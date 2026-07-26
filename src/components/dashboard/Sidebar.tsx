@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { UserMenu } from "./UserMenu";
 import {
   LayoutDashboard, MessageSquare, Brain, Bot, Share2, Star, Wallet, Settings, Code2,
+  Building2, Landmark, Lightbulb, TrendingUp, Store,
   ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { Logo } from "@/components/shared/Logo";
@@ -16,7 +17,7 @@ interface NavItem {
   href: string;
   icon: React.ElementType;
   label: string;
-  section: "main" | "social" | "utility";
+  section: "main" | "social" | "modules" | "utility";
 }
 
 const navItems: NavItem[] = [
@@ -26,6 +27,11 @@ const navItems: NavItem[] = [
   { href: "/agents",    icon: Bot,             label: "Agents",          section: "main" },
   { href: "/shared",    icon: Share2,          label: "Shared Contexts", section: "social" },
   { href: "/reputation",icon: Star,            label: "Reputation",      section: "social" },
+  { href: "/business",      icon: Building2,   label: "Business",        section: "modules" },
+  { href: "/financial",     icon: Landmark,    label: "Financial",       section: "modules" },
+  { href: "/opportunities", icon: Lightbulb,   label: "Opportunities",   section: "modules" },
+  { href: "/economic",      icon: TrendingUp,  label: "Economic",        section: "modules" },
+  { href: "/marketplace",   icon: Store,       label: "Marketplace",     section: "modules" },
   { href: "/wallet",    icon: Wallet,          label: "Wallet",          section: "utility" },
   { href: "/developers",icon: Code2,           label: "API Docs",        section: "utility" },
   { href: "/settings",  icon: Settings,        label: "Settings",        section: "utility" },
@@ -34,6 +40,7 @@ const navItems: NavItem[] = [
 const sectionLabels: Record<NavItem["section"], string> = {
   main:    "WORKSPACE",
   social:  "SOCIAL",
+  modules: "MODULES",
   utility: "SETTINGS",
 };
 

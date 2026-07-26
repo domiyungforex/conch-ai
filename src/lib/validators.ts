@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { PAID_PLAN_IDS } from "./plans";
+import { AGENT_TYPES } from "./agentTypes";
 
 const MAX_IMAGE_BASE64_CHARS = 5_000_000; // ~3.6MB raw, under Anthropic's 5MB/image limit
 
@@ -59,6 +60,7 @@ export const AgentCreateSchema = z.object({
   memoryScope: z.enum(["user", "agent", "global"]).default("user"),
   temperature: z.number().min(0).max(2).default(0.7),
   maxTokens: z.number().min(100).max(4000).default(2000),
+  agentType: z.enum(AGENT_TYPES).default("personal"),
 });
 
 export const AgentUpdateSchema = AgentCreateSchema.partial().extend({
@@ -92,3 +94,151 @@ export const SearchSchema = z.object({
 export const CodeRunSchema = z.object({
   code: z.string().min(1).max(20000),
 });
+
+// ── Platform infrastructure ──────────────────────────────────────────────
+
+export const WaitlistJoinSchema = z.object({
+  email: z.string().email().max(320),
+  module: z.string().min(1).max(64),
+  note: z.string().max(500).optional(),
+});
+
+export const AdminModuleUpdateSchema = z.object({
+  status: z.enum(["enabled", "disabled", "beta"]).optional(),
+  rolloutPercentage: z.number().min(0).max(100).optional(),
+  minPlan: z.enum(["free", "pro", "premium"]).nullable().optional(),
+  allowlistUserIds: z.array(z.string()).max(200).optional(),
+});
+
+// ── Business AI (future) ─────────────────────────────────────────────────
+
+export const BusinessCreateSchema = z.object({
+  name: z.string().min(1).max(200),
+  industry: z.string().max(100).optional(),
+  description: z.string().max(2000).optional(),
+  website: z.string().url().max(500).optional(),
+  currency: z.string().max(8).default("USD"),
+  region: z.string().max(8).default("global"),
+});
+export const BusinessUpdateSchema = BusinessCreateSchema.partial();
+
+export const BusinessCustomerCreateSchema = z.object({
+  name: z.string().min(1).max(200),
+  email: z.string().email().max(320).optional(),
+  phone: z.string().max(32).optional(),
+  notes: z.string().max(2000).optional(),
+  totalSpentUsd: z.number().min(0).default(0),
+});
+export const BusinessCustomerUpdateSchema = BusinessCustomerCreateSchema.partial();
+
+export const BusinessSupplierCreateSchema = z.object({
+  name: z.string().min(1).max(200),
+  contact: z.string().max(320).optional(),
+  notes: z.string().max(2000).optional(),
+});
+export const BusinessSupplierUpdateSchema = BusinessSupplierCreateSchema.partial();
+
+export const BusinessProductCreateSchema = z.object({
+  name: z.string().min(1).max(200),
+  sku: z.string().max(64).optional(),
+  priceUsd: z.number().min(0),
+  costUsd: z.number().min(0).optional(),
+  category: z.string().max(100).optional(),
+});
+export const BusinessProductUpdateSchema = BusinessProductCreateSchema.partial();
+
+export const BusinessOrderCreateSchema = z.object({
+  customerId: z.string().optional(),
+  itemsJson: z.string().min(1).max(5000),
+  totalUsd: z.number().min(0),
+  status: z.enum(["pending", "fulfilled", "cancelled"]).default("pending"),
+  orderedAt: z.string().datetime(),
+});
+export const BusinessOrderUpdateSchema = BusinessOrderCreateSchema.partial();
+
+export const BusinessInventoryCreateSchema = z.object({
+  productId: z.string().min(1),
+  quantity: z.number().min(0).default(0),
+  reorderThreshold: z.number().min(0).default(0),
+  location: z.string().max(200).optional(),
+});
+export const BusinessInventoryUpdateSchema = BusinessInventoryCreateSchema.partial();
+
+export const BusinessExpenseCreateSchema = z.object({
+  category: z.string().min(1).max(100),
+  amountUsd: z.number().min(0),
+  incurredAt: z.string().datetime(),
+  notes: z.string().max(2000).optional(),
+});
+export const BusinessExpenseUpdateSchema = BusinessExpenseCreateSchema.partial();
+
+export const BusinessRevenueCreateSchema = z.object({
+  source: z.string().min(1).max(200),
+  amountUsd: z.number().min(0),
+  receivedAt: z.string().datetime(),
+  notes: z.string().max(2000).optional(),
+});
+export const BusinessRevenueUpdateSchema = BusinessRevenueCreateSchema.partial();
+
+// ── Economic Intelligence + Opportunity Engine (future) ─────────────────
+
+export const EconomicSignalCreateSchema = z.object({
+  region: z.string().max(8).default("global"),
+  category: z.string().min(1).max(100),
+  title: z.string().min(1).max(300),
+  description: z.string().min(1).max(4000),
+  source: z.string().min(1).max(200),
+  sourceUrl: z.string().url().max(500).optional(),
+  confidence: z.number().min(0).max(1).default(0.5),
+  methodology: z.string().min(1).max(1000),
+  observedAt: z.string().datetime(),
+});
+
+export const OpportunityCreateSchema = z.object({
+  businessId: z.string().optional(),
+  title: z.string().min(1).max(300),
+  description: z.string().min(1).max(1500),
+  evidenceJson: z.string().min(1).max(1500),
+  dataSourcesJson: z.string().min(1).max(2000),
+  estimatedSizeUsd: z.number().min(0).optional(),
+  riskFactorsJson: z.string().min(1).max(2000),
+  confidence: z.number().min(0).max(1).default(0.5),
+  status: z.enum(["open", "dismissed", "pursued"]).default("open"),
+});
+export const OpportunityUpdateSchema = OpportunityCreateSchema.partial();
+
+// ── Financial + Credit Intelligence (future) ─────────────────────────────
+
+export const FinancialAccountCreateSchema = z.object({
+  businessId: z.string().optional(),
+  provider: z.string().min(1).max(64),
+  accountType: z.string().min(1).max(64),
+  currency: z.string().max(8).default("USD"),
+  externalRef: z.string().max(256).optional(),
+});
+export const FinancialAccountUpdateSchema = FinancialAccountCreateSchema.partial();
+
+export const FinancialTransactionCreateSchema = z.object({
+  amountUsd: z.number(),
+  category: z.string().max(100).optional(),
+  description: z.string().max(500).optional(),
+  occurredAt: z.string().datetime(),
+  source: z.string().min(1).max(64),
+});
+export const FinancialTransactionUpdateSchema = FinancialTransactionCreateSchema.partial();
+
+export const CreditProfileConsentSchema = z.object({
+  consentGiven: z.literal(true),
+});
+
+// ── Marketplace (future) ──────────────────────────────────────────────────
+
+export const MarketplaceListingCreateSchema = z.object({
+  businessId: z.string().optional(),
+  type: z.enum(["business", "product", "service", "opportunity"]),
+  title: z.string().min(1).max(300),
+  description: z.string().min(1).max(4000),
+  region: z.string().max(8).default("global"),
+  status: z.enum(["draft", "active", "closed"]).default("draft"),
+});
+export const MarketplaceListingUpdateSchema = MarketplaceListingCreateSchema.partial();

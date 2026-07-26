@@ -10,6 +10,7 @@ import { ChatRequestSchema } from "@/lib/validators";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
 import { checkConversationQuota, checkMemoryQuota, checkChatMessageQuota, upgradeHint } from "@/lib/planLimits";
+import { isFeatureEnabled } from "@/lib/featureFlags";
 import { Query, ID, Permission, Role } from "node-appwrite";
 
 export const runtime = "nodejs";
@@ -414,6 +415,7 @@ export async function POST(req: Request) {
     },
     execute: async (input) => {
       const { symbol, interval } = input as { symbol: string; interval?: string };
+      if (!isFeatureEnabled("marketData")) return { error: "Market data is temporarily unavailable." };
       const apiKey = process.env.TWELVEDATA_API_KEY;
       if (!apiKey) return { error: "Market data isn't configured yet." };
       try {
