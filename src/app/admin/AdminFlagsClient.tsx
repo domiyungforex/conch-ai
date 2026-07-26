@@ -17,11 +17,14 @@ const STATUS_STYLES: Record<string, string> = {
   disabled: "bg-slate-500/15 text-slate-300 border-slate-500/30",
 };
 
+type MinPlanValue = "none" | "free" | "pro" | "premium";
+
 function FlagRow({ item }: { item: AdminFlagItem }) {
   const { update } = useAdminFlags();
   const [status, setStatus] = useState(item.status);
   const [rollout, setRollout] = useState(item.rolloutPercentage);
-  const dirty = status !== item.status || rollout !== item.rolloutPercentage;
+  const [minPlan, setMinPlan] = useState<MinPlanValue>((item.minPlan as MinPlanValue) ?? "none");
+  const dirty = status !== item.status || rollout !== item.rolloutPercentage || minPlan !== ((item.minPlan as MinPlanValue) ?? "none");
 
   return (
     <div className="p-4 rounded-xl border border-white/8 bg-white/5 space-y-3">
@@ -67,11 +70,22 @@ function FlagRow({ item }: { item: AdminFlagItem }) {
           </div>
         )}
 
+        <Select value={minPlan} onValueChange={(v) => setMinPlan(v as MinPlanValue)}>
+          <SelectTrigger className="w-40 h-8 text-xs">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">No plan required</SelectItem>
+            <SelectItem value="pro">Requires Pro+</SelectItem>
+            <SelectItem value="premium">Requires Premium</SelectItem>
+          </SelectContent>
+        </Select>
+
         <Button
           size="sm"
           className="h-8 text-xs gap-1.5"
           disabled={!dirty || update.isPending}
-          onClick={() => update.mutate({ key: item.key, status, rolloutPercentage: rollout })}
+          onClick={() => update.mutate({ key: item.key, status, rolloutPercentage: rollout, minPlan: minPlan === "none" ? null : minPlan })}
         >
           {update.isPending && <LoadingSpinner size="sm" />}
           Save
