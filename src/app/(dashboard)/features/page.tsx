@@ -1,13 +1,19 @@
 "use client";
 
-import { CheckCircle2, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { CheckCircle2, Sparkles, Lock } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useActivatedModules } from "@/hooks/useActivatedModules";
+import { useSubscription } from "@/hooks/useSubscription";
+import { hasProAccess } from "@/lib/subscription";
 import { MODULE_REGISTRY, MODULE_NAV_ITEMS } from "@/lib/modules";
 
 export default function FeaturesPage() {
   const { isActivated, activate, deactivate, hydrated } = useActivatedModules();
+  const { data: sub, isLoading: subLoading } = useSubscription();
+  const canUse = !!sub && hasProAccess(sub.status);
 
   return (
     <div className="space-y-6">
@@ -16,7 +22,7 @@ export default function FeaturesPage() {
         <p className="text-sm text-slate-400 mt-1">
           These are fully built and working — they just stay out of your sidebar until you turn them on, so it
           doesn&apos;t get cluttered with things you don&apos;t use. Activating one adds it to your Modules section;
-          deactivating just hides the link again, nothing gets deleted.
+          deactivating just hides the link again, nothing gets deleted. Included with Pro and Premium.
         </p>
       </div>
 
@@ -40,7 +46,19 @@ export default function FeaturesPage() {
 
               <p className="text-sm text-slate-400 mb-4">{info.description}</p>
 
-              {on ? (
+              {subLoading ? (
+                <Skeleton className="h-8 w-24 rounded bg-white/5" />
+              ) : !canUse ? (
+                <div className="flex items-center justify-between gap-3">
+                  <span className="flex items-center gap-1.5 text-xs text-amber-300">
+                    <Lock className="w-3.5 h-3.5" />
+                    Requires Pro or Premium
+                  </span>
+                  <Button size="sm" className="h-8 text-xs" asChild>
+                    <Link href="/settings/billing">Upgrade</Link>
+                  </Button>
+                </div>
+              ) : on ? (
                 <div className="flex items-center justify-between gap-3">
                   <span className="flex items-center gap-1.5 text-xs text-emerald-400">
                     <CheckCircle2 className="w-3.5 h-3.5" />

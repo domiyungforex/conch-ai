@@ -49,7 +49,7 @@ export default function BusinessPage() {
               </Link>
             ),
           },
-          { key: "industry", label: "Industry", render: (b) => b.industry ?? "—" },
+          { key: "industry", label: "Industry", render: (b) => b.industry ?? "" },
           { key: "region", label: "Region" },
           { key: "currency", label: "Currency" },
         ]}

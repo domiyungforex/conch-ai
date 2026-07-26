@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type ReputationDoc, type AppwriteDoc } from "@/lib/db";
 import { ReputationView } from "@/components/dashboard/ReputationView";
+import { computeReputationScore, getLevelInfo } from "@/lib/reputation";
 import { Query } from "node-appwrite";
 
 export const metadata = { title: "Reputation — Conch" };
@@ -24,7 +25,11 @@ export default async function ReputationPage() {
     ]);
 
     reputation = repResult.documents.length > 0
-      ? repResult.documents[0] as unknown as AppwriteDoc<ReputationDoc>
+      ? (() => {
+          const doc = repResult.documents[0] as unknown as AppwriteDoc<ReputationDoc>;
+          const score = computeReputationScore(doc);
+          return { ...doc, score, level: getLevelInfo(score).name };
+        })()
       : null;
     counts = { memories: memResult.total, agents: agentResult.total, conversations: convResult.total };
   } catch {

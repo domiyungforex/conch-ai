@@ -32,7 +32,7 @@ export default function OpportunitiesPage() {
         columns={[
           { key: "title", label: "Title" },
           { key: "confidence", label: "Confidence", render: (o) => `${Math.round((o.confidence ?? 0) * 100)}%` },
-          { key: "estimatedSizeUsd", label: "Est. size", render: (o) => o.estimatedSizeUsd ? `$${o.estimatedSizeUsd.toLocaleString()}` : "—" },
+          { key: "estimatedSizeUsd", label: "Est. size", render: (o) => o.estimatedSizeUsd ? `$${o.estimatedSizeUsd.toLocaleString()}` : "" },
           { key: "status", label: "Status" },
         ]}
       />

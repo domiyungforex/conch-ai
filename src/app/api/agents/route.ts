@@ -4,7 +4,7 @@ import { AgentCreateSchema } from "@/lib/validators";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
 import { checkAgentQuota, upgradeHint, getPlan } from "@/lib/planLimits";
 import { requiredModuleFor } from "@/lib/agentTypes";
-import { isModuleEnabled, moduleUnavailableResponse } from "@/lib/moduleFlags";
+import { checkModuleAccess, moduleUnavailableResponse } from "@/lib/moduleFlags";
 import { Query, ID } from "node-appwrite";
 
 export async function GET(req: Request) {
@@ -41,8 +41,8 @@ export async function POST(req: Request) {
   const requiredModule = requiredModuleFor(parsed.data.agentType);
   if (requiredModule) {
     const plan = await getPlan(databases, appwriteId);
-    const enabled = await isModuleEnabled(databases, requiredModule, { userId: appwriteId, plan });
-    if (!enabled) return moduleUnavailableResponse(requiredModule);
+    const access = await checkModuleAccess(databases, requiredModule, { userId: appwriteId, plan });
+    if (!access.allowed) return moduleUnavailableResponse(requiredModule, access);
   }
 
   const quota = await checkAgentQuota(databases, appwriteId);

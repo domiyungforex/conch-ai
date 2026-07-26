@@ -3,7 +3,7 @@ import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type AppwriteDoc, type CreditProfileDoc, type BusinessDoc } from "@/lib/db";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
-import { isModuleEnabled, moduleUnavailableResponse } from "@/lib/moduleFlags";
+import { checkModuleAccess, moduleUnavailableResponse } from "@/lib/moduleFlags";
 import { getPlan } from "@/lib/planLimits";
 import { CreditProfileConsentSchema } from "@/lib/validators";
 
@@ -33,7 +33,8 @@ export async function getProfile(req: Request, businessId: string) {
 
   const { databases } = createAdminClient();
   const plan = await getPlan(databases, userId);
-  if (!(await isModuleEnabled(databases, MODULE, { userId, plan }))) return moduleUnavailableResponse(MODULE);
+  const access = await checkModuleAccess(databases, MODULE, { userId, plan });
+  if (!access.allowed) return moduleUnavailableResponse(MODULE, access);
   if (!(await ownsBusiness(databases, businessId, userId))) return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
 
   const result = await databases.listDocuments(DB_ID, COLLECTIONS.CREDIT_PROFILES, [
@@ -57,7 +58,9 @@ export async function grantConsent(req: Request, businessId: string) {
   const { userId } = resolved;
 
   const { databases } = createAdminClient();
-  if (!(await isModuleEnabled(databases, MODULE, { userId }))) return moduleUnavailableResponse(MODULE);
+  const plan = await getPlan(databases, userId);
+  const access = await checkModuleAccess(databases, MODULE, { userId, plan });
+  if (!access.allowed) return moduleUnavailableResponse(MODULE, access);
   if (!(await ownsBusiness(databases, businessId, userId))) return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
 
   const rate = checkRateLimit(`credit_profiles:consent:${userId}`, 10, 60_000);

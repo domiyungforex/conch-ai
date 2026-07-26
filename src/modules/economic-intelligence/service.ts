@@ -3,7 +3,7 @@ import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type AppwriteDoc, type EconomicSignalDoc } from "@/lib/db";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
-import { isModuleEnabled, moduleUnavailableResponse } from "@/lib/moduleFlags";
+import { checkModuleAccess, moduleUnavailableResponse } from "@/lib/moduleFlags";
 import { getPlan } from "@/lib/planLimits";
 import { isAdmin, forbiddenAdmin } from "@/lib/admin";
 import { EconomicSignalCreateSchema } from "@/lib/validators";
@@ -24,7 +24,8 @@ export async function listSignals(req: Request) {
 
   const { databases } = createAdminClient();
   const plan = await getPlan(databases, userId);
-  if (!(await isModuleEnabled(databases, MODULE, { userId, plan }))) return moduleUnavailableResponse(MODULE);
+  const access = await checkModuleAccess(databases, MODULE, { userId, plan });
+  if (!access.allowed) return moduleUnavailableResponse(MODULE, access);
 
   const rate = checkRateLimit(`economic_signals:list:${userId}`, 30, 60_000);
   if (!rate.success) return rateLimitResponse(rate.resetAt);
@@ -46,7 +47,8 @@ export async function createSignal(req: Request) {
   if (!isAdmin(userId)) return forbiddenAdmin();
 
   const { databases } = createAdminClient();
-  if (!(await isModuleEnabled(databases, MODULE, { userId }))) return moduleUnavailableResponse(MODULE);
+  const createAccess = await checkModuleAccess(databases, MODULE, { userId });
+  if (!createAccess.allowed) return moduleUnavailableResponse(MODULE, createAccess);
 
   const parsed = EconomicSignalCreateSchema.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) return new Response(JSON.stringify({ error: "Invalid request", details: parsed.error.flatten() }), { status: 400 });
@@ -66,7 +68,8 @@ export async function getSignal(req: Request, id: string) {
 
   const { databases } = createAdminClient();
   const plan = await getPlan(databases, userId);
-  if (!(await isModuleEnabled(databases, MODULE, { userId, plan }))) return moduleUnavailableResponse(MODULE);
+  const getAccess = await checkModuleAccess(databases, MODULE, { userId, plan });
+  if (!getAccess.allowed) return moduleUnavailableResponse(MODULE, getAccess);
 
   try {
     const doc = (await databases.getDocument(DB_ID, COLLECTIONS.ECONOMIC_SIGNALS, id)) as unknown as AppwriteDoc<EconomicSignalDoc>;

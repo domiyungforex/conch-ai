@@ -61,8 +61,8 @@ export function BusinessDetailClient({ businessId }: { businessId: string }) {
             ]}
             columns={[
               { key: "name", label: "Name" },
-              { key: "email", label: "Email", render: (c) => c.email ?? "—" },
-              { key: "phone", label: "Phone", render: (c) => c.phone ?? "—" },
+              { key: "email", label: "Email", render: (c) => c.email ?? "" },
+              { key: "phone", label: "Phone", render: (c) => c.phone ?? "" },
               { key: "totalSpentUsd", label: "Total Spent", render: (c) => `$${Number(c.totalSpentUsd ?? 0).toFixed(2)}` },
             ]}
           />
@@ -80,7 +80,7 @@ export function BusinessDetailClient({ businessId }: { businessId: string }) {
             ]}
             columns={[
               { key: "name", label: "Name" },
-              { key: "contact", label: "Contact", render: (s) => s.contact ?? "—" },
+              { key: "contact", label: "Contact", render: (s) => s.contact ?? "" },
             ]}
           />
         </TabsContent>
@@ -99,9 +99,9 @@ export function BusinessDetailClient({ businessId }: { businessId: string }) {
             ]}
             columns={[
               { key: "name", label: "Name" },
-              { key: "sku", label: "SKU", render: (p) => p.sku ?? "—" },
+              { key: "sku", label: "SKU", render: (p) => p.sku ?? "" },
               { key: "priceUsd", label: "Price", render: (p) => `$${Number(p.priceUsd ?? 0).toFixed(2)}` },
-              { key: "category", label: "Category", render: (p) => p.category ?? "—" },
+              { key: "category", label: "Category", render: (p) => p.category ?? "" },
             ]}
           />
         </TabsContent>
@@ -147,7 +147,7 @@ export function BusinessDetailClient({ businessId }: { businessId: string }) {
               { key: "productId", label: "Product ID" },
               { key: "quantity", label: "Qty" },
               { key: "reorderThreshold", label: "Reorder at" },
-              { key: "location", label: "Location", render: (i) => i.location ?? "—" },
+              { key: "location", label: "Location", render: (i) => i.location ?? "" },
             ]}
           />
         </TabsContent>

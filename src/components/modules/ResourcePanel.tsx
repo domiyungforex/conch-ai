@@ -1,14 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { Plus, Trash2, Lock } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { useResourceCrud } from "@/hooks/useResourceCrud";
+import { useResourceCrud, ResourceApiError } from "@/hooks/useResourceCrud";
 
 export interface FieldConfig {
   key: string;
@@ -128,7 +129,19 @@ export function ResourcePanel<T extends { $id: string }>({
       {list.isLoading ? (
         <div className="h-16 animate-pulse bg-white/5 rounded-xl" />
       ) : list.isError ? (
-        <p className="text-sm text-red-400">Couldn&apos;t load.</p>
+        list.error instanceof ResourceApiError && list.error.code === "PLAN_REQUIRED" ? (
+          <div className="flex items-center justify-between gap-3 p-4 rounded-xl border border-amber-500/20 bg-amber-500/10">
+            <div className="flex items-center gap-2 text-sm text-amber-200">
+              <Lock className="w-4 h-4 shrink-0" />
+              {list.error.message}
+            </div>
+            <Button size="sm" className="h-8 text-xs shrink-0" asChild>
+              <Link href="/settings/billing">Upgrade</Link>
+            </Button>
+          </div>
+        ) : (
+          <p className="text-sm text-red-400">{list.error instanceof Error ? list.error.message : "Couldn't load."}</p>
+        )
       ) : !list.data?.length ? (
         <p className="text-sm text-slate-400">{emptyLabel}</p>
       ) : (
@@ -147,7 +160,7 @@ export function ResourcePanel<T extends { $id: string }>({
                 <tr key={item.$id} className="border-t border-white/5">
                   {columns.map((col) => (
                     <td key={col.key} className="px-2 py-2.5 text-slate-300 align-top">
-                      {col.render ? col.render(item) : String((item as Record<string, unknown>)[col.key] ?? "—")}
+                      {col.render ? col.render(item) : String((item as Record<string, unknown>)[col.key] ?? "")}
                     </td>
                   ))}
                   {!readOnly && (

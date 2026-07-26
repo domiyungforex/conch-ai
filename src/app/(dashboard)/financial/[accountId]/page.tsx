@@ -29,8 +29,8 @@ export default function FinancialAccountPage({ params }: { params: Promise<{ acc
         ]}
         columns={[
           { key: "occurredAt", label: "Date", render: (t) => new Date(t.occurredAt).toLocaleDateString() },
-          { key: "category", label: "Category", render: (t) => t.category ?? "—" },
-          { key: "description", label: "Description", render: (t) => t.description ?? "—" },
+          { key: "category", label: "Category", render: (t) => t.category ?? "" },
+          { key: "description", label: "Description", render: (t) => t.description ?? "" },
           {
             key: "amountUsd",
             label: "Amount",

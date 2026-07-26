@@ -4,7 +4,7 @@ import { createAdminClient } from "./appwrite";
 import { DB_ID, type AppwriteDoc } from "./db";
 import { resolveAuth, scopeAllows, forbiddenScope } from "./apiAuth";
 import { checkRateLimit, rateLimitResponse } from "./rateLimit";
-import { isModuleEnabled, moduleUnavailableResponse } from "./moduleFlags";
+import { checkModuleAccess, moduleUnavailableResponse } from "./moduleFlags";
 import { getPlan } from "./planLimits";
 import type { ModuleKey } from "./modules";
 
@@ -34,8 +34,8 @@ async function gate(req: Request, module: ModuleKey, rlKey: string) {
 
   const { databases } = createAdminClient();
   const plan = await getPlan(databases, userId);
-  const enabled = await isModuleEnabled(databases, module, { userId, plan });
-  if (!enabled) return { error: moduleUnavailableResponse(module) } as const;
+  const access = await checkModuleAccess(databases, module, { userId, plan });
+  if (!access.allowed) return { error: moduleUnavailableResponse(module, access) } as const;
 
   const rate = checkRateLimit(`${rlKey}:${userId}`, 30, 60_000);
   if (!rate.success) return { error: rateLimitResponse(rate.resetAt) } as const;

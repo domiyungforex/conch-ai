@@ -3,7 +3,7 @@ import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type AppwriteDoc, type MarketplaceListingDoc } from "@/lib/db";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
-import { isModuleEnabled, moduleUnavailableResponse } from "@/lib/moduleFlags";
+import { checkModuleAccess, moduleUnavailableResponse } from "@/lib/moduleFlags";
 import { getPlan } from "@/lib/planLimits";
 import { MarketplaceListingCreateSchema, MarketplaceListingUpdateSchema } from "@/lib/validators";
 
@@ -22,7 +22,8 @@ export async function browseListings(req: Request) {
 
   const { databases } = createAdminClient();
   const plan = await getPlan(databases, userId);
-  if (!(await isModuleEnabled(databases, MODULE, { userId, plan }))) return moduleUnavailableResponse(MODULE);
+  const access = await checkModuleAccess(databases, MODULE, { userId, plan });
+  if (!access.allowed) return moduleUnavailableResponse(MODULE, access);
 
   const rate = checkRateLimit(`marketplace:browse:${userId}`, 30, 60_000);
   if (!rate.success) return rateLimitResponse(rate.resetAt);
@@ -47,7 +48,8 @@ export async function myListings(req: Request) {
 
   const { databases } = createAdminClient();
   const plan = await getPlan(databases, userId);
-  if (!(await isModuleEnabled(databases, MODULE, { userId, plan }))) return moduleUnavailableResponse(MODULE);
+  const access = await checkModuleAccess(databases, MODULE, { userId, plan });
+  if (!access.allowed) return moduleUnavailableResponse(MODULE, access);
 
   const result = await databases.listDocuments(DB_ID, COLLECTIONS.MARKETPLACE_LISTINGS, [
     Query.equal("ownerId", userId),
@@ -64,7 +66,8 @@ export async function createListing(req: Request) {
   const { userId } = resolved;
 
   const { databases } = createAdminClient();
-  if (!(await isModuleEnabled(databases, MODULE, { userId }))) return moduleUnavailableResponse(MODULE);
+  const createAccess = await checkModuleAccess(databases, MODULE, { userId });
+  if (!createAccess.allowed) return moduleUnavailableResponse(MODULE, createAccess);
 
   const rate = checkRateLimit(`marketplace:create:${userId}`, 20, 60_000);
   if (!rate.success) return rateLimitResponse(rate.resetAt);
@@ -87,7 +90,8 @@ async function fetchListing(req: Request, id: string) {
 
   const { databases } = createAdminClient();
   const plan = await getPlan(databases, userId);
-  if (!(await isModuleEnabled(databases, MODULE, { userId, plan }))) return { error: moduleUnavailableResponse(MODULE) } as const;
+  const access = await checkModuleAccess(databases, MODULE, { userId, plan });
+  if (!access.allowed) return { error: moduleUnavailableResponse(MODULE, access) } as const;
 
   try {
     const doc = (await databases.getDocument(DB_ID, COLLECTIONS.MARKETPLACE_LISTINGS, id)) as unknown as AppwriteDoc<MarketplaceListingDoc>;

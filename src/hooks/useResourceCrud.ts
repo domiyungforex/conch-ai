@@ -3,6 +3,17 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/components/ui/toaster";
 
+// Carries the API's error `code` (e.g. "PLAN_REQUIRED") alongside the
+// message, so callers can render a targeted upgrade CTA instead of just a
+// generic error string.
+export class ResourceApiError extends Error {
+  code?: string;
+  constructor(message: string, code?: string) {
+    super(message);
+    this.code = code;
+  }
+}
+
 // Generic list/create/delete against any of the flag-gated module routes
 // (they all share the same { items: [...] } / { item: {...} } response
 // shape from src/lib/moduleCrud.ts). One hook drives every module page
@@ -17,7 +28,7 @@ export function useResourceCrud<T extends { $id: string }>(basePath: string | nu
       const res = await fetch(basePath!);
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error((body as { error?: string }).error ?? "Failed to load");
+        throw new ResourceApiError((body as { error?: string }).error ?? "Failed to load", (body as { code?: string }).code);
       }
       const data = await res.json();
       return data.items as T[];
