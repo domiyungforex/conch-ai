@@ -18,6 +18,7 @@ const breadcrumbMap: Record<string, string> = {
   "/agents":                "Agents",
   "/shared":                "Shared Contexts",
   "/reputation":            "Reputation",
+  "/features":              "Activate other features",
   "/business":              "Business",
   "/financial":             "Financial",
   "/opportunities":         "Opportunities",

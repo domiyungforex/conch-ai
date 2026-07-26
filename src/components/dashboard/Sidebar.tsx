@@ -6,12 +6,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { UserMenu } from "./UserMenu";
 import {
   LayoutDashboard, MessageSquare, Brain, Bot, Share2, Star, Wallet, Settings, Code2,
-  Building2, Landmark, Lightbulb, TrendingUp, Store,
+  Building2, Landmark, Lightbulb, TrendingUp, Store, Sparkles,
   ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { Logo } from "@/components/shared/Logo";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { useActivatedModules } from "@/hooks/useActivatedModules";
+import { MODULE_NAV_ITEMS, type ModuleKey } from "@/lib/modules";
 
 interface NavItem {
   href: string;
@@ -20,18 +22,29 @@ interface NavItem {
   section: "main" | "social" | "modules" | "utility";
 }
 
-const navItems: NavItem[] = [
+const MODULE_ICONS: Record<ModuleKey, React.ElementType> = {
+  personal_ai: Brain,
+  developer_ai: Code2,
+  memory_engine: Brain,
+  agent_system: Bot,
+  business_ai: Building2,
+  financial_intelligence: Landmark,
+  opportunity_engine: Lightbulb,
+  economic_intelligence: TrendingUp,
+  marketplace: Store,
+  credit_intelligence: Landmark,
+};
+
+const baseItems: NavItem[] = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard",       section: "main" },
   { href: "/chat",      icon: MessageSquare,   label: "Chat",            section: "main" },
   { href: "/memory",    icon: Brain,           label: "Memory",          section: "main" },
   { href: "/agents",    icon: Bot,             label: "Agents",          section: "main" },
   { href: "/shared",    icon: Share2,          label: "Shared Contexts", section: "social" },
   { href: "/reputation",icon: Star,            label: "Reputation",      section: "social" },
-  { href: "/business",      icon: Building2,   label: "Business",        section: "modules" },
-  { href: "/financial",     icon: Landmark,    label: "Financial",       section: "modules" },
-  { href: "/opportunities", icon: Lightbulb,   label: "Opportunities",   section: "modules" },
-  { href: "/economic",      icon: TrendingUp,  label: "Economic",        section: "modules" },
-  { href: "/marketplace",   icon: Store,       label: "Marketplace",     section: "modules" },
+];
+
+const utilityItems: NavItem[] = [
   { href: "/wallet",    icon: Wallet,          label: "Wallet",          section: "utility" },
   { href: "/developers",icon: Code2,           label: "API Docs",        section: "utility" },
   { href: "/settings",  icon: Settings,        label: "Settings",        section: "utility" },
@@ -47,6 +60,20 @@ const sectionLabels: Record<NavItem["section"], string> = {
 export function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const { isActivated, hydrated } = useActivatedModules();
+
+  // Hidden until the user opts in via /features — see useActivatedModules
+  // for why this is a per-browser nav preference, not an access control.
+  const activeModuleItems: NavItem[] = hydrated
+    ? MODULE_NAV_ITEMS.filter((m) => isActivated(m.key)).map((m) => ({
+        href: m.href,
+        icon: MODULE_ICONS[m.key],
+        label: m.label,
+        section: "modules" as const,
+      }))
+    : [];
+
+  const navItems: NavItem[] = [...baseItems, ...activeModuleItems, ...utilityItems];
 
   let lastSection: NavItem["section"] | null = null;
 
@@ -80,6 +107,21 @@ export function Sidebar() {
             />
           </>
         )}
+      </div>
+
+      {/* Activate other features — always at the top, above the regular nav */}
+      <div className={cn("px-2 pt-3", collapsed && "px-1")}>
+        <Link
+          href="/features"
+          title={collapsed ? "Activate other features" : undefined}
+          className={cn(
+            "flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium border border-dashed border-coral-500/30 bg-coral-500/5 text-coral-300 hover:bg-coral-500/10 hover:border-coral-500/50 transition-colors",
+            collapsed && "justify-center px-2"
+          )}
+        >
+          <Sparkles className="w-3.5 h-3.5 shrink-0" />
+          {!collapsed && <span className="truncate">Activate other features</span>}
+        </Link>
       </div>
 
       {/* Nav */}

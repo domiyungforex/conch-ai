@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type UserDoc, type ReputationDoc, type MemoryDoc, type ConversationDoc, type AppwriteDoc } from "@/lib/db";
 import { DashboardHome } from "@/components/dashboard/DashboardHome";
 import { SetupRetry } from "@/components/dashboard/SetupRetry";
+import { computeReputationScore } from "@/lib/reputation";
 import type { Metadata } from "next";
 import { Query, ID } from "node-appwrite";
 
@@ -90,8 +91,14 @@ export default async function DashboardPage() {
       databases.listDocuments(DB_ID, COLLECTIONS.CONVERSATIONS, [Query.equal("userId", userId), Query.orderDesc("$updatedAt"), Query.limit(3)]),
     ]);
 
+    // score is derived from the count fields, not trusted from storage — see
+    // the fix in /api/user/reputation for why (it was never incremented and
+    // sat frozen at 0 while the per-category breakdown kept climbing).
     const reputation = repResult.documents.length > 0
-      ? repResult.documents[0] as unknown as AppwriteDoc<ReputationDoc>
+      ? (() => {
+          const doc = repResult.documents[0] as unknown as AppwriteDoc<ReputationDoc>;
+          return { ...doc, score: computeReputationScore(doc) };
+        })()
       : null;
     const recentMemories = recentMemResult.documents as unknown as AppwriteDoc<MemoryDoc>[];
     const recentConversations = recentConvResult.documents as unknown as AppwriteDoc<ConversationDoc>[];

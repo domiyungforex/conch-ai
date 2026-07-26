@@ -154,3 +154,15 @@ export const MODULE_REGISTRY: Record<ModuleKey, ModuleInfo> = {
     ],
   },
 };
+
+// Modules with their own top-level sidebar page, and where to send someone
+// once they've opted into seeing it there. credit_intelligence has no entry
+// here — it only ever appears embedded in a business's own detail page, not
+// as its own nav destination.
+export const MODULE_NAV_ITEMS: { key: ModuleKey; href: string; label: string }[] = [
+  { key: "business_ai", href: "/business", label: "Business" },
+  { key: "financial_intelligence", href: "/financial", label: "Financial" },
+  { key: "opportunity_engine", href: "/opportunities", label: "Opportunities" },
+  { key: "economic_intelligence", href: "/economic", label: "Economic" },
+  { key: "marketplace", href: "/marketplace", label: "Marketplace" },
+];

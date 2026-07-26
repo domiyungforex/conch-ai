@@ -5,23 +5,36 @@ import { usePathname } from "next/navigation";
 import { UserMenu } from "./UserMenu";
 import {
   LayoutDashboard, MessageSquare, Brain, Bot, Share2, Star, Wallet, Settings, Code2,
-  Building2, Landmark, Lightbulb, TrendingUp, Store,
+  Building2, Landmark, Lightbulb, TrendingUp, Store, Sparkles,
 } from "lucide-react";
 import { Logo } from "@/components/shared/Logo";
 import { cn } from "@/lib/utils";
+import { useActivatedModules } from "@/hooks/useActivatedModules";
+import { MODULE_NAV_ITEMS, type ModuleKey } from "@/lib/modules";
 
-const navItems = [
+const MODULE_ICONS: Record<ModuleKey, React.ElementType> = {
+  personal_ai: Brain,
+  developer_ai: Code2,
+  memory_engine: Brain,
+  agent_system: Bot,
+  business_ai: Building2,
+  financial_intelligence: Landmark,
+  opportunity_engine: Lightbulb,
+  economic_intelligence: TrendingUp,
+  marketplace: Store,
+  credit_intelligence: Landmark,
+};
+
+const baseItems = [
   { href: "/dashboard",   icon: LayoutDashboard, label: "Dashboard",       section: "WORKSPACE" },
   { href: "/chat",        icon: MessageSquare,   label: "Chat",            section: "WORKSPACE" },
   { href: "/memory",      icon: Brain,           label: "Memory",          section: "WORKSPACE" },
   { href: "/agents",      icon: Bot,             label: "Agents",          section: "WORKSPACE" },
   { href: "/shared",      icon: Share2,          label: "Shared Contexts", section: "SOCIAL" },
   { href: "/reputation",  icon: Star,            label: "Reputation",      section: "SOCIAL" },
-  { href: "/business",      icon: Building2,     label: "Business",        section: "MODULES" },
-  { href: "/financial",     icon: Landmark,      label: "Financial",       section: "MODULES" },
-  { href: "/opportunities", icon: Lightbulb,     label: "Opportunities",   section: "MODULES" },
-  { href: "/economic",      icon: TrendingUp,    label: "Economic",        section: "MODULES" },
-  { href: "/marketplace",   icon: Store,         label: "Marketplace",     section: "MODULES" },
+];
+
+const utilityItems = [
   { href: "/wallet",      icon: Wallet,          label: "Wallet",          section: "SETTINGS" },
   { href: "/developers",  icon: Code2,           label: "API Docs",        section: "SETTINGS" },
   { href: "/settings",    icon: Settings,        label: "Settings",        section: "SETTINGS" },
@@ -29,13 +42,37 @@ const navItems = [
 
 export function MobileSidebar() {
   const pathname = usePathname();
+  const { isActivated, hydrated } = useActivatedModules();
   let lastSection: string | null = null;
+
+  const activeModuleItems = hydrated
+    ? MODULE_NAV_ITEMS.filter((m) => isActivated(m.key)).map((m) => ({
+        href: m.href,
+        icon: MODULE_ICONS[m.key],
+        label: m.label,
+        section: "MODULES",
+      }))
+    : [];
+
+  const navItems = [...baseItems, ...activeModuleItems, ...utilityItems];
 
   return (
     <div className="flex flex-col h-full">
       <div className="px-4 py-5 border-b border-white/8">
         <Logo size="sm" />
       </div>
+
+      {/* Activate other features — always at the top, above the regular nav */}
+      <div className="px-2 pt-3">
+        <Link
+          href="/features"
+          className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium border border-dashed border-coral-500/30 bg-coral-500/5 text-coral-300 hover:bg-coral-500/10 hover:border-coral-500/50 transition-colors"
+        >
+          <Sparkles className="w-3.5 h-3.5 shrink-0" />
+          <span className="truncate">Activate other features</span>
+        </Link>
+      </div>
+
       <nav className="flex-1 px-2 py-4 overflow-y-auto">
         {navItems.map(({ href, icon: Icon, label, section }) => {
           const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));

@@ -6,6 +6,10 @@ import { GlassCard } from "@/components/shared/GlassCard";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  getLevelInfo, getNextLevel, getProgressToNext,
+  POINTS_PER_MEMORY, POINTS_PER_AGENT, POINTS_PER_CHAT, POINTS_PER_SHARE,
+} from "@/lib/reputation";
 import type { ReputationDoc, AppwriteDoc } from "@/lib/db";
 type Reputation = AppwriteDoc<ReputationDoc>;
 
@@ -16,37 +20,11 @@ async function fetchReputation(): Promise<Reputation | null> {
   return res.json();
 }
 
-const LEVELS = [
-  { name: "novice", label: "Novice", min: 0, max: 50, color: "text-slate-300" },
-  { name: "apprentice", label: "Apprentice", min: 50, max: 150, color: "text-teal-300" },
-  { name: "practitioner", label: "Practitioner", min: 150, max: 350, color: "text-coral-300" },
-  { name: "expert", label: "Expert", min: 350, max: 700, color: "text-amber-300" },
-  { name: "master", label: "Master", min: 700, max: Infinity, color: "text-emerald-300" },
-] as const;
-
-function getLevelInfo(score: number) {
-  return LEVELS.find((l) => score >= l.min && score < l.max) ?? LEVELS[0];
-}
-
-function getNextLevel(score: number) {
-  const idx = LEVELS.findIndex((l) => score >= l.min && score < l.max);
-  return idx < LEVELS.length - 1 ? LEVELS[idx + 1] : null;
-}
-
-function getProgressToNext(score: number) {
-  const current = getLevelInfo(score);
-  const next = getNextLevel(score);
-  if (!next) return 100;
-  const range = next.min - current.min;
-  const earned = score - current.min;
-  return Math.min(100, Math.round((earned / range) * 100));
-}
-
 const EARN_ITEMS = [
-  { icon: Brain, label: "Add memories", desc: "+2 pts each" },
-  { icon: Users, label: "Create agents", desc: "+5 pts each" },
-  { icon: MessageSquare, label: "Chat sessions", desc: "+0.5 pts each" },
-  { icon: Share2, label: "Share memories", desc: "+3 pts each" },
+  { icon: Brain, label: "Add memories", desc: `+${POINTS_PER_MEMORY} pts each` },
+  { icon: Users, label: "Create agents", desc: `+${POINTS_PER_AGENT} pts each` },
+  { icon: MessageSquare, label: "Chat sessions", desc: `+${POINTS_PER_CHAT} pts each` },
+  { icon: Share2, label: "Share memories", desc: `+${POINTS_PER_SHARE} pts each` },
 ];
 
 export function ReputationCard() {
@@ -103,10 +81,10 @@ export function ReputationCard() {
 
       <div className="grid grid-cols-2 gap-3 mb-5">
         {[
-          { icon: Brain, label: "Memories", count: rep?.memoryCount ?? 0, pts: (rep?.memoryCount ?? 0) * 2 },
-          { icon: Users, label: "Agents", count: rep?.agentCount ?? 0, pts: (rep?.agentCount ?? 0) * 5 },
-          { icon: MessageSquare, label: "Chats", count: rep?.chatCount ?? 0, pts: Math.round((rep?.chatCount ?? 0) * 0.5) },
-          { icon: Share2, label: "Shares", count: rep?.shareCount ?? 0, pts: (rep?.shareCount ?? 0) * 3 },
+          { icon: Brain, label: "Memories", count: rep?.memoryCount ?? 0, pts: (rep?.memoryCount ?? 0) * POINTS_PER_MEMORY },
+          { icon: Users, label: "Agents", count: rep?.agentCount ?? 0, pts: (rep?.agentCount ?? 0) * POINTS_PER_AGENT },
+          { icon: MessageSquare, label: "Chats", count: rep?.chatCount ?? 0, pts: Math.round((rep?.chatCount ?? 0) * POINTS_PER_CHAT) },
+          { icon: Share2, label: "Shares", count: rep?.shareCount ?? 0, pts: (rep?.shareCount ?? 0) * POINTS_PER_SHARE },
         ].map(({ icon: Icon, label, count, pts }) => (
           <div key={label} className="bg-white/5 rounded-xl p-3 border border-white/8">
             <div className="flex items-center gap-1.5 mb-1">

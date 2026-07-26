@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { motion, useSpring, useTransform } from "framer-motion";
 import { Brain, MessageSquare, Bot, Zap, Sparkles, Share2, Lock } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
+import { getLevelInfo } from "@/lib/reputation";
 import type { ReputationDoc, AppwriteDoc } from "@/lib/db";
 type Reputation = AppwriteDoc<ReputationDoc>;
 
@@ -101,9 +102,7 @@ export function ReputationView({ reputation, counts }: Props) {
     },
   ];
 
-  const levelLabel = reputation?.level
-    ? reputation.level.charAt(0).toUpperCase() + reputation.level.slice(1)
-    : "Novice";
+  const levelLabel = getLevelInfo(score).label;
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -241,50 +240,6 @@ export function ReputationView({ reputation, counts }: Props) {
         </div>
       </motion.div>
 
-      {/* Activity timeline */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.45 }}
-      >
-        <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">Recent Activity</h2>
-        <GlassCard className="p-6">
-          <ul className="space-y-0">
-            {[
-              { icon: Brain,         label: "Memory stored",        detail: "+2 reputation",  color: "bg-coral-400",  time: "2m ago" },
-              { icon: MessageSquare, label: "Conversation completed",detail: "+5 reputation",  color: "bg-gold-400",  time: "1h ago" },
-              { icon: Bot,           label: "Agent created",         detail: "+10 reputation", color: "bg-teal-400",    time: "3h ago" },
-              { icon: Sparkles,      label: "Account created",       detail: "+50 reputation", color: "bg-amber-400",   time: "day 1" },
-            ].map(({ icon: Icon, label, detail, color, time }, i, arr) => (
-              <motion.li
-                key={label}
-                initial={{ opacity: 0, x: -10 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.07, duration: 0.35 }}
-                className={`flex gap-4 ${i < arr.length - 1 ? "pb-5" : ""}`}
-              >
-                {/* Timeline line */}
-                <div className="flex flex-col items-center shrink-0">
-                  <div className={`w-2.5 h-2.5 rounded-full ${color} mt-1`} />
-                  {i < arr.length - 1 && <div className="w-px flex-1 bg-white/8 mt-1" />}
-                </div>
-                <div className="flex-1 min-w-0 pb-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <Icon className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                      <p className="text-sm text-white">{label}</p>
-                    </div>
-                    <span className="text-xs text-slate-600 shrink-0">{time}</span>
-                  </div>
-                  <p className="text-xs text-slate-500 mt-0.5 ml-5">{detail}</p>
-                </div>
-              </motion.li>
-            ))}
-          </ul>
-        </GlassCard>
-      </motion.div>
     </div>
   );
 }
