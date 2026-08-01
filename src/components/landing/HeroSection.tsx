@@ -13,19 +13,6 @@ const subPhrases = [
   "AI that remembers you everywhere.",
 ];
 
-const containerVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.12, delayChildren: 0.15 } },
-};
-const itemVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
-  },
-};
-
 export function HeroSection() {
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [displayed, setDisplayed] = useState("");
@@ -123,46 +110,37 @@ export function HeroSection() {
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-28 pb-20">
         {/* Text content — staggered entry */}
-        <motion.div variants={containerVariants} initial="hidden" animate="visible">
+        <div>
           {/* Badge */}
-          <motion.div variants={itemVariants} className="flex justify-center mb-8">
+          <div className="flex justify-center mb-8">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass border border-coral-500/30 text-xs text-coral-300 font-medium">
               <Sparkles className="w-3.5 h-3.5 text-coral-400" />
               Decentralized AI Identity &amp; Memory Platform
             </div>
-          </motion.div>
+          </div>
 
           {/* Main headline */}
-          <motion.h1
-            variants={itemVariants}
-            className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-normal text-white leading-[1.05] tracking-tight mb-4"
-          >
+          <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-normal text-white leading-[1.05] tracking-tight mb-4">
             Your AI Should
             <br />
             <GradientText variant="full">Belong To You</GradientText>
-          </motion.h1>
+          </h1>
 
           {/* Animated sub-phrase */}
-          <motion.div variants={itemVariants} className="h-8 flex items-center justify-center mb-4">
+          <div className="h-8 flex items-center justify-center mb-4">
             <span className="text-lg sm:text-xl text-coral-300 font-medium">
               {displayed}
               <span className="inline-block w-0.5 h-5 bg-coral-400 ml-0.5 align-middle animate-pulse" />
             </span>
-          </motion.div>
+          </div>
 
           {/* Static subheadline */}
-          <motion.p
-            variants={itemVariants}
-            className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed mb-10"
-          >
+          <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed mb-10">
             Portable memory, persistent identity, and AI agents that remember you everywhere.
-          </motion.p>
+          </p>
 
           {/* CTAs */}
-          <motion.div
-            variants={itemVariants}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
-          >
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button size="xl" asChild className="w-full sm:w-auto group glow-pulse">
               <Link href="/sign-up">
                 Get Started Now
@@ -172,28 +150,18 @@ export function HeroSection() {
             <Button variant="secondary" size="xl" asChild className="w-full sm:w-auto">
               <a href="#interactive-demo">Watch Demo</a>
             </Button>
-          </motion.div>
+          </div>
 
           {/* Social proof */}
-          <motion.p variants={itemVariants} className="mt-8 text-xs text-slate-600">
+          <p className="mt-8 text-xs text-slate-600">
             No credit card required · Free plan available · Join thousands of AI power users
-          </motion.p>
-        </motion.div>
+          </p>
+        </div>
 
         {/* Floating memory cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.6 }}
-          className="relative mt-20 max-w-3xl mx-auto"
-        >
+        <div className="relative mt-20 max-w-3xl mx-auto">
           {/* SVG neural connections */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.4 }}
-            className="absolute inset-0 pointer-events-none hidden sm:block"
-          >
+          <div className="absolute inset-0 pointer-events-none hidden sm:block">
             <svg
               className="absolute inset-0 w-full h-full"
               viewBox="0 0 100 100"
@@ -217,16 +185,11 @@ export function HeroSection() {
                 vectorEffect="non-scaling-stroke"
               />
             </svg>
-          </motion.div>
+          </div>
 
           <div className="flex items-start justify-center gap-4 sm:gap-6">
             {/* Left card — hidden on mobile */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.7, delay: 0.9 }}
-              className="hidden sm:block w-56 lg:w-64 flex-shrink-0 animate-float-delayed opacity-75 mt-8"
-            >
+            <div className="hidden sm:block w-56 lg:w-64 flex-shrink-0 animate-float-delayed opacity-75 mt-8">
               <div className="glass border border-white/8 rounded-2xl p-4 shadow-xl">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-6 h-6 rounded-lg bg-teal-500/20 flex items-center justify-center">
@@ -236,15 +199,10 @@ export function HeroSection() {
                 </div>
                 <p className="text-xs text-slate-300">Dark mode advocate. Minimal UI. Keyboard-first workflows.</p>
               </div>
-            </motion.div>
+            </div>
 
             {/* Center card */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.75 }}
-              className="w-full sm:w-72 lg:w-80 flex-shrink-0 glass border border-white/10 rounded-2xl p-5 shadow-2xl z-10 animate-float"
-            >
+            <div className="w-full sm:w-72 lg:w-80 flex-shrink-0 glass border border-white/10 rounded-2xl p-5 shadow-2xl z-10 animate-float">
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 rounded-xl bg-coral-500/20 flex items-center justify-center flex-shrink-0">
                   <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-coral-400">
@@ -257,15 +215,10 @@ export function HeroSection() {
                   <p className="text-xs text-slate-500 mt-2">Accessed 47 times · 2 days ago</p>
                 </div>
               </div>
-            </motion.div>
+            </div>
 
             {/* Right card — hidden on mobile */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.7, delay: 0.9 }}
-              className="hidden sm:block w-52 lg:w-60 flex-shrink-0 opacity-75 animate-float mt-4"
-            >
+            <div className="hidden sm:block w-52 lg:w-60 flex-shrink-0 opacity-75 animate-float mt-4">
               <div className="glass border border-white/8 rounded-2xl p-4 shadow-xl">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-6 h-6 rounded-lg bg-emerald-500/20 flex items-center justify-center">
@@ -275,9 +228,9 @@ export function HeroSection() {
                 </div>
                 <p className="text-xs text-slate-300">Launched v2.0 on Base chain. Reviewed by 200 users.</p>
               </div>
-            </motion.div>
+            </div>
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* Scroll indicator */}
