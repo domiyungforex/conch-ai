@@ -24,7 +24,7 @@ export function UserMenu({ size = "md" }: { size?: "sm" | "md" }) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="relative focus:outline-none focus:ring-2 focus:ring-coral-500 rounded-full">
-          {user?.imageUrl ? (
+          {user?.hasImage ? (
             <img
               src={user.imageUrl}
               alt=""

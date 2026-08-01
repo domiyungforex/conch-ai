@@ -81,8 +81,10 @@ export function Topbar() {
         />
         Live
       </div>
-      <Button variant="ghost" size="icon" className="text-slate-400">
-        <Bell className="h-5 w-5" />
+      <Button variant="ghost" size="icon" className="text-slate-400" asChild>
+        <Link href="/settings/notifications" title="Notification settings">
+          <Bell className="h-5 w-5" />
+        </Link>
       </Button>
       <div className="md:hidden">
         <UserMenu size="sm" />
