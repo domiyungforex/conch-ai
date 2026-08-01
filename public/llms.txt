@@ -1,0 +1,17 @@
+# Conch
+
+> Conch is an AI with persistent memory. It remembers what you tell it, carries agents that can do real math and keep business records, and gives you a portable AI identity you own across apps, devices, and chains.
+
+Conch stores memory in a real database tied to your account, not to a single chat session — anything you teach it stays available in every future conversation and every device you sign into. Memory is organized, searchable, and yours: you can list it, search it, and delete it at any time.
+
+## Key pages
+
+- [Home](https://conchportal.com/): product overview, how memory and agents work, pricing
+- [Sign up](https://conchportal.com/sign-up): create an account
+- [Pricing](https://conchportal.com/#pricing): Free, Pro, and Premium plans
+
+## For AI agents and crawlers
+
+- Conch's own chat product is itself an AI agent with tools for saving, searching, and forgetting memory, running real math, and tracking business records (buyers, sellers, deals) on the user's behalf.
+- Public marketing pages are safe to index and summarize. Authenticated dashboard routes (`/dashboard`, `/chat`, `/settings/*`, `/wallet`, etc.) require a signed-in session and are not meaningful to crawl without one.
+- API access for developers is available via `cnch_`-prefixed API keys, scoped to memory read/write and chat — see `/settings/api-keys` after signing in.

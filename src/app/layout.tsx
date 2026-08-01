@@ -1,8 +1,7 @@
 import {ClerkProvider} from "@clerk/nextjs";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Fraunces } from "next/font/google";
-import { Web3Provider } from "@/providers/Web3Provider";
-import { AppwriteRealtimeProvider } from "@/providers/AppwriteRealtimeProvider";
+import { QueryProvider } from "@/providers/QueryProvider";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
@@ -92,12 +91,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} antialiased`}>
         <ClerkProvider>
-          <Web3Provider>
-          <AppwriteRealtimeProvider>
-          {children}
-          <Toaster />
-          </AppwriteRealtimeProvider>
-          </Web3Provider>
+          <QueryProvider>
+            {children}
+            <Toaster />
+          </QueryProvider>
         </ClerkProvider>
       </body>
     </html>

@@ -6,8 +6,6 @@ import { coinbaseWallet, phantomWallet, rabbyWallet, walletConnectWallet } from 
 import { fastMetaMaskWallet } from "@/lib/wallets/fastMetaMask";
 import { WagmiProvider } from "wagmi";
 import { base } from "wagmi/chains";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState } from "react";
 
 const config = getDefaultConfig({
   appName: "Conch",
@@ -39,15 +37,11 @@ const rainbowTheme = darkTheme({
 });
 
 export function Web3Provider({ children }: { children: React.ReactNode }) {
-  const [queryClient] = useState(() => new QueryClient());
-
   return (
     <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider theme={rainbowTheme} modalSize="compact">
-          {children}
-        </RainbowKitProvider>
-      </QueryClientProvider>
+      <RainbowKitProvider theme={rainbowTheme} modalSize="compact">
+        {children}
+      </RainbowKitProvider>
     </WagmiProvider>
   );
 }

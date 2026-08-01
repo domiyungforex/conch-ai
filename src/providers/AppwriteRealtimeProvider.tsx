@@ -26,6 +26,7 @@ export function AppwriteRealtimeProvider({ children }: { children: React.ReactNo
   const [status, setStatus] = useState<RealtimeStatus>("offline");
   const statusRef = useRef<RealtimeStatus>("offline");
   const unsubscribeRef = useRef<(() => void) | null>(null);
+  const hasConnectedRef = useRef(false);
 
   const setStatusBoth = useCallback((s: RealtimeStatus) => {
     statusRef.current = s;
@@ -40,6 +41,7 @@ export function AppwriteRealtimeProvider({ children }: { children: React.ReactNo
       const { userId, secret, databaseId } = await res.json();
 
       await appwriteAccount.createSession(userId, secret);
+      hasConnectedRef.current = true;
 
       unsubscribeRef.current?.();
       unsubscribeRef.current = appwriteClient.subscribe(
@@ -57,7 +59,13 @@ export function AppwriteRealtimeProvider({ children }: { children: React.ReactNo
       unsubscribeRef.current?.();
       unsubscribeRef.current = null;
       setStatusBoth("offline");
-      appwriteAccount.deleteSession("current").catch(() => {});
+      // Only tear down a session we actually established — an anonymous
+      // visitor who was never signed in has nothing to delete, and the
+      // request fails with a CORS error since Appwrite has no session to act on.
+      if (hasConnectedRef.current) {
+        hasConnectedRef.current = false;
+        appwriteAccount.deleteSession("current").catch(() => {});
+      }
       return;
     }
 

@@ -194,20 +194,27 @@ export function HeroSection() {
             transition={{ delay: 1.4 }}
             className="absolute inset-0 pointer-events-none hidden sm:block"
           >
-            <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <svg
+              className="absolute inset-0 w-full h-full"
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
               <path
-                d="M 50% 20% Q 30% 10% 18% 30%"
+                d="M 50 20 Q 30 10 18 30"
                 fill="none"
                 stroke="rgba(124,58,237,0.15)"
-                strokeWidth="1.5"
-                strokeDasharray="4 5"
+                strokeWidth="0.15"
+                strokeDasharray="0.4 0.5"
+                vectorEffect="non-scaling-stroke"
               />
               <path
-                d="M 50% 20% Q 72% 10% 82% 28%"
+                d="M 50 20 Q 72 10 82 28"
                 fill="none"
                 stroke="rgba(124,58,237,0.15)"
-                strokeWidth="1.5"
-                strokeDasharray="4 5"
+                strokeWidth="0.15"
+                strokeDasharray="0.4 0.5"
+                vectorEffect="non-scaling-stroke"
               />
             </svg>
           </motion.div>
