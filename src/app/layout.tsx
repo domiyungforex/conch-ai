@@ -1,5 +1,5 @@
 import {ClerkProvider} from "@clerk/nextjs";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Fraunces } from "next/font/google";
 import { Web3Provider } from "@/providers/Web3Provider";
 import { AppwriteRealtimeProvider } from "@/providers/AppwriteRealtimeProvider";
@@ -26,6 +26,21 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
   robots: { index: true, follow: true },
   applicationName: "Conch",
+  icons: {
+    icon: [
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/android-chrome-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/android-chrome-512x512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    other: [{ rel: "mask-icon", url: "/mask-icon.svg", color: "#c05f47" }],
+  },
+  other: {
+    "msapplication-TileColor": "#c05f47",
+    "msapplication-TileImage": "/mstile-150x150.png",
+    "msapplication-config": "/browserconfig.xml",
+  },
   openGraph: {
     title: "Conch — Own Your AI Memory",
     description: SITE_DESCRIPTION,
@@ -49,6 +64,10 @@ export const metadata: Metadata = {
     "AI agents",
     "Web3 AI",
   ],
+};
+
+export const viewport: Viewport = {
+  themeColor: "#c05f47",
 };
 
 const jsonLd = {
