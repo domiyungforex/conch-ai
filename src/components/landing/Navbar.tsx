@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Logo } from "@/components/shared/Logo";
 import { Button } from "@/components/ui/button";
-import { SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs";
+import { UserMenu } from "@/components/dashboard/UserMenu";
+import { Show } from "@clerk/nextjs";
 
 const links = [
   { label: "Features", href: "#features" },
@@ -43,27 +44,27 @@ export function Navbar() {
 
           <div className="hidden md:flex items-center gap-3 ml-auto">
             <Show when="signed-out">
-              <SignInButton mode="modal">
-                <Button variant="ghost" size="sm">Sign In</Button>
-              </SignInButton>
-              <SignUpButton mode="modal">
-                <Button size="sm">Get Started Free</Button>
-              </SignUpButton>
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/sign-in">Sign In</Link>
+              </Button>
+              <Button size="sm" asChild>
+                <Link href="/sign-up">Get Started Free</Link>
+              </Button>
             </Show>
             <Show when="signed-in">
               <Button size="sm" asChild>
                 <Link href="/dashboard">Dashboard</Link>
               </Button>
-              <UserButton />
+              <UserMenu size="sm" />
             </Show>
           </div>
 
           {/* Mobile: a single clear CTA, no menu */}
           <div className="md:hidden ml-auto">
             <Show when="signed-out">
-              <SignUpButton mode="modal">
-                <Button size="sm">Get Started</Button>
-              </SignUpButton>
+              <Button size="sm" asChild>
+                <Link href="/sign-up">Get Started</Link>
+              </Button>
             </Show>
             <Show when="signed-in">
               <Button size="sm" asChild>
