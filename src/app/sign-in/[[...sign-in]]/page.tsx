@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import Link from "next/link";
-import { useClerk } from "@clerk/nextjs";
+import { useClerk, useUser } from "@clerk/nextjs";
 import { AlertCircle } from "lucide-react";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { SocialAuthButtons } from "@/components/auth/SocialAuthButtons";
@@ -14,10 +14,18 @@ import { getAuthErrorMessage } from "@/lib/auth/errors";
 
 export default function SignInPage() {
   const clerk = useClerk();
+  const { isLoaded, isSignedIn } = useUser();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Landing here with a session already active (a leftover tab, browser
+  // back, or the create()/setActive() race this page used to have) should
+  // land you in the app, not on a form that errors with "already signed in".
+  useEffect(() => {
+    if (isLoaded && isSignedIn) window.location.href = "/dashboard";
+  }, [isLoaded, isSignedIn]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -27,8 +35,11 @@ export default function SignInPage() {
     try {
       const result = await clerk.client.signIn.create({ strategy: "password", identifier, password });
       if (result.status === "complete") {
-        await clerk.setActive({ session: result.createdSessionId });
-        window.location.href = "/dashboard";
+        // redirectUrl (not a separate window.location.href after) lets Clerk
+        // sequence the navigation with the session cookie write — doing it
+        // as two steps races the cookie and can bounce /dashboard's auth()
+        // check back to /sign-in before the cookie has actually landed.
+        await clerk.setActive({ session: result.createdSessionId, redirectUrl: "/dashboard" });
       } else {
         setError("Additional verification is required for this account. Please contact support.");
       }

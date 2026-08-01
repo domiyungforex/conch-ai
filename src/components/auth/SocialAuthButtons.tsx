@@ -83,16 +83,14 @@ export function SocialAuthButtons({ mode, onError }: SocialAuthButtonsProps) {
       if (mode === "sign-in") {
         const result = await clerk.client.signIn.authenticateWithMetamask();
         if (result.status === "complete") {
-          await clerk.setActive({ session: result.createdSessionId });
-          window.location.href = OAUTH_REDIRECT_COMPLETE_URL;
+          await clerk.setActive({ session: result.createdSessionId, redirectUrl: OAUTH_REDIRECT_COMPLETE_URL });
         } else {
           onError("Couldn't complete sign-in with MetaMask. Please try again.");
         }
       } else {
         const result = await clerk.client.signUp.authenticateWithMetamask();
         if (result.status === "complete" && result.createdSessionId) {
-          await clerk.setActive({ session: result.createdSessionId });
-          window.location.href = OAUTH_REDIRECT_COMPLETE_URL;
+          await clerk.setActive({ session: result.createdSessionId, redirectUrl: OAUTH_REDIRECT_COMPLETE_URL });
         } else {
           onError("Couldn't complete sign-up with MetaMask. Please try again.");
         }
@@ -113,16 +111,14 @@ export function SocialAuthButtons({ mode, onError }: SocialAuthButtonsProps) {
       if (mode === "sign-in") {
         const result = await clerk.client.signIn.authenticateWithSolana({ walletName: "Phantom" });
         if (result.status === "complete") {
-          await clerk.setActive({ session: result.createdSessionId });
-          window.location.href = OAUTH_REDIRECT_COMPLETE_URL;
+          await clerk.setActive({ session: result.createdSessionId, redirectUrl: OAUTH_REDIRECT_COMPLETE_URL });
         } else {
           onError("Couldn't complete sign-in with Phantom. Please try again.");
         }
       } else {
         const result = await clerk.client.signUp.authenticateWithSolana({ walletName: "Phantom" });
         if (result.status === "complete" && result.createdSessionId) {
-          await clerk.setActive({ session: result.createdSessionId });
-          window.location.href = OAUTH_REDIRECT_COMPLETE_URL;
+          await clerk.setActive({ session: result.createdSessionId, redirectUrl: OAUTH_REDIRECT_COMPLETE_URL });
         } else {
           onError("Couldn't complete sign-up with Phantom. Please try again.");
         }

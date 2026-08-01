@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
-import { useClerk } from "@clerk/nextjs";
+import { useState, useEffect, type FormEvent } from "react";
+import { useClerk, useUser } from "@clerk/nextjs";
 import { AlertCircle } from "lucide-react";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { Button } from "@/components/ui/button";
@@ -14,12 +14,19 @@ type Step = "request" | "reset";
 
 export default function ForgotPasswordPage() {
   const clerk = useClerk();
+  const { isLoaded, isSignedIn } = useUser();
   const [step, setStep] = useState<Step>("request");
   const [identifier, setIdentifier] = useState("");
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // This flow operates on a signed-OUT sign-in attempt — a signed-in user
+  // has nothing to reset here.
+  useEffect(() => {
+    if (isLoaded && isSignedIn) window.location.href = "/dashboard";
+  }, [isLoaded, isSignedIn]);
 
   async function handleRequest(e: FormEvent) {
     e.preventDefault();
@@ -45,8 +52,7 @@ export default function ForgotPasswordPage() {
       const verified = await clerk.client.signIn.attemptFirstFactor({ strategy: "reset_password_email_code", code });
       const result = await verified.resetPassword({ password, signOutOfOtherSessions: true });
       if (result.status === "complete") {
-        await clerk.setActive({ session: result.createdSessionId });
-        window.location.href = "/dashboard";
+        await clerk.setActive({ session: result.createdSessionId, redirectUrl: "/dashboard" });
       } else {
         setError("Couldn't finish resetting your password. Please try again.");
       }

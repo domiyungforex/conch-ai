@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
-import { useClerk } from "@clerk/nextjs";
+import { useState, useEffect, type FormEvent } from "react";
+import { useClerk, useUser } from "@clerk/nextjs";
 import { AlertCircle } from "lucide-react";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { SocialAuthButtons } from "@/components/auth/SocialAuthButtons";
@@ -13,6 +13,7 @@ import { getAuthErrorMessage } from "@/lib/auth/errors";
 
 export default function SignUpPage() {
   const clerk = useClerk();
+  const { isLoaded, isSignedIn } = useUser();
   const [step, setStep] = useState<"form" | "verify">("form");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -22,6 +23,12 @@ export default function SignUpPage() {
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Same guard as /sign-in — a leftover session here should land you in the
+  // app instead of erroring on a form you can't actually submit.
+  useEffect(() => {
+    if (isLoaded && isSignedIn) window.location.href = "/dashboard";
+  }, [isLoaded, isSignedIn]);
 
   async function handleCreate(e: FormEvent) {
     e.preventDefault();
@@ -47,8 +54,7 @@ export default function SignUpPage() {
     try {
       const result = await clerk.client.signUp.attemptEmailAddressVerification({ code });
       if (result.status === "complete" && result.createdSessionId) {
-        await clerk.setActive({ session: result.createdSessionId });
-        window.location.href = "/dashboard";
+        await clerk.setActive({ session: result.createdSessionId, redirectUrl: "/dashboard" });
       } else {
         setError("That code didn't complete verification. Please try again.");
       }
