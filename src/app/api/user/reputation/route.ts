@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type ReputationDoc, type AppwriteDoc } from "@/lib/db";
 import { computeReputationScore, getLevelInfo } from "@/lib/reputation";
+import { getOrCreateUser } from "@/lib/userProvisioning";
 import { Query } from "node-appwrite";
 
 export async function GET() {
@@ -10,6 +11,17 @@ export async function GET() {
   const appwriteId = userId;
 
   const { databases } = createAdminClient();
+
+  // The web dashboard page is the only place a first-time user's baseline
+  // Appwrite records (users + reputations, created together) used to get
+  // provisioned. A mobile client hitting this route right after sign-up,
+  // with no dashboard page in between, would otherwise 404 here forever —
+  // ensure both exist before reading, same as the web flow does.
+  const user = await getOrCreateUser(databases, appwriteId);
+  if (!user) {
+    return new Response(JSON.stringify({ error: "Couldn't set up your account. Please try again." }), { status: 500 });
+  }
+
   const result = await databases.listDocuments(DB_ID, COLLECTIONS.REPUTATIONS, [
     Query.equal("userId", appwriteId), Query.limit(1),
   ]);
