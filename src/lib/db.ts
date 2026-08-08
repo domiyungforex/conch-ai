@@ -57,6 +57,11 @@ export interface UserDoc {
   notifyAgentAlerts?: boolean;
   notifyWeeklyDigest?: boolean;
   notifyProductUpdates?: boolean;
+  // ISO 3166-1 alpha-2, read from Vercel's x-vercel-ip-country header at
+  // signup time and never updated afterward — reflects where the account was
+  // created, not current location. Null for accounts created off Vercel
+  // (local dev) or where the header was absent.
+  country?: string | null;
 }
 
 export type MemoryVerificationStatus = "none" | "pending" | "verified";

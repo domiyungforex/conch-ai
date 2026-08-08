@@ -1,5 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type ReputationDoc, type MemoryDoc, type ConversationDoc, type AppwriteDoc } from "@/lib/db";
 import { DashboardHome } from "@/components/dashboard/DashboardHome";
@@ -18,7 +19,8 @@ export default async function DashboardPage() {
   try {
     const { databases } = createAdminClient();
 
-    const user = await getOrCreateUser(databases, userId);
+    const country = (await headers()).get("x-vercel-ip-country");
+    const user = await getOrCreateUser(databases, userId, country);
     if (!user) return <SetupRetry />;
 
     const [repResult, memCount, convCount, agentCount, recentMemResult, recentConvResult] = await Promise.all([

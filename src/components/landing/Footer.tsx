@@ -6,9 +6,10 @@ import { Github, Twitter } from "lucide-react";
 
 const links = {
   Product: [
-    { label: "Features", href: "#features" },
-    { label: "How It Works", href: "#how-it-works" },
-    { label: "Pricing", href: "#pricing" },
+    { label: "Features", href: "/#features" },
+    { label: "How It Works", href: "/#how-it-works" },
+    { label: "Pricing", href: "/#pricing" },
+    { label: "Community", href: "/community" },
     { label: "API", href: "/settings/api-keys" },
   ],
   Company: [

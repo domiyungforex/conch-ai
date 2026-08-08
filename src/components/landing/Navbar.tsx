@@ -8,10 +8,11 @@ import { UserMenu } from "@/components/dashboard/UserMenu";
 import { Show } from "@clerk/nextjs";
 
 const links = [
-  { label: "Features", href: "#features" },
-  { label: "How It Works", href: "#how-it-works" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "FAQ", href: "#faq" },
+  { label: "Features", href: "/#features" },
+  { label: "How It Works", href: "/#how-it-works" },
+  { label: "Pricing", href: "/#pricing" },
+  { label: "FAQ", href: "/#faq" },
+  { label: "Community", href: "/community" },
 ];
 
 export function Navbar() {

@@ -22,7 +22,8 @@ function sleep(ms: number) {
 // 404 because only the web page used to know how to create them.
 export async function getOrCreateUser(
   databases: ReturnType<typeof createAdminClient>["databases"],
-  userId: string
+  userId: string,
+  country?: string | null
 ): Promise<AppwriteDoc<UserDoc> | null> {
   for (let attempt = 0; attempt < 3; attempt++) {
     if (attempt > 0) await sleep(200 * attempt);
@@ -47,6 +48,7 @@ export async function getOrCreateUser(
         plan: "free",
         planExpiresAt: null,
         onboarded: false,
+        country: country ?? null,
       }) as unknown as AppwriteDoc<UserDoc>;
 
       await databases.createDocument(DB_ID, COLLECTIONS.REPUTATIONS, ID.unique(), {
