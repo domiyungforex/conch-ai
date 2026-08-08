@@ -42,11 +42,18 @@ export default function SignInPage() {
         // as two steps races the cookie and can bounce /dashboard's auth()
         // check back to /sign-in before the cookie has actually landed.
         await clerk.setActive({ session: result.createdSessionId, redirectUrl: "/dashboard" });
-      } else if (result.status === "needs_second_factor") {
+      } else if (result.status === "needs_second_factor" || result.status === "needs_client_trust") {
+        // needs_client_trust is Clerk's device-trust check (new browser/device,
+        // auto-enabled on apps created after 2025-11-14) — resolved the same
+        // way as a real second factor: prepare + attempt against email_code.
         const emailFactor = result.supportedSecondFactors?.find(
           (f): f is Extract<typeof f, { strategy: "email_code" }> => f.strategy === "email_code"
         );
-        await clerk.client.signIn.prepareSecondFactor({ strategy: "email_code", emailAddressId: emailFactor?.emailAddressId });
+        if (!emailFactor) {
+          setError("This device needs extra verification, but no email code option is available for this account. Please contact support.");
+          return;
+        }
+        await clerk.client.signIn.prepareSecondFactor({ strategy: "email_code", emailAddressId: emailFactor.emailAddressId });
         setStep("verify-2fa");
       } else {
         setError(`Additional verification is required (status: ${result.status}).`);
