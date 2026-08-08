@@ -15,8 +15,10 @@ import { getAuthErrorMessage } from "@/lib/auth/errors";
 export default function SignInPage() {
   const clerk = useClerk();
   const { isLoaded, isSignedIn } = useUser();
+  const [step, setStep] = useState<"form" | "verify-2fa">("form");
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+  const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -40,14 +42,83 @@ export default function SignInPage() {
         // as two steps races the cookie and can bounce /dashboard's auth()
         // check back to /sign-in before the cookie has actually landed.
         await clerk.setActive({ session: result.createdSessionId, redirectUrl: "/dashboard" });
+      } else if (result.status === "needs_second_factor") {
+        const emailFactor = result.supportedSecondFactors?.find(
+          (f): f is Extract<typeof f, { strategy: "email_code" }> => f.strategy === "email_code"
+        );
+        await clerk.client.signIn.prepareSecondFactor({ strategy: "email_code", emailAddressId: emailFactor?.emailAddressId });
+        setStep("verify-2fa");
       } else {
-        setError("Additional verification is required for this account. Please contact support.");
+        setError(`Additional verification is required (status: ${result.status}).`);
       }
     } catch (err) {
       setError(getAuthErrorMessage(err, "Couldn't sign in. Check your email/username and password."));
     } finally {
       setSubmitting(false);
     }
+  }
+
+  async function handleVerify2FA(e: FormEvent) {
+    e.preventDefault();
+    if (submitting) return;
+    setError(null);
+    setSubmitting(true);
+    try {
+      const result = await clerk.client.signIn.attemptSecondFactor({ strategy: "email_code", code });
+      if (result.status === "complete") {
+        await clerk.setActive({ session: result.createdSessionId, redirectUrl: "/dashboard" });
+      } else {
+        setError(`Couldn't complete verification (status: ${result.status}).`);
+      }
+    } catch (err) {
+      setError(getAuthErrorMessage(err, "That code wasn't valid. Please check it and try again."));
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (step === "verify-2fa") {
+    return (
+      <AuthShell
+        title="Check your email"
+        subtitle={`Enter the verification code we sent to ${identifier}.`}
+      >
+        <form onSubmit={handleVerify2FA} className="space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="code">Verification code</Label>
+            <Input
+              id="code"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder="123456"
+              autoFocus
+              required
+            />
+          </div>
+
+          {error && (
+            <div className="flex items-start gap-2 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2.5">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          <Button type="submit" className="w-full" disabled={submitting}>
+            {submitting && <LoadingSpinner size="sm" />}
+            Verify and continue
+          </Button>
+          <button
+            type="button"
+            onClick={() => setStep("form")}
+            className="w-full text-center text-sm text-slate-400 hover:text-white transition-colors"
+          >
+            Back
+          </button>
+        </form>
+      </AuthShell>
+    );
   }
 
   return (
