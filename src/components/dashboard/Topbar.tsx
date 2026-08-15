@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Menu, Bell } from "lucide-react";
 import { UserMenu } from "./UserMenu";
 import { Logo } from "@/components/shared/Logo";
+import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { MobileSidebar } from "./MobileSidebar";
@@ -81,6 +82,7 @@ export function Topbar() {
         />
         Live
       </div>
+      <ThemeToggle />
       <Button variant="ghost" size="icon" className="text-slate-400" asChild>
         <Link href="/settings/notifications" title="Notification settings">
           <Bell className="h-5 w-5" />

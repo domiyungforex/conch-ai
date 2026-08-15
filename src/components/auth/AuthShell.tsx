@@ -16,7 +16,7 @@ export function AuthShell({ title, subtitle, children, footer }: AuthShellProps)
       {/* Archive backdrop — warm glow + memory lattice */}
       <div className="absolute inset-0 mesh-gradient pointer-events-none" />
       <div className="absolute inset-0 memory-lattice opacity-50 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#f0e9d8]/60 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/60 pointer-events-none" />
       <NautilusSpiral
         size={420}
         className="absolute -right-44 -top-44 pointer-events-none opacity-[0.07]"

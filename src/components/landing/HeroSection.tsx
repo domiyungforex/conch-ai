@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { ArrowRight, Sparkles, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GradientText } from "@/components/shared/GradientText";
@@ -55,27 +54,11 @@ export function HeroSection() {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden mesh-gradient">
       {/* Background layer */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Breathing orbs */}
-        <motion.div
-          animate={{ scale: [1, 1.18, 1], opacity: [0.08, 0.16, 0.08] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-coral-600 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{ scale: [1, 1.2, 1], opacity: [0.06, 0.13, 0.06] }}
-          transition={{ duration: 11, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
-          className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-gold-600 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{ scale: [1, 1.15, 1], opacity: [0.05, 0.10, 0.05] }}
-          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
-          className="absolute top-1/2 right-1/3 w-64 h-64 bg-teal-600 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{ scale: [1, 1.22, 1], opacity: [0.04, 0.09, 0.04] }}
-          transition={{ duration: 13, repeat: Infinity, ease: "easeInOut", delay: 2.5 }}
-          className="absolute bottom-1/4 left-1/3 w-56 h-56 bg-coral-500 rounded-full blur-3xl"
-        />
+        {/* Breathing orbs — radial-gradient light, CSS-driven transform+opacity
+            (GPU-composited, no blur filter). The old Framer blur orbs forced a
+            full re-raster every frame and dragged the page down. */}
+        <div className="hero-orb w-[26rem] h-[26rem] -top-24 -left-24" />
+        <div className="hero-orb hero-orb--jade w-[22rem] h-[22rem] bottom-1/4 -right-24" />
 
         {/* Floating particles */}
         {particles.map((p) => (
@@ -245,7 +228,7 @@ export function HeroSection() {
       </div>
 
       {/* Bottom gradient fade */}
-      <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-[#faf7f1] to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-background to-transparent pointer-events-none" />
     </section>
   );
 }

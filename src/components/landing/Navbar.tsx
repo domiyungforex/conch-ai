@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Logo } from "@/components/shared/Logo";
+import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { UserMenu } from "@/components/dashboard/UserMenu";
 import { Show } from "@clerk/nextjs";
@@ -46,6 +47,7 @@ export function Navbar() {
           </div>
 
           <div className="hidden md:flex items-center gap-3 ml-auto">
+            <ThemeToggle />
             <Show when="signed-out">
               <Button variant="ghost" size="sm" asChild>
                 <Link href="/sign-in">Sign In</Link>
@@ -63,7 +65,8 @@ export function Navbar() {
           </div>
 
           {/* Mobile: a single clear CTA, no menu */}
-          <div className="md:hidden ml-auto">
+          <div className="md:hidden ml-auto flex items-center gap-2">
+            <ThemeToggle />
             <Show when="signed-out">
               <Button size="sm" asChild>
                 <Link href="/sign-up">Start Remembering</Link>

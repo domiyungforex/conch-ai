@@ -28,6 +28,8 @@
   --color-warning: #b8860b;
 
   --color-white: #241b10;
+  --color-surface: #ffffff;
+  --color-popover: #fdfaf4;
 
   /* coral — maps to molten amber, the primary accent */
   --color-coral-50: #fdf6e7;
@@ -233,10 +235,12 @@ body {
 
 .animate-float {
   animation: float 4s ease-in-out infinite;
+  will-change: transform;
 }
 
 .animate-float-delayed {
   animation: float-delayed 5s ease-in-out infinite;
+  will-change: transform;
 }
 
 .animate-pulse-glow {
@@ -351,6 +355,40 @@ body {
   animation: particle-drift var(--duration, 6s) ease-in-out infinite;
   animation-delay: var(--delay, 0s);
   pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* Hero breathing orbs — soft radial-gradient light, GPU-composited
+   (transform + opacity only, no filter). Replaces the old per-frame
+   Framer blur animations that forced constant re-rasterization. */
+@keyframes orb-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50%      { transform: scale(1.12); opacity: 0.9; }
+}
+.hero-orb {
+  position: absolute;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(224, 163, 78, 0.4) 0%, rgba(224, 163, 78, 0) 70%);
+  will-change: transform, opacity;
+  animation: orb-breathe 9s ease-in-out infinite;
+  pointer-events: none;
+}
+.hero-orb--jade {
+  background: radial-gradient(circle, rgba(79, 170, 135, 0.35) 0%, rgba(79, 170, 135, 0) 70%);
+  animation-duration: 12s;
+  animation-delay: 1.5s;
+}
+
+/* Respect users who prefer reduced motion — kill decorative animation. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Primary CTA glow pulse */
@@ -430,6 +468,139 @@ body {
   background: linear-gradient(90deg, transparent, rgba(176, 111, 27, 0.45), rgba(46, 127, 97, 0.45), transparent);
   height: 1px;
 }
+
+/* ─── Dark mode — the archive at night ───────────────────────────── */
+/* The whole app is built on the semantic --color-* tokens, so flipping
+   them under .dark re-themes every page (landing, dashboard, auth) with
+   no per-component dark: utilities. --color-white is the big lever: it's
+   ink in light mode and parchment-cream here, so text-white / bg-white/x
+   / border-white/x all adapt automatically. */
+.dark {
+  --color-background: #17120b;
+  --color-foreground: #f0e9da;
+  --color-muted: #221c11;
+  --color-muted-foreground: #a89c84;
+  --color-border: rgba(224, 163, 78, 0.16);
+  --color-card: rgba(255, 255, 255, 0.045);
+  --color-card-hover: rgba(255, 255, 255, 0.075);
+  --color-primary: #e0a34e;
+  --color-primary-hover: #cf8f36;
+  --color-primary-foreground: #17120b;
+  --color-secondary: #4faa87;
+  --color-accent: #d97a56;
+  --color-destructive: #f0887a;
+  --color-success: #6cc98a;
+  --color-warning: #e0b559;
+
+  --color-white: #f0e9da;
+  --color-surface: #221c11;
+  --color-popover: #241d12;
+
+  /* coral — brighter archive amber for dark surfaces */
+  --color-coral-50: #2b1c08;
+  --color-coral-100: #3d2a0d;
+  --color-coral-200: #55390f;
+  --color-coral-300: #e0a34e;
+  --color-coral-400: #eab964;
+  --color-coral-500: #f2cd8a;
+  --color-coral-600: #d99a3e;
+  --color-coral-700: #b07a28;
+  --color-coral-800: #8a601f;
+  --color-coral-900: #5f4518;
+  --color-coral-950: #2b1c08;
+
+  /* teal — brighter jade */
+  --color-teal-50: #0b1f18;
+  --color-teal-100: #102b21;
+  --color-teal-200: #1a4534;
+  --color-teal-300: #3f9374;
+  --color-teal-400: #4faa87;
+  --color-teal-500: #64bd9c;
+  --color-teal-600: #7fcdb2;
+  --color-teal-700: #a0dbc7;
+  --color-teal-800: #c2eadb;
+  --color-teal-900: #e0f5ec;
+  --color-teal-950: #f1fbf7;
+
+  /* gold — brighter copper */
+  --color-gold-50: #2a1510;
+  --color-gold-100: #3a1f16;
+  --color-gold-200: #4f2c1f;
+  --color-gold-300: #7a462f;
+  --color-gold-400: #a86240;
+  --color-gold-500: #c97852;
+  --color-gold-600: #d98f6b;
+  --color-gold-700: #e7ab8d;
+  --color-gold-800: #f1c8b4;
+  --color-gold-900: #f9e3d9;
+  --color-gold-950: #fdf4ef;
+
+  /* slate — warm parchment greys for dark surfaces (muted text becomes
+     light, borders/dividers become deep warm tones) */
+  --color-slate-50: #1a150d;
+  --color-slate-100: #211b12;
+  --color-slate-200: #2c2519;
+  --color-slate-300: #3a3326;
+  --color-slate-400: #a89c84;
+  --color-slate-500: #8d8270;
+  --color-slate-600: #6f6350;
+  --color-slate-700: #4e4433;
+  --color-slate-800: #2c2519;
+  --color-slate-900: #f3efe6;
+  --color-slate-950: #faf8f3;
+
+  --shadow-glow-primary: 0 0 40px rgba(224, 163, 78, 0.22);
+  --shadow-glow-secondary: 0 0 40px rgba(79, 170, 135, 0.18);
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* Dark surface treatments for the plain-CSS (unlayered) classes */
+.dark .glass {
+  background: rgba(30, 23, 13, 0.6);
+  border-color: rgba(224, 163, 78, 0.16);
+}
+.dark .glass-strong {
+  background: rgba(26, 20, 12, 0.85);
+  border-color: rgba(224, 163, 78, 0.2);
+}
+.dark .mesh-gradient {
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(224, 163, 78, 0.16) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(79, 170, 135, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(217, 122, 86, 0.08) 0%, transparent 50%),
+    #17120b;
+}
+.dark .gradient-text {
+  background: linear-gradient(135deg, #e0a34e, #4faa87);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.dark .gradient-text-full {
+  background: linear-gradient(135deg, #f2cd8a, #e0a34e, #d98f6b);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.dark .particle { background: rgba(224, 163, 78, 0.55); }
+.dark .glow-primary { box-shadow: 0 0 40px rgba(224, 163, 78, 0.22); }
+.dark .glow-secondary { box-shadow: 0 0 40px rgba(79, 170, 135, 0.18); }
+.dark .memory-lattice {
+  background-image:
+    radial-gradient(rgba(224, 163, 78, 0.12) 1px, transparent 1px),
+    radial-gradient(rgba(79, 170, 135, 0.1) 1px, transparent 1px);
+}
+.dark .importance-dot--low    { background: rgba(224,163,78,0.35); box-shadow: 0 0 4px  rgba(224,163,78,0.15); }
+.dark .importance-dot--medium { background: rgba(224,163,78,0.55); box-shadow: 0 0 6px  rgba(224,163,78,0.35); }
+.dark .importance-dot--high   { background: rgba(224,163,78,0.75); box-shadow: 0 0 9px  rgba(224,163,78,0.55); }
+.dark .importance-dot--max    { background: rgba(224,163,78,0.95); box-shadow: 0 0 13px rgba(224,163,78,0.75); }
+.dark ::selection { color: #17120b; }
+.dark ::-webkit-scrollbar-thumb { background: rgba(224, 163, 78, 0.35); }
+.dark ::-webkit-scrollbar-thumb:hover { background: rgba(224, 163, 78, 0.6); }
+.dark :focus-visible { outline-color: rgba(224, 163, 78, 0.7); }
+.dark .prose-conch code { background: rgba(224, 163, 78, 0.14); color: #f2cd8a; }
+.dark .prose-conch a { color: #e0a34e; }
+.dark .prose-conch strong { color: #f0e9da; }
+.dark .prose-conch h1, .dark .prose-conch h2, .dark .prose-conch h3 { color: #f0e9da; }
+.dark .prose-conch pre { background: #100c06; border-color: rgba(255, 255, 255, 0.1); }
 
 /* ─── Bulletproof typography ─────────────────────────────────────── */
 /* Plain CSS, unlayered — survives any build pipeline (webpack or

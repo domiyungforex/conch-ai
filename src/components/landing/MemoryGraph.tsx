@@ -200,15 +200,12 @@ export function MemoryGraph() {
                   className="cursor-pointer z-10"
                   onClick={() => setSelectedNode(isSelected ? null : node.id)}
                 >
-                  {/* Float wrapper */}
-                  <motion.div
-                    animate={{ y: [0, -7, 0] }}
-                    transition={{
-                      duration: 3.5 + i * 0.28,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      delay: i * 0.35,
-                    }}
+                  {/* Float wrapper — plain CSS animation (transform-only,
+                      GPU-composited) instead of an infinite Framer loop so the
+                      graph stays smooth. */}
+                  <div
+                    className="animate-float"
+                    style={{ animationDuration: `${3.5 + i * 0.28}s`, animationDelay: `${i * 0.35}s` }}
                   >
                     <motion.div
                       whileHover={{ scale: 1.08 }}
@@ -225,7 +222,7 @@ export function MemoryGraph() {
                         <p className={`text-[11px] font-semibold ${style.text}`}>{node.label}</p>
                       </div>
                     </motion.div>
-                  </motion.div>
+                  </div>
                 </motion.div>
               );
             })}
