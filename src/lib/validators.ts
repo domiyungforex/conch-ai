@@ -22,6 +22,18 @@ export const MemoryCreateSchema = z.object({
   tags: z.array(z.string().max(50)).max(10).default([]),
   importance: z.number().min(0).max(1).default(0.5),
   source: z.string().optional(),
+  // Project/tenant isolation for external API callers: memories land in this
+  // namespace and list/search can be scoped to it. Free-form, so each
+  // integration can use its own scheme ("app", "client_x", "project/2026").
+  namespace: z
+    .string()
+    .min(1)
+    .max(64)
+    .regex(/^[a-zA-Z0-9._\-]+$/, "Namespace may only contain letters, numbers, dots, underscores, and hyphens")
+    .default("default"),
+  // Relationship layer — ids of memories this one links to (same user only).
+  // Omitted at creation: auto-linked to the most similar existing memory.
+  relatedMemoryIds: z.array(z.string().max(36)).max(20).optional(),
 });
 
 export const UserSettingsUpdateSchema = z.object({
@@ -50,6 +62,13 @@ export const MemoryUpdateSchema = z.object({
   tags: z.array(z.string().max(50)).max(10).optional(),
   importance: z.number().min(0).max(1).optional(),
   isArchived: z.boolean().optional(),
+  namespace: z
+    .string()
+    .min(1)
+    .max(64)
+    .regex(/^[a-zA-Z0-9._\-]+$/, "Namespace may only contain letters, numbers, dots, underscores, and hyphens")
+    .optional(),
+  relatedMemoryIds: z.array(z.string().max(36)).max(20).optional(),
 });
 
 export const AgentCreateSchema = z.object({
@@ -89,6 +108,15 @@ export const SearchSchema = z.object({
   topK: z.number().min(1).max(20).default(10),
   category: z.enum(["EPISODIC", "SEMANTIC", "PREFERENCE", "PROCEDURAL"]).optional(),
   minScore: z.number().min(0).max(1).default(0.3),
+  // Optional namespace scoping — when present, only memories in that
+  // namespace are searched; when absent, the caller's whole memory is searched
+  // (backward compatible with pre-namespace behavior).
+  namespace: z
+    .string()
+    .min(1)
+    .max(64)
+    .regex(/^[a-zA-Z0-9._\-]+$/, "Namespace may only contain letters, numbers, dots, underscores, and hyphens")
+    .optional(),
 });
 
 export const CodeRunSchema = z.object({
@@ -119,6 +147,11 @@ export const BusinessCreateSchema = z.object({
   website: z.string().url().max(500).optional(),
   currency: z.string().max(8).default("USD"),
   region: z.string().max(8).default("global"),
+  // Industry template (see src/lib/businessTemplates.ts) — tells the AI
+  // assistant what to track and what questions it should answer well.
+  template: z.string().max(64).optional(),
+  // Optional suggested record categories this business tracks.
+  categories: z.array(z.string().max(50)).max(20).optional(),
 });
 export const BusinessUpdateSchema = BusinessCreateSchema.partial();
 
@@ -179,6 +212,72 @@ export const BusinessRevenueCreateSchema = z.object({
   notes: z.string().max(2000).optional(),
 });
 export const BusinessRevenueUpdateSchema = BusinessRevenueCreateSchema.partial();
+
+// ── Creator Memory (active) ─────────────────────────────────────────────
+
+export const CreatorStageValues = [
+  "musician", "artist", "youtuber", "tiktok", "influencer",
+  "writer", "producer", "photographer", "agency",
+] as const;
+
+export const CreatorSongStatusValues = ["unreleased", "released", "archived"] as const;
+export const CreatorIdeaStatusValues = ["idea", "in_progress", "published", "archived"] as const;
+export const CreatorCampaignStatusValues = ["planned", "active", "completed", "archived"] as const;
+
+export const CreatorCreateSchema = z.object({
+  name: z.string().min(1).max(200),
+  stage: z.enum(CreatorStageValues).default("musician"),
+  genre: z.string().max(100).optional(),
+  brandIdentity: z.string().max(2000).optional(),
+  bio: z.string().max(2000).optional(),
+});
+export const CreatorUpdateSchema = CreatorCreateSchema.partial();
+
+export const CreatorSongCreateSchema = z.object({
+  title: z.string().min(1).max(200),
+  lyrics: z.string().max(10000).optional(),
+  status: z.enum(CreatorSongStatusValues).default("unreleased"),
+  releaseDate: z.string().datetime().optional(),
+  producers: z.array(z.string().max(100)).max(10).default([]),
+  notes: z.string().max(2000).optional(),
+});
+export const CreatorSongUpdateSchema = CreatorSongCreateSchema.partial();
+
+export const CreatorIdeaCreateSchema = z.object({
+  title: z.string().min(1).max(200),
+  description: z.string().min(1).max(2000),
+  platform: z.string().max(64).optional(),
+  status: z.enum(CreatorIdeaStatusValues).default("idea"),
+  notes: z.string().max(2000).optional(),
+});
+export const CreatorIdeaUpdateSchema = CreatorIdeaCreateSchema.partial();
+
+export const CreatorCampaignCreateSchema = z.object({
+  name: z.string().min(1).max(200),
+  goal: z.string().max(1000).optional(),
+  platform: z.string().max(64).optional(),
+  budgetUsd: z.number().min(0).default(0),
+  status: z.enum(CreatorCampaignStatusValues).default("planned"),
+  notes: z.string().max(2000).optional(),
+});
+export const CreatorCampaignUpdateSchema = CreatorCampaignCreateSchema.partial();
+
+export const CreatorCollaboratorCreateSchema = z.object({
+  name: z.string().min(1).max(200),
+  role: z.string().max(100).optional(),
+  contact: z.string().max(320).optional(),
+  notes: z.string().max(2000).optional(),
+});
+export const CreatorCollaboratorUpdateSchema = CreatorCollaboratorCreateSchema.partial();
+
+export const CreatorContentCreateSchema = z.object({
+  title: z.string().min(1).max(300),
+  platform: z.string().max(64).optional(),
+  url: z.string().url().max(500).optional(),
+  publishedAt: z.string().datetime().optional(),
+  notes: z.string().max(2000).optional(),
+});
+export const CreatorContentUpdateSchema = CreatorContentCreateSchema.partial();
 
 // ── Economic Intelligence + Opportunity Engine (future) ─────────────────
 

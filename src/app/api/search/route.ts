@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     return new Response(JSON.stringify({ error: "Invalid request", details: parsed.error.flatten() }), { status: 400 });
   }
 
-  const { query, topK, category, minScore } = parsed.data;
+  const { query, topK, category, minScore, namespace } = parsed.data;
 
   let queryVector: number[];
   try {
@@ -41,6 +41,9 @@ export async function POST(req: Request) {
       Query.limit(MAX_CANDIDATES),
     ];
     if (category) filters.push(Query.equal("category", category));
+    // Namespace scoping for external API callers — only search this namespace
+    // when one is given; otherwise search the whole memory (backward compatible).
+    if (namespace) filters.push(Query.equal("namespace", namespace));
 
     const result = await databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, filters);
     const memories = result.documents as unknown as AppwriteDoc<MemoryDoc>[];

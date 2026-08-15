@@ -1,9 +1,12 @@
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type MemoryDoc, type ReputationDoc, type AppwriteDoc } from "@/lib/db";
 import { generateEmbedding } from "@/lib/embeddings";
+import { topKBySimilarity } from "@/lib/vectorSearch";
+import { linkMemories } from "@/lib/memory";
 import { MemoryCreateSchema } from "@/lib/validators";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
+import { logAudit } from "@/lib/audit";
 import { checkMemoryQuota, upgradeHint } from "@/lib/planLimits";
 import { Query, ID, Permission, Role } from "node-appwrite";
 
@@ -16,6 +19,7 @@ export async function GET(req: Request) {
   const { databases } = createAdminClient();
   const { searchParams } = new URL(req.url);
   const category = searchParams.get("category") ?? undefined;
+  const namespace = searchParams.get("namespace") ?? undefined;
   const archived = searchParams.get("archived") === "true";
   const page = parseInt(searchParams.get("page") ?? "1", 10);
   const limit = Math.min(parseInt(searchParams.get("limit") ?? "20", 10), 100);
@@ -29,11 +33,46 @@ export async function GET(req: Request) {
     Query.offset(offset),
   ];
   if (category) filters.push(Query.equal("category", category));
+  // Only filter when explicitly requested — memories written before the
+  // namespace attribute existed carry no value here, so omitting the param
+  // keeps listing the whole memory (backward compatible).
+  if (namespace) filters.push(Query.equal("namespace", namespace));
 
   const result = await databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, filters);
   const memories = result.documents as unknown as AppwriteDoc<MemoryDoc>[];
 
-  return Response.json({ memories, total: result.total, page, limit });
+  // Batch-resolve relationship links so the UI can render them without an
+  // extra round trip per card. One extra query for the whole page.
+  const memoriesWithRelated = await attachRelatedSnippets(databases, appwriteId, memories);
+
+  return Response.json({ memories: memoriesWithRelated, total: result.total, page, limit });
+}
+
+async function attachRelatedSnippets(
+  databases: ReturnType<typeof createAdminClient>["databases"],
+  userId: string,
+  memories: AppwriteDoc<MemoryDoc>[]
+): Promise<Array<AppwriteDoc<MemoryDoc> & { relatedSnippets?: { $id: string; content: string }[] }>> {
+  const allIds = [...new Set(memories.flatMap((m) => m.relatedMemoryIds ?? []))].slice(0, 100);
+  if (allIds.length === 0) return memories as typeof memories;
+
+  try {
+    const result = await databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, [
+      Query.equal("$id", allIds),
+      Query.equal("userId", userId),
+      Query.limit(allIds.length),
+    ]);
+    const byId = new Map((result.documents as unknown as AppwriteDoc<MemoryDoc>[]).map((d) => [d.$id, d]));
+    return memories.map((m) => {
+      const snippets = (m.relatedMemoryIds ?? [])
+        .map((id) => byId.get(id))
+        .filter((d): d is AppwriteDoc<MemoryDoc> => Boolean(d))
+        .map((d) => ({ $id: d.$id, content: d.content.slice(0, 80) }));
+      return snippets.length > 0 ? { ...m, relatedSnippets: snippets } : m;
+    });
+  } catch {
+    return memories as typeof memories;
+  }
 }
 
 export async function POST(req: Request) {
@@ -82,6 +121,24 @@ export async function POST(req: Request) {
     Permission.delete(Role.user(appwriteId)),
   ]) as unknown as AppwriteDoc<MemoryDoc>;
 
+  // Relationship creation: when the caller didn't specify links, auto-link to
+  // the most semantically similar existing memory so related context is
+  // connected rather than isolated. Non-fatal — never blocks the save.
+  if (embedding.length > 0 && !parsed.data.relatedMemoryIds) {
+    try {
+      const candidates = await databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, [
+        Query.equal("userId", appwriteId),
+        Query.equal("isArchived", false),
+        Query.limit(1000),
+      ]);
+      const others = (candidates.documents as unknown as AppwriteDoc<MemoryDoc>[]).filter((d) => d.$id !== memId);
+      const best = topKBySimilarity(embedding, others, 1, 0.72)[0];
+      if (best) await linkMemories(databases, memId, best.$id);
+    } catch {
+      // Relationship maintenance must never break the save.
+    }
+  }
+
   try {
     const repResult = await databases.listDocuments(DB_ID, COLLECTIONS.REPUTATIONS, [
       Query.equal("userId", appwriteId), Query.limit(1),
@@ -94,6 +151,10 @@ export async function POST(req: Request) {
     }
   } catch {
     // Non-critical
+  }
+
+  if (resolved.viaApiKey) {
+    await logAudit(appwriteId, "memory.created", memId, { via: "api_key", namespace: parsed.data.namespace });
   }
 
   return Response.json({ memory }, { status: 201 });

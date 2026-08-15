@@ -53,6 +53,56 @@ export async function retrieveRelevantMemories(
   }
 }
 
+// Resolve a memory's relatedMemoryIds to their documents (same user only —
+// the caller already owns `memoryId`, and $id lookups can't cross users since
+// every memory doc is filtered by userId in the read path).
+export async function getRelatedMemories(
+  databases: ReturnType<typeof createAdminClient>["databases"],
+  userId: string,
+  memoryId: string
+): Promise<AppwriteDoc<MemoryDoc>[]> {
+  try {
+    const memory = await databases.getDocument(DB_ID, COLLECTIONS.MEMORIES, memoryId) as unknown as AppwriteDoc<MemoryDoc>;
+    const ids = (memory.relatedMemoryIds ?? []).slice(0, 20);
+    if (ids.length === 0) return [];
+
+    const result = await databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, [
+      Query.equal("$id", ids),
+      Query.equal("userId", userId),
+      Query.limit(ids.length),
+    ]);
+    return result.documents as unknown as AppwriteDoc<MemoryDoc>[];
+  } catch {
+    return [];
+  }
+}
+
+// Back-link both ways: add `targetId` to `sourceId`'s related list and
+// `sourceId` to `targetId`'s, deduped, bounded. Non-fatal on any error.
+export async function linkMemories(
+  databases: ReturnType<typeof createAdminClient>["databases"],
+  sourceId: string,
+  targetId: string
+): Promise<void> {
+  if (sourceId === targetId) return;
+  try {
+    const [source, target] = await Promise.all([
+      databases.getDocument(DB_ID, COLLECTIONS.MEMORIES, sourceId),
+      databases.getDocument(DB_ID, COLLECTIONS.MEMORIES, targetId),
+    ]);
+    const srcLinks = (source.relatedMemoryIds ?? []).filter((id: string) => id !== targetId).slice(0, 19);
+    const tgtLinks = (target.relatedMemoryIds ?? []).filter((id: string) => id !== sourceId).slice(0, 19);
+    srcLinks.push(targetId);
+    tgtLinks.push(sourceId);
+    await Promise.all([
+      databases.updateDocument(DB_ID, COLLECTIONS.MEMORIES, sourceId, { relatedMemoryIds: srcLinks }),
+      databases.updateDocument(DB_ID, COLLECTIONS.MEMORIES, targetId, { relatedMemoryIds: tgtLinks }),
+    ]);
+  } catch {
+    // Relationship maintenance must never break the request it's attached to.
+  }
+}
+
 export function injectMemoryContext(memories: MemoryWithScore[]): string {
   if (memories.length === 0) return "";
 

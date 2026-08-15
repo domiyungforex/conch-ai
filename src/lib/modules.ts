@@ -9,6 +9,7 @@ export const MODULE_KEYS = [
   "memory_engine",
   "agent_system",
   "business_ai",
+  "creator_ai",
   "economic_intelligence",
   "financial_intelligence",
   "opportunity_engine",
@@ -32,6 +33,7 @@ export const DEFAULT_MODULE_STATUS: Record<ModuleKey, ModuleStatus> = {
   memory_engine: "enabled",
   agent_system: "enabled",
   business_ai: "enabled",
+  creator_ai: "enabled",
   economic_intelligence: "enabled",
   financial_intelligence: "enabled",
   opportunity_engine: "enabled",
@@ -99,6 +101,14 @@ export const MODULE_REGISTRY: Record<ModuleKey, ModuleInfo> = {
       "Security review completed",
     ],
   },
+  creator_ai: {
+    key: "creator_ai",
+    label: "Creator Memory",
+    tagline: "Your creative memory — songs, ideas, campaigns, and collaborators.",
+    description:
+      "A creator workspace for musicians, artists, YouTubers, writers, and producers — tracks songs, lyrics, unreleased ideas, campaigns, content, and collaborations, with an assistant that knows your creative history.",
+    activationCriteria: [],
+  },
   economic_intelligence: {
     key: "economic_intelligence",
     label: "Economic Intelligence",
@@ -161,6 +171,7 @@ export const MODULE_REGISTRY: Record<ModuleKey, ModuleInfo> = {
 // as its own nav destination.
 export const MODULE_NAV_ITEMS: { key: ModuleKey; href: string; label: string }[] = [
   { key: "business_ai", href: "/business", label: "Business" },
+  { key: "creator_ai", href: "/creators", label: "Creators" },
   { key: "financial_intelligence", href: "/financial", label: "Financial" },
   { key: "opportunity_engine", href: "/opportunities", label: "Opportunities" },
   { key: "economic_intelligence", href: "/economic", label: "Economic" },

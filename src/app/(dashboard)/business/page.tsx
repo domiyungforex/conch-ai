@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ResourcePanel } from "@/components/modules/ResourcePanel";
+import { BUSINESS_TEMPLATES } from "@/lib/businessTemplates";
 import type { AppwriteDoc, BusinessDoc } from "@/lib/db";
 
 type Business = AppwriteDoc<BusinessDoc>;
@@ -22,6 +23,13 @@ export default function BusinessPage() {
         emptyLabel="No businesses yet — add one to get started."
         fields={[
           { key: "name", label: "Name", type: "text", placeholder: "Acme Inc." },
+          {
+            key: "template",
+            label: "Industry template",
+            type: "select",
+            placeholder: "Pick what to track",
+            options: BUSINESS_TEMPLATES.map((t) => ({ value: t.id, label: `${t.icon} ${t.label}` })),
+          },
           { key: "industry", label: "Industry", type: "text", placeholder: "Retail" },
           { key: "description", label: "Description", type: "textarea" },
           { key: "website", label: "Website", type: "text", placeholder: "https://" },

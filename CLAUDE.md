@@ -44,6 +44,11 @@ No test suite exists. Install deps with `--legacy-peer-deps` due to React 19 pee
 - Client hook `useChat` (`src/hooks/useChat.ts`) reads that header to update the URL on new conversations.
 - Embeddings (`src/lib/embeddings.ts`) come from Voyage AI (`voyage-3.5`) via direct REST call — Anthropic has no embeddings endpoint.
 
+**Model gateway + router** (`src/lib/modelGateway.ts`, `src/lib/aiRouter.ts`):
+- The gateway is the provider-agnostic seam for simple, non-streaming completions (business/creator assistants, classifiers, summaries). Providers: Anthropic + OpenAI (OpenAI enabled when `OPENAI_API_KEY` is set). `registerProvider()` extends it.
+- The chat route is deliberately NOT routed through the gateway — it stays on its proven streaming/tools pipeline.
+- `routeModel(task)` in aiRouter.ts picks the model per task tier; tiers are operator-overridable via the `AI_ROUTER_MODEL_*` env vars (e.g. point `business_qa` at `gpt-4o-mini` with `AI_ROUTER_MODEL_FAST`).
+
 **Rate limiting** (`src/lib/rateLimit.ts`):
 - In-memory `Map` keyed on `{feature}:{userId}` (e.g., `chat:xyz`, `memory:create:xyz`). Resets per window. Not persisted — resets on server restart.
 
@@ -67,6 +72,8 @@ No test suite exists. Install deps with `--legacy-peer-deps` due to React 19 pee
 | `APPWRITE_SESSION_COOKIE` | Cookie name (default: `appwrite-session`) |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` / `CLERK_SECRET_KEY` | Clerk auth |
 | `ANTHROPIC_API_KEY` | Claude for chat (`claude-sonnet-5` default) |
+| `OPENAI_API_KEY` | Optional — enables the OpenAI provider in the model gateway (see `src/lib/modelGateway.ts` + `src/lib/aiRouter.ts`) |
+| `AI_ROUTER_MODEL_DEFAULT/FAST/COMPLEX/CODE/PRIVATE` | Optional — operator-overridable model per task tier in `src/lib/aiRouter.ts` (defaults: Haiku 4.5 for fast/default/private, Sonnet 5 for complex/code) |
 | `VOYAGE_API_KEY` | Voyage AI embeddings (`voyage-3.5`, 1024 dims) for memory vectors |
 
 ## Notable constraints

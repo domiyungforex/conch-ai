@@ -47,6 +47,7 @@ export const ENDPOINTS: EndpointSpec[] = [
     auth: "read",
     fields: [
       { name: "category", kind: "enum", in: "query", enumValues: MEMORY_CATEGORY_VALUES, description: "Restrict to one memory category." },
+      { name: "namespace", kind: "string", in: "query", placeholder: "default", description: "Restrict to one namespace (project/tenant isolation for API users). Omit to list everything." },
       { name: "archived", kind: "boolean", in: "query", default: false, description: "true to list archived memories instead of active ones." },
       { name: "page", kind: "number", in: "query", default: 1, description: "1-indexed page number." },
       { name: "limit", kind: "number", in: "query", default: 20, description: "Page size, capped at 100." },
@@ -58,7 +59,8 @@ export const ENDPOINTS: EndpointSpec[] = [
     "category": "EPISODIC" | "SEMANTIC" | "PREFERENCE" | "PROCEDURAL",
     "tags": ["string"], "importance": 0.0, "accessCount": 0,
     "lastAccessed": "ISO 8601 | null", "source": "string | null",
-    "agentId": "string | null", "isArchived": false
+    "agentId": "string | null",    "isArchived": false, "namespace": "default",
+    "relatedSnippets": [{ "$id": "string", "content": "first 80 chars of a linked memory" }]
   }],
   "total": 0, "page": 1, "limit": 20
 }`,
@@ -78,6 +80,8 @@ export const ENDPOINTS: EndpointSpec[] = [
       { name: "tags", kind: "tags", in: "body", placeholder: "coffee, preferences", description: "Comma-separated tags (max 10)." },
       { name: "importance", kind: "number", in: "body", default: 0.5, description: "0 to 1. Used as a tiebreaker in similarity ranking." },
       { name: "source", kind: "string", in: "body", placeholder: "onboarding-form", description: "Optional free-text origin label." },
+      { name: "namespace", kind: "string", in: "body", default: "default", placeholder: "my-app", description: "Project/tenant isolation — memories land here and list/search/recall can be scoped to it (letters, numbers, dots, underscores, hyphens; max 64)." },
+      { name: "relatedMemoryIds", kind: "tags", in: "body", placeholder: "68f2…, 68f3…", description: "Explicit links to other memories (relationship layer). Omit to auto-link to the most similar existing memory instead." },
     ],
     responseShape: `{ "memory": { /* full memory document, see List memories */ } }  — 201 Created`,
   },
@@ -92,7 +96,10 @@ export const ENDPOINTS: EndpointSpec[] = [
     fields: [
       { name: "id", kind: "string", in: "path", required: true, placeholder: "68f2c1a9000b1e...", description: "The memory's $id." },
     ],
-    responseShape: `{ "memory": { /* full memory document */ } }`,
+    responseShape: `{
+  "memory": { /* full memory document */ },
+  "related": [{ /* linked memory documents (relationship layer) */ }]
+}`,
   },
   {
     id: "memory-update",
@@ -109,8 +116,28 @@ export const ENDPOINTS: EndpointSpec[] = [
       { name: "tags", kind: "tags", in: "body", placeholder: "coffee, preferences", description: "Replaces the full tag list." },
       { name: "importance", kind: "number", in: "body", description: "0 to 1." },
       { name: "isArchived", kind: "boolean", in: "body", description: "Archive or restore this memory." },
+      { name: "namespace", kind: "string", in: "body", placeholder: "my-app", description: "Move this memory to a different namespace." },
+      { name: "relatedMemoryIds", kind: "tags", in: "body", placeholder: "68f2…, 68f3…", description: "Replaces the full link list (relationship layer)." },
     ],
     responseShape: `{ "memory": { /* updated memory document */ } }`,
+  },
+  {
+    id: "memory-export",
+    group: "Memory",
+    method: "GET",
+    path: "/api/memory/export",
+    title: "Export memories",
+    description: "Downloads every memory as a JSON file (data portability / backup). Streams all pages up to 20,000 memories.",
+    auth: "read",
+    fields: [
+      { name: "includeArchived", kind: "boolean", in: "query", default: false, description: "true to include archived memories in the export." },
+    ],
+    responseShape: `application/json attachment (Content-Disposition: attachment)
+{
+  "exportedAt": "ISO 8601",
+  "count": 0,
+  "memories": [{ "$id": "string", "content": "string", /* full memory document */ }]
+}`,
   },
   {
     id: "memory-delete",
@@ -141,9 +168,35 @@ export const ENDPOINTS: EndpointSpec[] = [
       { name: "topK", kind: "number", in: "body", default: 10, description: "Max results to return, 1 to 20." },
       { name: "category", kind: "enum", in: "body", enumValues: MEMORY_CATEGORY_VALUES, description: "Restrict to one memory category." },
       { name: "minScore", kind: "number", in: "body", default: 0.3, description: "Minimum cosine similarity, 0 to 1." },
+      { name: "namespace", kind: "string", in: "body", placeholder: "my-app", description: "Search only this namespace (project/tenant isolation). Omit to search the whole memory." },
     ],
     responseShape: `{
   "results": [{ "memory": { /* memory document */ }, "score": 0.0 }]
+}`,
+  },
+  {
+    id: "recall-query",
+    group: "Search",
+    method: "POST",
+    path: "/api/memory/recall",
+    title: "Recall memories (AI-ready)",
+    description: "Semantic retrieval aimed at AI applications: returns the scored memories plus a ready-to-inject \"context\" block (the same format Conch's own chat uses), and bumps accessCount on retrieved memories.",
+    auth: "read",
+    rateLimit: "30 requests / 60s per caller",
+    fields: [
+      { name: "query", kind: "string", in: "body", required: true, placeholder: "what does the user prefer", description: "Natural-language recall text (max 500 chars)." },
+      { name: "topK", kind: "number", in: "body", default: 10, description: "Max results to return, 1 to 20." },
+      { name: "category", kind: "enum", in: "body", enumValues: MEMORY_CATEGORY_VALUES, description: "Restrict to one memory category." },
+      { name: "minScore", kind: "number", in: "body", default: 0.3, description: "Minimum cosine similarity, 0 to 1." },
+      { name: "namespace", kind: "string", in: "body", placeholder: "my-app", description: "Recall only within this namespace. Omit to recall across the whole memory." },
+    ],
+    responseShape: `{
+  "results": [{
+    "memory": { /* memory document */ },
+    "score": 0.0,
+    "related": true /* only on memories pulled in through relationship links */
+  }],
+  "context": "\n\n## Relevant context about this user:\n[PREFERENCE] The user prefers..."
 }`,
   },
 

@@ -19,6 +19,8 @@ export default function robots(): MetadataRoute.Robots {
         "/settings",
         "/reputation",
         "/shared",
+        "/business",
+        "/creators",
       ],
     },
     sitemap: `${BASE_URL}/sitemap.xml`,

@@ -131,6 +131,25 @@ export function MemoryCard({ memory, onEdit, onArchive, onDelete, onVerify, veri
         </div>
       )}
 
+      {/* Related memories (relationship layer) */}
+      {Array.isArray(memory.relatedSnippets) && memory.relatedSnippets.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {memory.relatedSnippets.slice(0, 3).map((r) => (
+            <span
+              key={r.$id}
+              className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-coral-500/10 border border-coral-500/25 text-coral-300/90"
+              title={r.content}
+            >
+              <Link2 className="w-3 h-3 shrink-0" />
+              {r.content.length > 28 ? `${r.content.slice(0, 28)}…` : r.content}
+            </span>
+          ))}
+          {memory.relatedSnippets.length > 3 && (
+            <span className="text-xs text-slate-600">+{memory.relatedSnippets.length - 3} more</span>
+          )}
+        </div>
+      )}
+
       {/* Footer */}
       <div className="flex items-center justify-between pt-1 border-t border-white/5">
         <div className="flex items-center gap-2">

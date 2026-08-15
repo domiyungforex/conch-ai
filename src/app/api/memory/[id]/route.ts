@@ -3,6 +3,8 @@ import { DB_ID, COLLECTIONS, type MemoryDoc, type ReputationDoc, type AppwriteDo
 import { generateEmbedding } from "@/lib/embeddings";
 import { MemoryUpdateSchema } from "@/lib/validators";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
+import { logAudit } from "@/lib/audit";
+import { getRelatedMemories } from "@/lib/memory";
 import { Query, Permission, Role } from "node-appwrite";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -23,7 +25,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
   if (memory.userId !== appwriteId) return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
 
-  return Response.json({ memory });
+  // Relationship layer: resolve linked memories alongside the requested one.
+  const related = await getRelatedMemories(databases, appwriteId, id);
+
+  return Response.json({ memory, related });
 }
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -69,6 +74,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     }
   }
 
+  if (resolved.viaApiKey) {
+    await logAudit(appwriteId, "memory.updated", id, { via: "api_key" });
+  }
+
   return Response.json({ memory });
 }
 
@@ -89,6 +98,10 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
   }
 
   if (memory.userId !== appwriteId) return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
+
+  if (resolved.viaApiKey) {
+    await logAudit(appwriteId, "memory.deleted", id, { via: "api_key" });
+  }
 
   await databases.deleteDocument(DB_ID, COLLECTIONS.MEMORIES, id);
 

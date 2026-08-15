@@ -120,3 +120,16 @@ On every chat request, the system embeds the user's message, queries Pinecone fo
 ### API Key Format
 
 Keys use the format `cnch_<64 hex chars>`. The full key is shown exactly once on creation; only a bcrypt hash is stored in the database.
+
+### External Memory API
+
+Authenticate with `Authorization: Bearer cnch_...` (scopes: `FULL`, `MEMORY_READ`, `MEMORY_WRITE`, `CHAT`). Interactive docs live at `/developers`.
+
+- `POST /api/memory` — save a memory (`namespace` isolates projects/clients; `relatedMemoryIds` links it to other memories, or it auto-links to the most similar one)
+- `GET /api/memory` — list (filter by `category`, `namespace`, `archived`)
+- `POST /api/search` — semantic search (optionally scoped to a `namespace`)
+- `POST /api/memory/recall` — search + a prompt-ready `context` block for AI apps (expands through relationship links)
+- `GET /api/memory/export` — download all memories as JSON
+- `PATCH` / `DELETE /api/memory/{id}` — update / delete
+
+API-key memory mutations and key lifecycle events are written to the `audit_logs` collection. Adding the `namespace` attribute requires the migration: `npx tsx scripts/add-memory-namespace.ts`.

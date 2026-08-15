@@ -41,6 +41,12 @@ export interface ModelGatewayProvider {
   complete(req: ModelGatewayRequest): Promise<ModelGatewayResult>;
 }
 
+// Anthropic's flagship models (sonnet-5, opus-4-8) require the adaptive
+// thinking request shape and reject an explicit `temperature` — the same
+// constraint the app's streaming chat path handles in anthropicRaw.ts.
+// Mirrored here so gateway completions can route to those models too.
+const ANTHROPIC_FLAGSHIP_MODELS = new Set(["claude-sonnet-5", "claude-opus-4-8"]);
+
 class AnthropicProvider implements ModelGatewayProvider {
   id = "anthropic";
 
@@ -52,6 +58,21 @@ class AnthropicProvider implements ModelGatewayProvider {
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not configured");
 
+    const flagship = ANTHROPIC_FLAGSHIP_MODELS.has(req.model);
+    const body: Record<string, unknown> = {
+      model: req.model,
+      max_tokens: req.maxTokens ?? 1024,
+      system: req.system,
+      messages: req.messages,
+    };
+    if (flagship) {
+      // Flagship models use adaptive thinking and reject explicit temperature.
+      body.thinking = { type: "adaptive" };
+      body.output_config = { effort: "low" };
+    } else {
+      body.temperature = req.temperature ?? 0.7;
+    }
+
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -59,13 +80,7 @@ class AnthropicProvider implements ModelGatewayProvider {
         "anthropic-version": "2023-06-01",
         "content-type": "application/json",
       },
-      body: JSON.stringify({
-        model: req.model,
-        max_tokens: req.maxTokens ?? 1024,
-        temperature: req.temperature ?? 0.7,
-        system: req.system,
-        messages: req.messages,
-      }),
+      body: JSON.stringify(body),
     });
 
     if (!res.ok) {
@@ -90,7 +105,58 @@ class AnthropicProvider implements ModelGatewayProvider {
   }
 }
 
-const providers: ModelGatewayProvider[] = [new AnthropicProvider()];
+// OpenAI-compatible provider (OpenAI itself plus any compatible gateway).
+// Enabled whenever OPENAI_API_KEY is set; the key is read at call time so
+// registration never depends on env timing.
+class OpenAIProvider implements ModelGatewayProvider {
+  id = "openai";
+
+  supportsModel(model: string): boolean {
+    return model.startsWith("gpt-") || model.startsWith("o");
+  }
+
+  async complete(req: ModelGatewayRequest): Promise<ModelGatewayResult> {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) throw new Error("OPENAI_API_KEY is not configured");
+
+    const reasoningModel = req.model.startsWith("o");
+    const body: Record<string, unknown> = {
+      model: req.model,
+      messages: [
+        ...(req.system ? [{ role: "system", content: req.system }] : []),
+        ...req.messages,
+      ],
+      max_tokens: req.maxTokens ?? 1024,
+    };
+    if (!reasoningModel) body.temperature = req.temperature ?? 0.7;
+
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => "");
+      throw new Error(`OpenAI API error ${res.status}: ${errBody.slice(0, 300)}`);
+    }
+
+    const data = await res.json();
+    return {
+      text: data.choices?.[0]?.message?.content ?? "",
+      usage: {
+        inputTokens: data.usage?.prompt_tokens ?? 0,
+        outputTokens: data.usage?.completion_tokens ?? 0,
+      },
+      provider: this.id,
+    };
+  }
+}
+
+const providers: ModelGatewayProvider[] = [new AnthropicProvider(), new OpenAIProvider()];
 
 export function registerProvider(provider: ModelGatewayProvider): void {
   providers.push(provider);

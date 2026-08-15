@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { UserMenu } from "./UserMenu";
 import {
   LayoutDashboard, MessageSquare, Brain, Bot, Share2, Star, Wallet, Settings, Code2,
-  Building2, Landmark, Lightbulb, TrendingUp, Store, Sparkles,
+  Building2, Landmark, Lightbulb, TrendingUp, Store, Sparkles, Music2,
 } from "lucide-react";
 import { Logo } from "@/components/shared/Logo";
 import { cn } from "@/lib/utils";
@@ -18,6 +18,7 @@ const MODULE_ICONS: Record<ModuleKey, React.ElementType> = {
   memory_engine: Brain,
   agent_system: Bot,
   business_ai: Building2,
+  creator_ai: Music2,
   financial_intelligence: Landmark,
   opportunity_engine: Lightbulb,
   economic_intelligence: TrendingUp,

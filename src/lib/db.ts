@@ -25,6 +25,13 @@ export const COLLECTIONS = {
   BUSINESS_INVENTORY: "business_inventory",
   BUSINESS_EXPENSES: "business_expenses",
   BUSINESS_REVENUES: "business_revenues",
+  // Creator Memory workspace — musicians, artists, YouTubers, writers, etc.
+  CREATORS: "creators",
+  CREATOR_SONGS: "creator_songs",
+  CREATOR_IDEAS: "creator_ideas",
+  CREATOR_CAMPAIGNS: "creator_campaigns",
+  CREATOR_COLLABORATORS: "creator_collaborators",
+  CREATOR_CONTENT: "creator_content",
   ECONOMIC_SIGNALS: "economic_signals",
   OPPORTUNITIES: "opportunities",
   FINANCIAL_ACCOUNTS: "financial_accounts",
@@ -78,6 +85,21 @@ export interface MemoryDoc {
   source: string | null;
   agentId: string | null;
   isArchived: boolean;
+  // Project/tenant isolation for external API users — lets one caller keep
+  // distinct memory spaces (e.g. per app, per client, per project) without
+  // mixing them. Optional so memories created before this field existed stay
+  // valid; the API default is "default" (see validators.ts + the migration
+  // script that adds the attribute with that default).
+  namespace?: string;
+  // Relationship layer: ids of other memories this one is directly linked to
+  // (same-user only). Links are set explicitly via the API or auto-created
+  // from semantic similarity on save; retrieval can expand matches through
+  // them so related context isn't treated as isolated chunks.
+  relatedMemoryIds?: string[];
+  // API response augmentation (list/detail endpoints): resolved titles of
+  // linked memories. Never persisted to the DB — read-only, attached by the
+  // route handlers so the UI doesn't need one fetch per card.
+  relatedSnippets?: { $id: string; content: string }[];
   verificationStatus?: MemoryVerificationStatus;
   attestationUid?: string | null;
   attestationTxHash?: string | null;
@@ -209,6 +231,11 @@ export interface BusinessDoc {
   website: string | null;
   currency: string;
   region: string;
+  // Industry template id (see src/lib/businessTemplates.ts) + the suggested
+  // record categories that came with it. Optional — pre-template businesses
+  // simply have none set.
+  template?: string | null;
+  categories?: string[];
 }
 
 export interface BusinessCustomerDoc {
@@ -266,6 +293,67 @@ export interface BusinessRevenueDoc {
   source: string;
   amountUsd: number;
   receivedAt: string;
+  notes: string | null;
+}
+
+// ── Creator Memory (active) ────────────────────────────────────────────────
+
+export type CreatorStage =
+  | "musician" | "artist" | "youtuber" | "tiktok" | "influencer"
+  | "writer" | "producer" | "photographer" | "agency";
+
+export interface CreatorDoc {
+  userId: string;
+  name: string;
+  stage: CreatorStage;
+  genre: string | null;
+  brandIdentity: string | null;
+  bio: string | null;
+}
+
+export interface CreatorSongDoc {
+  creatorId: string;
+  title: string;
+  lyrics: string | null;
+  status: string;
+  releaseDate: string | null;
+  producers: string[];
+  notes: string | null;
+}
+
+export interface CreatorIdeaDoc {
+  creatorId: string;
+  title: string;
+  description: string;
+  platform: string | null;
+  status: string;
+  notes: string | null;
+}
+
+export interface CreatorCampaignDoc {
+  creatorId: string;
+  name: string;
+  goal: string | null;
+  platform: string | null;
+  budgetUsd: number;
+  status: string;
+  notes: string | null;
+}
+
+export interface CreatorCollaboratorDoc {
+  creatorId: string;
+  name: string;
+  role: string | null;
+  contact: string | null;
+  notes: string | null;
+}
+
+export interface CreatorContentDoc {
+  creatorId: string;
+  title: string;
+  platform: string | null;
+  url: string | null;
+  publishedAt: string | null;
   notes: string | null;
 }
 

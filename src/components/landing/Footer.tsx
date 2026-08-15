@@ -7,6 +7,8 @@ import { Github, Twitter } from "lucide-react";
 const links = {
   Product: [
     { label: "Features", href: "/#features" },
+    { label: "Business", href: "/business" },
+    { label: "Creators", href: "/creators" },
     { label: "How It Works", href: "/#how-it-works" },
     { label: "Pricing", href: "/#pricing" },
     { label: "Community", href: "/community" },

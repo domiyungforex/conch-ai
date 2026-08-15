@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ResourcePanel } from "@/components/modules/ResourcePanel";
 import { CreditProfilePanel } from "./CreditProfilePanel";
+import { AssistantPanel } from "@/components/modules/AssistantPanel";
 import type {
   AppwriteDoc, BusinessDoc, BusinessCustomerDoc, BusinessSupplierDoc, BusinessProductDoc,
   BusinessOrderDoc, BusinessInventoryDoc, BusinessExpenseDoc, BusinessRevenueDoc,
@@ -46,6 +47,7 @@ export function BusinessDetailClient({ businessId }: { businessId: string }) {
           <TabsTrigger value="expenses" className="text-xs px-3">Expenses</TabsTrigger>
           <TabsTrigger value="revenues" className="text-xs px-3">Revenue</TabsTrigger>
           <TabsTrigger value="credit" className="text-xs px-3">Credit Profile</TabsTrigger>
+          <TabsTrigger value="assistant" className="text-xs px-3">AI Assistant</TabsTrigger>
         </TabsList>
 
         <TabsContent value="customers" className="mt-4">
@@ -192,6 +194,14 @@ export function BusinessDetailClient({ businessId }: { businessId: string }) {
 
         <TabsContent value="credit" className="mt-4">
           <CreditProfilePanel businessId={businessId} />
+        </TabsContent>
+
+        <TabsContent value="assistant" className="mt-4">
+          <AssistantPanel
+            askPath={`${base}/ask`}
+            placeholder="e.g. Which customers haven't ordered this month?"
+            hint="The assistant answers from this business's own records — customers, suppliers, products, orders, inventory, expenses, and revenue. It won't invent anything not in the records."
+          />
         </TabsContent>
       </Tabs>
     </div>

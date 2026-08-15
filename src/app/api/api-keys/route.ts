@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type ApiKeyDoc, type AppwriteDoc } from "@/lib/db";
 import { ApiKeyCreateSchema } from "@/lib/validators";
+import { logAudit } from "@/lib/audit";
 import { generateRandomBytes } from "@/lib/utils";
 import bcrypt from "bcryptjs";
 import { Query, ID } from "node-appwrite";
@@ -49,6 +50,8 @@ export async function POST(req: Request) {
     lastUsedAt: null,
     isRevoked: false,
   }) as unknown as AppwriteDoc<ApiKeyDoc>;
+
+  await logAudit(appwriteId, "api_key.created", apiKey.$id, { name: parsed.data.name, scope: parsed.data.scope });
 
   return Response.json({ apiKey, fullKey }, { status: 201 });
 }
