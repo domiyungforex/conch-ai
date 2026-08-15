@@ -205,20 +205,26 @@ export default function BillingPage() {
             {signing ? "Sign the message in your wallet to verify it…" : verify.isPending ? "Verifying signature…" : "Checking your wallet…"}
           </div>
         ) : !wallet ? (
-          <div className="flex items-start gap-3 p-4 bg-amber-500/10 rounded-xl border border-amber-500/20">
-            <WalletIcon className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
-            <div>
-              <p className="text-sm text-amber-200">Couldn&apos;t verify this wallet.</p>
-              {verify.isError && <p className="text-xs text-amber-300/80 mt-0.5">Try connecting again and approve the signature request.</p>}
+          <div className="flex items-center justify-between gap-3 p-4 bg-amber-500/10 rounded-xl border border-amber-500/20 flex-wrap">
+            <div className="flex items-start gap-3">
+              <WalletIcon className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm text-amber-200">Couldn&apos;t verify this wallet.</p>
+                {verify.isError && <p className="text-xs text-amber-300/80 mt-0.5">Connect again and approve the signature request.</p>}
+              </div>
             </div>
+            <ConnectButton showBalance={false} chainStatus="none" accountStatus="address" />
           </div>
         ) : address?.toLowerCase() !== wallet.address.toLowerCase() ? (
-          <div className="flex items-start gap-3 p-4 bg-amber-500/10 rounded-xl border border-amber-500/20">
-            <WalletIcon className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
-            <p className="text-sm text-amber-200">
-              Your connected wallet doesn&apos;t match the one linked to your account
-              ({wallet.address.slice(0, 6)}…{wallet.address.slice(-4)}). Switch wallets in your extension before paying.
-            </p>
+          <div className="flex items-center justify-between gap-3 p-4 bg-amber-500/10 rounded-xl border border-amber-500/20 flex-wrap">
+            <div className="flex items-start gap-3">
+              <WalletIcon className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
+              <p className="text-sm text-amber-200">
+                The connected wallet doesn&apos;t match the one linked to your account
+                ({wallet.address.slice(0, 6)}…{wallet.address.slice(-4)}). Reconnect with that wallet to pay.
+              </p>
+            </div>
+            <ConnectButton showBalance={false} chainStatus="none" accountStatus="address" />
           </div>
         ) : (
           <Button onClick={handleUpgrade} disabled={awaitingChain || confirm.isPending} className="gap-2">
