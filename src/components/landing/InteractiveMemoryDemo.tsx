@@ -262,15 +262,16 @@ export function InteractiveMemoryDemo() {
                   opacity: phase === 1 ? 0.55 : 1,
                   y: 0,
                   scale: 1,
-                  boxShadow:
-                    phase === 2
-                      ? "0 0 32px rgba(156,95,18,0.4)"
-                      : phase === 0
-                      ? "0 0 20px rgba(156,95,18,0.22)"
-                      : "none",
                 }}
                 transition={{ duration: 0.5, type: "spring", stiffness: 200, damping: 20 }}
-                className="relative w-full max-w-xs glass rounded-2xl border border-white/10 p-5"
+                style={
+                  phase === 2
+                    ? { boxShadow: "0 0 32px color-mix(in srgb, var(--color-coral-400) 40%, transparent)" }
+                    : phase === 0
+                    ? { boxShadow: "0 0 20px color-mix(in srgb, var(--color-coral-400) 22%, transparent)" }
+                    : undefined
+                }
+                className="glow-transition relative w-full max-w-xs glass rounded-2xl border border-white/10 p-5"
               >
                 {/* Ripple ring on phase 1 */}
                 <AnimatePresence>
@@ -299,8 +300,9 @@ export function InteractiveMemoryDemo() {
                           y1="1"
                           x2="32"
                           y2="1"
-                          stroke="rgba(156,95,18,0.6)"
-                          strokeWidth="1.5"
+                          style={{ stroke: "var(--color-coral-400)" }}
+                          strokeOpacity="0.6"
+                          strokeWidth="2"
                           className="neural-line"
                         />
                       </svg>

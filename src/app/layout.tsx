@@ -84,11 +84,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Apply the saved theme before first paint so there is no flash.
-            Defaults to light (the Memory Archive) when nothing is stored. */}
+        {/* Apply the saved theme + accent before first paint so there is no
+            flash. Defaults to light / Smokey Amber when nothing is stored. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem("conch-theme");if(t==="dark"){document.documentElement.classList.add("dark")}}catch(e){}})();`,
+            __html: `(function(){try{var t=localStorage.getItem("conch-theme");if(t==="dark"){document.documentElement.classList.add("dark")}var a=localStorage.getItem("conch-accent");if(a){document.documentElement.classList.add("theme-"+a)}}catch(e){}})();`,
           }}
         />
         <script

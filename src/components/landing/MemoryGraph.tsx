@@ -46,10 +46,12 @@ nodes.forEach((node) => {
   });
 });
 
+// activeStroke follows the user's chosen accent via the CSS tokens
+// (var() works in SVG style strokes and inline box-shadows).
 const categoryStyle: Record<NodeCategory, { border: string; bg: string; dot: string; text: string; activeStroke: string }> = {
-  episodic:   { border: "border-coral-500/40", bg: "bg-coral-500/10", dot: "bg-coral-400",  text: "text-coral-300",  activeStroke: "rgba(156,95,18,0.6)" },
-  semantic:   { border: "border-teal-500/40",   bg: "bg-teal-500/10",   dot: "bg-teal-400",    text: "text-teal-300",    activeStroke: "rgba(46,127,97,0.6)" },
-  preference: { border: "border-amber-500/40",  bg: "bg-amber-500/10",  dot: "bg-amber-400",   text: "text-amber-300",   activeStroke: "rgba(245,158,11,0.6)" },
+  episodic:   { border: "border-coral-500/40", bg: "bg-coral-500/10", dot: "bg-coral-400",  text: "text-coral-300",  activeStroke: "var(--color-coral-400)" },
+  semantic:   { border: "border-teal-500/40",   bg: "bg-teal-500/10",   dot: "bg-teal-400",    text: "text-teal-300",    activeStroke: "var(--color-teal-400)" },
+  preference: { border: "border-amber-500/40",  bg: "bg-amber-500/10",  dot: "bg-amber-400",   text: "text-amber-300",   activeStroke: "var(--color-gold-400)" },
   procedural: { border: "border-emerald-500/40",bg: "bg-emerald-500/10",dot: "bg-emerald-400", text: "text-emerald-300", activeStroke: "rgba(16,185,129,0.6)" },
 };
 
@@ -158,9 +160,8 @@ export function MemoryGraph() {
                     <line
                       x1={fc.x} y1={fc.y}
                       x2={tc.x} y2={tc.y}
-                      stroke={stroke}
-                      strokeWidth={isActive ? 1.5 : 1}
-                      style={{ transition: "stroke 0.3s ease, stroke-width 0.3s ease" }}
+                      style={{ stroke, transition: "stroke 0.3s ease, stroke-width 0.3s ease" }}
+                      strokeWidth={isActive ? 2 : 1.5}
                     />
                     {isActive && (
                       <line
@@ -209,13 +210,12 @@ export function MemoryGraph() {
                   >
                     <motion.div
                       whileHover={{ scale: 1.08 }}
-                      animate={{
-                        boxShadow: isSelected
-                          ? `0 0 28px ${style.activeStroke}`
-                          : "none",
-                      }}
-                      transition={{ duration: 0.25 }}
-                      className={`glass rounded-xl border px-3 py-2 ${style.border} ${style.bg} whitespace-nowrap`}
+                      style={
+                        isSelected
+                          ? { boxShadow: `0 0 28px color-mix(in srgb, ${style.activeStroke} 60%, transparent)` }
+                          : undefined
+                      }
+                      className={`graph-node glass rounded-xl border px-3 py-2 ${style.border} ${style.bg} whitespace-nowrap`}
                     >
                       <div className="flex items-center gap-2">
                         <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${style.dot}`} />

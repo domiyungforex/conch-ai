@@ -67,7 +67,7 @@ export function MobileSidebar() {
       <div className="px-2 pt-3">
         <Link
           href="/features"
-          className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium border border-dashed border-coral-500/30 bg-coral-500/5 text-coral-300 hover:bg-coral-500/10 hover:border-coral-500/50 transition-colors"
+          className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium border border-coral-500/30 bg-coral-500/5 text-coral-300 hover:bg-coral-500/10 hover:border-coral-500/50 transition-colors"
         >
           <Sparkles className="w-3.5 h-3.5 shrink-0" />
           <span className="truncate">Activate other features</span>

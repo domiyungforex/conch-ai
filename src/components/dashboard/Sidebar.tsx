@@ -116,7 +116,7 @@ export function Sidebar() {
           href="/features"
           title={collapsed ? "Activate other features" : undefined}
           className={cn(
-            "flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium border border-dashed border-coral-500/30 bg-coral-500/5 text-coral-300 hover:bg-coral-500/10 hover:border-coral-500/50 transition-colors",
+            "flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium border border-coral-500/30 bg-coral-500/5 text-coral-300 hover:bg-coral-500/10 hover:border-coral-500/50 transition-colors",
             collapsed && "justify-center px-2"
           )}
         >

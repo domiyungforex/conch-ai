@@ -159,17 +159,17 @@ export function HeroSection() {
               <path
                 d="M 50 20 Q 30 10 18 30"
                 fill="none"
-                stroke="rgba(156,95,18,0.25)"
-                strokeWidth="0.15"
-                strokeDasharray="0.4 0.5"
+                style={{ stroke: "var(--color-coral-400)" }}
+                strokeOpacity="0.25"
+                strokeWidth="0.75"
                 vectorEffect="non-scaling-stroke"
               />
               <path
                 d="M 50 20 Q 72 10 82 28"
                 fill="none"
-                stroke="rgba(156,95,18,0.25)"
-                strokeWidth="0.15"
-                strokeDasharray="0.4 0.5"
+                style={{ stroke: "var(--color-coral-400)" }}
+                strokeOpacity="0.25"
+                strokeWidth="0.75"
                 vectorEffect="non-scaling-stroke"
               />
             </svg>
