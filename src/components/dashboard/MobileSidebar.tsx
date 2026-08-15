@@ -27,18 +27,18 @@ const MODULE_ICONS: Record<ModuleKey, React.ElementType> = {
 };
 
 const baseItems = [
-  { href: "/dashboard",   icon: LayoutDashboard, label: "Dashboard",       section: "WORKSPACE" },
-  { href: "/chat",        icon: MessageSquare,   label: "Chat",            section: "WORKSPACE" },
-  { href: "/memory",      icon: Brain,           label: "Memory",          section: "WORKSPACE" },
-  { href: "/agents",      icon: Bot,             label: "Agents",          section: "WORKSPACE" },
-  { href: "/shared",      icon: Share2,          label: "Shared Contexts", section: "SOCIAL" },
-  { href: "/reputation",  icon: Star,            label: "Reputation",      section: "SOCIAL" },
+  { href: "/dashboard",   icon: LayoutDashboard, label: "Dashboard",       section: "YOUR MEMORY" },
+  { href: "/chat",        icon: MessageSquare,   label: "Chat",            section: "YOUR MEMORY" },
+  { href: "/memory",      icon: Brain,           label: "Memory",          section: "YOUR MEMORY" },
+  { href: "/agents",      icon: Bot,             label: "Agents",          section: "YOUR MEMORY" },
+  { href: "/shared",      icon: Share2,          label: "Shared Contexts", section: "SHARED MEMORY" },
+  { href: "/reputation",  icon: Star,            label: "Reputation",      section: "SHARED MEMORY" },
 ];
 
 const utilityItems = [
-  { href: "/wallet",      icon: Wallet,          label: "Wallet",          section: "SETTINGS" },
-  { href: "/developers",  icon: Code2,           label: "API Docs",        section: "SETTINGS" },
-  { href: "/settings",    icon: Settings,        label: "Settings",        section: "SETTINGS" },
+  { href: "/wallet",      icon: Wallet,          label: "Wallet",          section: "ACCOUNT" },
+  { href: "/developers",  icon: Code2,           label: "API Docs",        section: "ACCOUNT" },
+  { href: "/settings",    icon: Settings,        label: "Settings",        section: "ACCOUNT" },
 ];
 
 export function MobileSidebar() {
@@ -51,7 +51,7 @@ export function MobileSidebar() {
         href: m.href,
         icon: MODULE_ICONS[m.key],
         label: m.label,
-        section: "MODULES",
+        section: "MEMORY SPACES",
       }))
     : [];
 

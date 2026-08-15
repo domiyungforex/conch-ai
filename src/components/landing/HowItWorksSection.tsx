@@ -7,32 +7,32 @@ const steps = [
   {
     step: "01",
     icon: UserPlus,
-    title: "Create Your Identity",
-    description: "Sign up with Google, magic link, or connect your Web3 wallet. Your decentralized identity is created instantly.",
+    title: "Open Your Memory",
+    description: "Sign up with Google, magic link, or connect your Web3 wallet. Your memory layer is created instantly — empty, private, yours.",
     color: "from-coral-600 to-coral-800",
     glow: "shadow-coral-500/30",
   },
   {
     step: "02",
     icon: MessageSquare,
-    title: "Chat & Converse",
-    description: "Start conversations with your AI. As you talk, Conch automatically extracts and stores meaningful memories.",
+    title: "Conversations Become Memories",
+    description: "Talk to your AI naturally. As you do, Conch extracts and stores the memories that matter — preferences, facts, context.",
     color: "from-gold-600 to-gold-800",
     glow: "shadow-gold-500/30",
   },
   {
     step: "03",
     icon: Brain,
-    title: "Memory Builds Over Time",
-    description: "Your AI learns your preferences, goals, and context. Every future conversation starts with full awareness of who you are.",
+    title: "Memory Compounds",
+    description: "Every conversation starts with full recall of everything before it. Your AI knows you better each time — because it remembers.",
     color: "from-teal-600 to-teal-800",
     glow: "shadow-teal-500/30",
   },
   {
     step: "04",
     icon: Rocket,
-    title: "Take It Anywhere",
-    description: "Export your memory, deploy custom agents, share context securely. Your AI identity goes wherever you need it.",
+    title: "Take Your Memory Anywhere",
+    description: "Export your memory, deploy memory-scoped agents, share context securely. Your memory goes wherever you need it.",
     color: "from-emerald-600 to-emerald-800",
     glow: "shadow-emerald-500/30",
   },
@@ -59,7 +59,7 @@ export function HowItWorksSection() {
             {" "}in minutes
           </h2>
           <p className="text-slate-400 text-lg max-w-xl mx-auto">
-            No setup. No configuration. Just sign up and start building your AI memory.
+            No setup. No configuration. Just sign up and start remembering.
           </p>
         </motion.div>
 

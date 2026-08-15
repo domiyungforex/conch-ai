@@ -10,9 +10,9 @@ export default function FinancialPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-white">Financial Intelligence</h1>
+        <h1 className="text-xl font-bold text-white">Financial Memory</h1>
         <p className="text-sm text-slate-400 mt-1">
-          Track accounts and transactions through a provider-agnostic abstraction — nothing here moves money.
+          Your accounts and transactions, remembered through a provider-agnostic layer — nothing here moves money.
         </p>
       </div>
 

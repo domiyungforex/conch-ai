@@ -16,7 +16,7 @@ const fraunces = Fraunces({
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://conchportal.com";
 const SITE_DESCRIPTION =
-  "Conch is an AI with persistent memory — it remembers what you tell it, carries agents that can do real math and keep business records, and gives you a portable AI identity you own across apps, devices, and chains.";
+  "Conch is a memory layer for AI — every conversation becomes memory, every memory stays yours. Portable across apps, devices, and chains, recalled whenever you need it.";
 
 export const metadata: Metadata = {
   title: { default: "Conch — Own Your AI Memory", template: "%s | Conch" },
@@ -56,10 +56,10 @@ export const metadata: Metadata = {
     "Conch",
     "Conch AI",
     "AI memory",
-    "AI agent with memory",
     "persistent AI memory",
-    "AI identity",
-    "decentralized identity",
+    "portable memory",
+    "AI that remembers",
+    "memory layer for AI",
     "AI agents",
     "Web3 AI",
   ],

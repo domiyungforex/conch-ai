@@ -12,17 +12,17 @@ import { useRealtimeStatus } from "@/providers/AppwriteRealtimeProvider";
 import { cn } from "@/lib/utils";
 
 const breadcrumbMap: Record<string, string> = {
-  "/dashboard":             "Dashboard",
-  "/chat":                  "AI Chat",
+  "/dashboard":             "Your Memory",
+  "/chat":                  "Conversations",
   "/memory":                "Memory",
   "/agents":                "Agents",
-  "/shared":                "Shared Contexts",
+  "/shared":                "Shared Memories",
   "/reputation":            "Reputation",
   "/features":              "Activate other features",
-  "/business":              "Business",
-  "/financial":             "Financial",
+  "/business":              "Business Memory",
+  "/financial":             "Financial Memory",
   "/opportunities":         "Opportunities",
-  "/economic":              "Economic",
+  "/economic":              "Economic Memory",
   "/marketplace":           "Marketplace",
   "/wallet":                "Wallet",
   "/developers":            "API Docs",

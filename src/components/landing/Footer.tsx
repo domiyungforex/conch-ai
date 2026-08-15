@@ -36,7 +36,7 @@ export function Footer() {
           <div className="md:col-span-2">
             <Logo className="mb-4" />
             <p className="text-sm text-slate-400 leading-relaxed max-w-xs">
-              Own your AI memory. Carry your identity across every platform, device, and chain.
+              Own your AI memory. Carry it across every platform, device, and chain — remembered everywhere, forgotten never.
             </p>
             <div className="flex items-center gap-3 mt-5">
               <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Conch on Twitter"

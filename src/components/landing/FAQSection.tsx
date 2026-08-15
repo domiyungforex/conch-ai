@@ -18,7 +18,7 @@ const faqs = [
   },
   {
     q: "Do I need a crypto wallet?",
-    a: "No. Wallet connection is optional and unlocks on-chain identity features. You can use Conch fully with just an email or Google account. Wallet integration is for users who want decentralized identity verification.",
+    a: "No. Wallet connection is optional and lets you anchor your memory on-chain for verifiable proof. You can use Conch fully with just an email or Google account.",
   },
   {
     q: "What is a Conch AI Agent?",

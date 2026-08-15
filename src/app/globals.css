@@ -358,3 +358,51 @@ body {
   box-shadow: 0 0 28px rgba(192, 95, 71, 0.45);
   transform: translateY(-2px) scale(1.03);
 }
+
+/* ─── Memory-first interface layer ──────────────────────────────── */
+
+/* Recall ripple — a memory being surfaced/retrieved */
+@keyframes recall-ripple {
+  0%   { transform: scale(1);   opacity: 0.55; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+.recall-ripple::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(192, 95, 71, 0.45);
+  animation: recall-ripple 1.6s ease-out infinite;
+  pointer-events: none;
+}
+
+/* Memory lattice — a faint connective grid, like linked memory traces */
+.memory-lattice {
+  background-image:
+    radial-gradient(rgba(192, 95, 71, 0.10) 1px, transparent 1px),
+    radial-gradient(rgba(43, 114, 104, 0.08) 1px, transparent 1px);
+  background-size: 28px 28px, 44px 44px;
+  background-position: 0 0, 14px 14px;
+}
+
+/* Gentle memory shimmer for cards while they "recall" */
+@keyframes memory-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.memory-shimmer {
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgba(226, 145, 127, 0.08) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: memory-shimmer 3.2s linear infinite;
+}
+
+/* Memory-wave divider — used under section headers */
+.memory-divider {
+  background: linear-gradient(90deg, transparent, rgba(192, 95, 71, 0.5), rgba(43, 114, 104, 0.5), transparent);
+  height: 1px;
+}

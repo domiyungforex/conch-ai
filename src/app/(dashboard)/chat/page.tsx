@@ -40,7 +40,7 @@ export default function ChatPage() {
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/8 shrink-0">
           <div className="flex items-center gap-2">
             <MessageSquare className="w-4 h-4 text-coral-400" />
-            <span className="text-sm font-medium text-white">New Conversation</span>
+            <span className="text-sm font-medium text-white">New Conversation — it becomes memory</span>
           </div>
           <AgentSelector value={agentId} onChange={setAgentId} />
         </div>
@@ -58,12 +58,12 @@ export default function ChatPage() {
                 className="flex flex-col items-center justify-center h-full gap-8 pb-8 min-h-100"
               >
                 <div className="text-center">
-                  <div className="w-16 h-16 rounded-2xl bg-coral-600/20 border border-coral-500/30 flex items-center justify-center mb-4 mx-auto">
+                  <div className="w-16 h-16 rounded-2xl bg-coral-600/20 border border-coral-500/30 flex items-center justify-center mb-4 mx-auto relative recall-ripple">
                     <MessageSquare className="w-8 h-8 text-coral-400" />
                   </div>
                   <h3 className="text-lg font-semibold text-white mb-2">Start a conversation</h3>
                   <p className="text-sm text-slate-400 max-w-sm">
-                    Ask me anything. I&apos;ll remember what matters and use it to help you better over time.
+                    Ask me anything. What matters becomes memory — and I&apos;ll recall it every time we talk.
                   </p>
                 </div>
                 <SuggestedPrompts onSelect={(prompt) => setInput(prompt)} />

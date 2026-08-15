@@ -104,9 +104,9 @@ export default function SignUpPage() {
 
   return (
     <AuthShell
-      title="Create your Conch account"
-      subtitle="Own your AI memory — portable identity, real agents, remembered everywhere."
-      footer={{ label: "Already have an account?", linkLabel: "Sign in", href: "/sign-in" }}
+      title="Begin your memory"
+      subtitle="Create an account and start a memory that stays yours — portable, persistent, recalled everywhere."
+      footer={{ label: "Already have an account?", linkLabel: "Sign in to your memory", href: "/sign-in" }}
     >
       <SocialAuthButtons mode="sign-up" onError={setError} />
 

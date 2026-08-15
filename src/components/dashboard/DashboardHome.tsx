@@ -62,8 +62,8 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
   );
 
   const suggestions = [
-    { prompt: "Ask about your preferences", href: "/chat",   icon: MessageSquare },
-    { prompt: "Review recent memories",     href: "/memory", icon: Brain },
+    { prompt: "Ask your AI something — it remembers everything", href: "/chat",   icon: MessageSquare },
+    { prompt: "Browse what your memory holds",                    href: "/memory", icon: Brain },
   ];
 
   return (
@@ -79,12 +79,12 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
           size={280}
           className="absolute -top-14 -right-10 pointer-events-none hidden sm:block opacity-60"
         />
-        <p className="text-xs uppercase tracking-widest text-slate-500 font-semibold mb-2">Dashboard</p>
+        <p className="text-xs uppercase tracking-widest text-slate-500 font-semibold mb-2">Your Memory</p>
         <h1 className="font-serif text-3xl sm:text-4xl font-normal text-white leading-tight">
           Good {getTimeOfDay()},<br className="sm:hidden" />{" "}
           <em className="not-italic gradient-text">{firstName}</em>.
         </h1>
-        <p className="text-slate-400 mt-2">Here&apos;s what Conch has been holding onto for you.</p>
+        <p className="text-slate-400 mt-2">Here&apos;s everything your memory has been holding onto.</p>
       </motion.div>
 
       {/* AI Status bar */}
@@ -95,10 +95,12 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
         <motion.div
           animate={{ scale: [1, 1.4, 1] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          className="w-2 h-2 rounded-full bg-teal-400 shrink-0"
-        />
+          className="w-2 h-2 rounded-full bg-teal-400 shrink-0 relative"
+        >
+          <span className="absolute inset-0 rounded-full bg-teal-400/40 animate-ping" />
+        </motion.div>
         <span className="text-sm text-slate-300">
-          <span className="text-teal-300 font-medium">Conch</span> is active and learning from your conversations
+          <span className="text-teal-300 font-medium">Conch</span> is remembering — every conversation becomes memory
         </span>
       </motion.div>
 
@@ -145,10 +147,10 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
         <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">Quick Actions</h2>
         <div className="flex flex-wrap gap-3">
           <Button asChild>
-            <Link href="/chat"><MessageSquare className="w-4 h-4" />New Chat</Link>
+            <Link href="/chat"><MessageSquare className="w-4 h-4" />Remember Together</Link>
           </Button>
           <Button variant="secondary" asChild>
-            <Link href="/memory"><Plus className="w-4 h-4" />Add Memory</Link>
+            <Link href="/memory"><Plus className="w-4 h-4" />Add a Memory</Link>
           </Button>
           <Button variant="secondary" asChild>
             <Link href="/agents"><Bot className="w-4 h-4" />Create Agent</Link>
@@ -167,7 +169,7 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
           </div>
           <GlassCard className="divide-y divide-white/5">
             {recentMemories.length === 0 ? (
-              <div className="p-6 text-center text-slate-500 text-sm">No memories yet. Start a chat to build your memory!</div>
+              <div className="p-6 text-center text-slate-500 text-sm">Your memory is still forming. Start a conversation to build it.</div>
             ) : (
               recentMemories.map((m) => (
                 <div key={m.$id} className="p-4 flex items-start gap-3">
@@ -176,7 +178,7 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
                   </Badge>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm text-white leading-relaxed">{truncate(m.content, 90)}</p>
-                    <p className="text-xs text-slate-500 mt-1">{formatRelativeTime(m.$createdAt)}</p>
+                    <p className="text-xs text-slate-500 mt-1">Remembered {formatRelativeTime(m.$createdAt)}</p>
                   </div>
                 </div>
               ))
@@ -186,7 +188,7 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
 
         <motion.div variants={sectionVariants}>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Recent Chats</h2>
+            <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Conversations That Built This</h2>
             <Link href="/chat" className="text-xs text-coral-400 hover:text-coral-300 flex items-center gap-1">
               View all <ArrowRight className="w-3 h-3" />
             </Link>
@@ -195,7 +197,7 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
             {recentConversations.length === 0 ? (
               <div className="p-6 text-center text-slate-500 text-sm">
                 No conversations yet.{" "}
-                <Link href="/chat" className="text-coral-400 hover:text-coral-300">Start chatting</Link>
+                <Link href="/chat" className="text-coral-400 hover:text-coral-300">Start one and it becomes memory</Link>
               </div>
             ) : (
               recentConversations.map((c) => (

@@ -84,11 +84,11 @@ export function MemoryOwnershipSection() {
           >
             <p className="text-sm font-semibold text-coral-400 tracking-widest uppercase mb-4">Memory Ownership</p>
             <h2 className="text-4xl sm:text-5xl font-bold text-white leading-tight mb-6">
-              Your data.{" "}
+              Your memories.{" "}
               <GradientText>Your rules.</GradientText>
             </h2>
             <p className="text-lg text-slate-400 leading-relaxed mb-10">
-              In a world of AI platforms that monetize your data, Conch flips the model. Every memory you create belongs exclusively to you — provably, cryptographically, permanently.
+              In a world of AI platforms that mine your data, Conch flips the model. Every memory you create belongs exclusively to you — provably, cryptographically, permanently.
             </p>
 
             <div className="space-y-6">

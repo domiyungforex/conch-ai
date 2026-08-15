@@ -52,10 +52,10 @@ const utilityItems: NavItem[] = [
 ];
 
 const sectionLabels: Record<NavItem["section"], string> = {
-  main:    "WORKSPACE",
-  social:  "SOCIAL",
-  modules: "MODULES",
-  utility: "SETTINGS",
+  main:    "YOUR MEMORY",
+  social:  "SHARED MEMORY",
+  modules: "MEMORY SPACES",
+  utility: "ACCOUNT",
 };
 
 export function Sidebar() {

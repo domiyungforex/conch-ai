@@ -95,7 +95,7 @@ onError: () => toast({ title: "Delete failed", description: "Could not delete th
         <div className="flex items-center justify-between">
           <div>
             <h1 className="font-serif text-2xl font-normal text-white">Memory</h1>
-            <p className="text-sm text-slate-400 mt-0.5">Everything Conch knows about you</p>
+            <p className="text-sm text-slate-400 mt-0.5">Everything you&apos;ve shared — recalled whenever you need it</p>
           </div>
           <Button onClick={() => setCreateOpen(true)} className="gap-2">
             <Plus className="w-4 h-4" /> Add Memory

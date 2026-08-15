@@ -10,42 +10,42 @@ const benefits = [
     color: "text-coral-400",
     bg: "bg-coral-500/10 border-coral-500/20",
     title: "Persistent Memory",
-    description: "Your AI remembers everything — preferences, goals, past conversations, and context — so you never have to repeat yourself again.",
+    description: "Everything you say becomes memory — preferences, goals, past conversations, and context. Your AI never forgets, so you never repeat yourself.",
   },
   {
     icon: Globe,
     color: "text-teal-400",
     bg: "bg-teal-500/10 border-teal-500/20",
-    title: "Portable Identity",
-    description: "Carry your AI identity across platforms, devices, and applications. Your memory travels with you wherever you go.",
+    title: "Memory That Travels",
+    description: "Carry your memory across platforms, devices, and applications. Wherever you go, everything you've told it goes with you.",
   },
   {
     icon: Shield,
     color: "text-emerald-400",
     bg: "bg-emerald-500/10 border-emerald-500/20",
-    title: "You Own Your Data",
-    description: "Cryptographically secured memory with on-chain identity proofs. Delete, export, or share your data at any time.",
+    title: "You Own Every Memory",
+    description: "Cryptographically secured memory under your identity. Delete, export, or share any memory — on your terms, at any time.",
   },
   {
     icon: Zap,
     color: "text-yellow-400",
     bg: "bg-yellow-500/10 border-yellow-500/20",
-    title: "Instant Context",
-    description: "Semantic search retrieves the most relevant memories in milliseconds, giving AI responses that feel eerily personal.",
+    title: "Instant Recall",
+    description: "Semantic search resurfaces the most relevant memories in milliseconds, so every AI response draws on everything you've told it.",
   },
   {
     icon: Cpu,
     color: "text-gold-400",
     bg: "bg-gold-500/10 border-gold-500/20",
-    title: "Custom AI Agents",
-    description: "Build specialized agents with unique personalities, memory scopes, and system prompts tailored to your workflow.",
+    title: "Memory-Scoped Agents",
+    description: "Build specialized agents that each draw on their own slice of your memory — a coder, a writer, a strategist, each with the context it needs.",
   },
   {
     icon: Lock,
     color: "text-pink-400",
     bg: "bg-pink-500/10 border-pink-500/20",
-    title: "Privacy First",
-    description: "End-to-end encryption, zero-knowledge architecture, and granular sharing permissions. Your memory stays yours.",
+    title: "Private By Default",
+    description: "Encrypted storage and granular sharing permissions. Every memory stays yours until you decide otherwise.",
   },
 ];
 
@@ -60,11 +60,11 @@ export function BenefitsSection() {
         className="text-center mb-16"
       >
         <span className="inline-flex items-center px-3 py-1 rounded-full glass border border-white/10 text-xs text-slate-400 mb-4">
-          Why Conch
+          Why Memory
         </span>
         <h2 className="text-4xl sm:text-5xl font-bold text-white tracking-tight mb-4">
           AI that actually{" "}
-          <span className="gradient-text">knows you</span>
+          <span className="gradient-text">remembers you</span>
         </h2>
         <p className="text-slate-400 text-lg max-w-2xl mx-auto">
           Built for people who use AI every day and are tired of starting from scratch every time.

@@ -18,7 +18,7 @@ export default function CreatorsPage() {
       <div>
         <h1 className="text-xl font-bold text-white">Creator Memory</h1>
         <p className="text-sm text-slate-400 mt-1">
-          Your creative workspace — songs, lyrics, unreleased ideas, campaigns, content, and collaborations.
+          Your creative memory — songs, lyrics, unreleased ideas, campaigns, content, and collaborations, all remembered.
         </p>
       </div>
 

@@ -89,9 +89,9 @@ export const MODULE_REGISTRY: Record<ModuleKey, ModuleInfo> = {
   business_ai: {
     key: "business_ai",
     label: "Business AI",
-    tagline: "Your AI business operator is coming to Conch.",
+    tagline: "Business memory — every record remembered, every question answered.",
     description:
-      "A business workspace Conch learns over time — customers, suppliers, products, orders, inventory, expenses, and revenue — so it can eventually help run day-to-day operations.",
+      "A business memory that Conch builds over time — customers, suppliers, products, orders, inventory, expenses, and revenue — so it can recall and answer from your own records.",
     activationCriteria: [
       "Core Conch stable",
       "Minimum active users reached",
@@ -106,13 +106,13 @@ export const MODULE_REGISTRY: Record<ModuleKey, ModuleInfo> = {
     label: "Creator Memory",
     tagline: "Your creative memory — songs, ideas, campaigns, and collaborators.",
     description:
-      "A creator workspace for musicians, artists, YouTubers, writers, and producers — tracks songs, lyrics, unreleased ideas, campaigns, content, and collaborations, with an assistant that knows your creative history.",
+      "A creator memory for musicians, artists, YouTubers, writers, and producers — tracks songs, lyrics, unreleased ideas, campaigns, content, and collaborations, with an assistant that remembers your creative history.",
     activationCriteria: [],
   },
   economic_intelligence: {
     key: "economic_intelligence",
     label: "Economic Intelligence",
-    tagline: "Understand supply, demand, and market trends.",
+    tagline: "Market signals, remembered with their sources.",
     description:
       "Analysis of permitted data sources to surface market signals — every insight carries its source, timestamp, confidence, and methodology, never presented as certainty.",
     activationCriteria: [
@@ -126,7 +126,7 @@ export const MODULE_REGISTRY: Record<ModuleKey, ModuleInfo> = {
   financial_intelligence: {
     key: "financial_intelligence",
     label: "Financial Intelligence",
-    tagline: "Cash flow, budgeting, and financial forecasting.",
+    tagline: "Cash flow, budgeting, and financial forecasting — remembered.",
     description: "Cash-flow analysis, budgeting, expense intelligence, and revenue forecasting through a provider-agnostic payments abstraction.",
     activationCriteria: [
       "Business AI validated first",
@@ -146,7 +146,7 @@ export const MODULE_REGISTRY: Record<ModuleKey, ModuleInfo> = {
   marketplace: {
     key: "marketplace",
     label: "Marketplace",
-    tagline: "Connecting businesses, suppliers, and opportunities.",
+    tagline: "A shared memory of businesses, suppliers, and opportunities.",
     description: "Product, supplier, business, and service discovery with AI-assisted matching.",
     activationCriteria: ["Business AI active", "Sufficient supply-side listings", "Trust & safety review"],
   },

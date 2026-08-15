@@ -11,9 +11,9 @@ export default function BusinessPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-white">Business AI</h1>
+        <h1 className="text-xl font-bold text-white">Business Memory</h1>
         <p className="text-sm text-slate-400 mt-1">
-          Your business workspace — customers, suppliers, products, orders, inventory, expenses, and revenue.
+          Every customer, supplier, product, order, inventory, expense, and revenue — remembered and queryable.
         </p>
       </div>
 

@@ -130,9 +130,9 @@ export default function SignInPage() {
 
   return (
     <AuthShell
-      title="Sign in to Conch"
-      subtitle="Welcome back — pick up right where you left off."
-      footer={{ label: "Don't have an account?", linkLabel: "Sign up", href: "/sign-up" }}
+      title="Welcome back to your memory"
+      subtitle="Sign in and pick up exactly where you left off — nothing forgotten."
+      footer={{ label: "Don't have an account?", linkLabel: "Start remembering", href: "/sign-up" }}
     >
       <SocialAuthButtons mode="sign-in" onError={setError} />
 

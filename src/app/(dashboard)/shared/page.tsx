@@ -101,9 +101,9 @@ export default function SharedContextsPage() {
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-serif text-2xl font-normal text-white">Shared Contexts</h1>
+          <h1 className="font-serif text-2xl font-normal text-white">Shared Memories</h1>
           <p className="text-sm text-slate-400 mt-0.5">
-            Share memory collections with other users or applications.
+            Share collections of memories with other users or applications.
           </p>
         </div>
         <Button className="gap-2" disabled>

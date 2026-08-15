@@ -9,7 +9,8 @@ import { GradientText } from "@/components/shared/GradientText";
 
 const subPhrases = [
   "Portable memory.",
-  "Persistent identity.",
+  "Persistent memory.",
+  "Every conversation becomes memory.",
   "AI that remembers you everywhere.",
 ];
 
@@ -115,13 +116,13 @@ export function HeroSection() {
           <div className="flex justify-center mb-8">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass border border-coral-500/30 text-xs text-coral-300 font-medium">
               <Sparkles className="w-3.5 h-3.5 text-coral-400" />
-              Decentralized AI Identity &amp; Memory Platform
+              The memory layer for AI
             </div>
           </div>
 
           {/* Main headline */}
           <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-normal text-white leading-[1.05] tracking-tight mb-4">
-            Your AI Should
+            Your Memory Should
             <br />
             <GradientText variant="full">Belong To You</GradientText>
           </h1>
@@ -136,7 +137,8 @@ export function HeroSection() {
 
           {/* Static subheadline */}
           <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed mb-10">
-            Portable memory, persistent identity, and AI agents that remember you everywhere.
+            Every conversation becomes memory. Every memory stays yours. Carried everywhere, recalled whenever —
+            an AI that knows you because it remembers you.
           </p>
 
           {/* CTAs */}
@@ -156,6 +158,9 @@ export function HeroSection() {
           <p className="mt-8 text-xs text-slate-600">
             No credit card required · Free plan available · Join thousands of AI power users
           </p>
+
+          {/* Memory motif — connection lines under the cards */}
+          <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-56 memory-divider opacity-60" />
         </div>
 
         {/* Floating memory cards */}

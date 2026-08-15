@@ -155,7 +155,7 @@ export default function MarketplacePage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-xl font-bold text-white">Marketplace</h1>
-        <p className="text-sm text-slate-400 mt-1">Discover businesses, products, services, and opportunities.</p>
+        <p className="text-sm text-slate-400 mt-1">A shared memory of businesses, products, services, and opportunities.</p>
       </div>
 
       <Tabs defaultValue="browse">

@@ -34,6 +34,10 @@ export function AuthShell({ title, subtitle, children, footer }: AuthShellProps)
             </Link>
           </p>
         )}
+
+        <p className="text-center text-xs text-slate-600 mt-4">
+          Every conversation becomes memory. Every memory stays yours.
+        </p>
       </div>
     </div>
   );

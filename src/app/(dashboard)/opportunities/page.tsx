@@ -9,9 +9,9 @@ export default function OpportunitiesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-white">Opportunity Engine</h1>
+        <h1 className="text-xl font-bold text-white">Opportunity Memory</h1>
         <p className="text-sm text-slate-400 mt-1">
-          Track opportunities with real evidence — every entry needs a source and a confidence level, never presented
+          Opportunities, remembered with real evidence — every entry keeps its source and confidence, never presented
           as certainty.
         </p>
       </div>
