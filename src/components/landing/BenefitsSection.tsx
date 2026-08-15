@@ -10,14 +10,14 @@ const benefits = [
     color: "text-coral-400",
     bg: "bg-coral-500/10 border-coral-500/20",
     title: "Persistent Memory",
-    description: "Everything you say becomes memory — preferences, goals, past conversations, and context. Your AI never forgets, so you never repeat yourself.",
+    description: "Everything you say becomes memory — preferences, goals, decisions, and context. Your AI never forgets, so you never repeat yourself.",
   },
   {
     icon: Globe,
     color: "text-teal-400",
     bg: "bg-teal-500/10 border-teal-500/20",
     title: "Memory That Travels",
-    description: "Carry your memory across platforms, devices, and applications. Wherever you go, everything you've told it goes with you.",
+    description: "Carry your memory across platforms, devices, and models — GPT today, Claude tomorrow. It all remembers the same you.",
   },
   {
     icon: Shield,
@@ -31,14 +31,14 @@ const benefits = [
     color: "text-yellow-400",
     bg: "bg-yellow-500/10 border-yellow-500/20",
     title: "Instant Recall",
-    description: "Semantic search resurfaces the most relevant memories in milliseconds, so every AI response draws on everything you've told it.",
+    description: "Semantic search resurfaces the right memory in milliseconds, so every answer draws on everything you've told it.",
   },
   {
     icon: Cpu,
     color: "text-gold-400",
     bg: "bg-gold-500/10 border-gold-500/20",
     title: "Memory-Scoped Agents",
-    description: "Build specialized agents that each draw on their own slice of your memory — a coder, a writer, a strategist, each with the context it needs.",
+    description: "Give each agent its own slice of memory — a coder, a writer, a strategist — each working from the context it needs.",
   },
   {
     icon: Lock,
@@ -59,15 +59,15 @@ export function BenefitsSection() {
         transition={{ duration: 0.6 }}
         className="text-center mb-16"
       >
-        <span className="inline-flex items-center px-3 py-1 rounded-full glass border border-white/10 text-xs text-slate-400 mb-4">
+        <span className="inline-flex items-center px-3 py-1 rounded-full glass border border-coral-500/25 text-[11px] font-mono uppercase tracking-[0.25em] text-coral-300/90 mb-4">
           Why Memory
         </span>
-        <h2 className="text-4xl sm:text-5xl font-bold text-white tracking-tight mb-4">
-          AI that actually{" "}
-          <span className="gradient-text">remembers you</span>
+        <h2 className="text-4xl sm:text-5xl font-serif font-medium text-white tracking-tight mb-4">
+          Not a chatbot.{" "}
+          <span className="gradient-text">A memory layer.</span>
         </h2>
         <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-          Built for people who use AI every day and are tired of starting from scratch every time.
+          Models change. Apps change. Your memory shouldn&apos;t.
         </p>
       </motion.div>
 

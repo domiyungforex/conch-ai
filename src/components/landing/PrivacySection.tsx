@@ -40,15 +40,15 @@ export function PrivacySection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <span className="inline-flex items-center px-3 py-1 rounded-full glass border border-white/10 text-xs text-slate-400 mb-4">
+          <span className="inline-flex items-center px-3 py-1 rounded-full glass border border-coral-500/25 text-[11px] font-mono uppercase tracking-[0.25em] text-coral-300/90 mb-4">
             Privacy Architecture
           </span>
-          <h2 className="text-4xl sm:text-5xl font-bold text-white tracking-tight mb-4">
+          <h2 className="text-4xl sm:text-5xl font-serif font-medium text-white tracking-tight mb-4">
             Your memory,{" "}
             <span className="gradient-text">not ours</span>
           </h2>
           <p className="text-slate-400 text-lg max-w-xl mx-auto">
-            We built Conch on a foundation of radical transparency and user control.
+            Conch is built on radical transparency and user control. Memory is yours — review, edit, or delete it anytime.
           </p>
         </motion.div>
 

@@ -46,10 +46,10 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
   const firstName = user.name?.split(" ")[0] ?? "there";
 
   const statCards = [
-    { label: "Memories",      value: stats.memoryCount,       icon: Brain,         accent: "#a08cff" },
-    { label: "Conversations", value: stats.conversationCount, icon: MessageSquare, accent: "#41ebcf" },
-    { label: "Agents",        value: stats.agentCount,        icon: Bot,           accent: "#e879f9" },
-    { label: "Reputation",    value: Math.round(stats.reputation?.score ?? 0), icon: Star, accent: "#a08cff" },
+    { label: "Memories",      value: stats.memoryCount,       icon: Brain,         accent: "#e7b353" },
+    { label: "Conversations", value: stats.conversationCount, icon: MessageSquare, accent: "#4faa87" },
+    { label: "Agents",        value: stats.agentCount,        icon: Bot,           accent: "#d97a56" },
+    { label: "Reputation",    value: Math.round(stats.reputation?.score ?? 0), icon: Star, accent: "#e7b353" },
   ];
 
   // Ambient activity texture — not wired to real per-hour telemetry (that would need a
@@ -138,7 +138,7 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
           <span className="text-xs text-slate-600">last 24 hours</span>
         </div>
         <GlassCard className="p-4">
-          <TideChart values={tideValues} color="#a08cff" height={56} />
+          <TideChart values={tideValues} color="#e7b353" height={56} />
         </GlassCard>
       </motion.div>
 

@@ -29,14 +29,14 @@ const links = {
 
 export function Footer() {
   return (
-    <footer className="border-t border-white/8 bg-[#070a13]">
+    <footer className="border-t border-white/8 bg-[#0c0805]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-10 mb-12">
           {/* Brand */}
           <div className="md:col-span-2">
             <Logo className="mb-4" />
             <p className="text-sm text-slate-400 leading-relaxed max-w-xs">
-              Own your AI memory. Carry it across every platform, device, and chain — remembered everywhere, forgotten never.
+              The memory layer for AI. Every conversation becomes memory; every memory stays yours — across every model, app, and device.
             </p>
             <div className="flex items-center gap-3 mt-5">
               <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Conch on Twitter"

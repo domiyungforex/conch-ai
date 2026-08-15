@@ -12,7 +12,7 @@ const apps = [
 ];
 
 const features = [
-  "One identity, infinite AI surfaces",
+  "Model-agnostic — swap AIs freely",
   "No re-training or re-explaining yourself",
   "Permissions control which apps see what",
   "Real-time sync across all your devices",
@@ -34,13 +34,13 @@ export function AIPortabilitySection() {
           transition={{ duration: 0.7 }}
           className="text-center mb-16"
         >
-          <p className="text-sm font-semibold text-teal-400 tracking-widest uppercase mb-4">AI Portability</p>
-          <h2 className="text-4xl sm:text-5xl font-bold text-white leading-tight mb-6">
+          <p className="text-sm font-mono text-teal-400 tracking-[0.25em] uppercase mb-4">Model-Agnostic</p>
+          <h2 className="text-4xl sm:text-5xl font-serif font-medium text-white leading-tight mb-6">
             One memory.{" "}
             <GradientText variant="full">Every app.</GradientText>
           </h2>
           <p className="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            Stop re-explaining your preferences to every AI tool. Conch carries your full context wherever you go, making every AI smarter about you from day one.
+            Conch is not married to any model. Swap GPT for Claude for Gemini and keep every memory intact — the same you, on every surface.
           </p>
         </motion.div>
 

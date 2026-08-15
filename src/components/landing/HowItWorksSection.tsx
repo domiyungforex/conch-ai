@@ -8,7 +8,7 @@ const steps = [
     step: "01",
     icon: UserPlus,
     title: "Open Your Memory",
-    description: "Sign up with Google, magic link, or connect your Web3 wallet. Your memory layer is created instantly — empty, private, yours.",
+    description: "Sign up with email, Google, or your Web3 wallet. Your memory vault opens instantly — empty, private, yours.",
     color: "from-coral-600 to-coral-800",
     glow: "shadow-coral-500/30",
   },
@@ -16,7 +16,7 @@ const steps = [
     step: "02",
     icon: MessageSquare,
     title: "Conversations Become Memories",
-    description: "Talk to your AI naturally. As you do, Conch extracts and stores the memories that matter — preferences, facts, context.",
+    description: "Talk naturally. Conch classifies, extracts, and scores what matters — preferences, facts, decisions — and files it all away.",
     color: "from-gold-600 to-gold-800",
     glow: "shadow-gold-500/30",
   },
@@ -24,7 +24,7 @@ const steps = [
     step: "03",
     icon: Brain,
     title: "Memory Compounds",
-    description: "Every conversation starts with full recall of everything before it. Your AI knows you better each time — because it remembers.",
+    description: "Every new conversation begins with full recall of everything before it. Your AI knows you better each time — because it never forgets.",
     color: "from-teal-600 to-teal-800",
     glow: "shadow-teal-500/30",
   },
@@ -32,7 +32,7 @@ const steps = [
     step: "04",
     icon: Rocket,
     title: "Take Your Memory Anywhere",
-    description: "Export your memory, deploy memory-scoped agents, share context securely. Your memory goes wherever you need it.",
+    description: "Export, share, or plug your memory into any model through the Conch API. It goes wherever you need it.",
     color: "from-emerald-600 to-emerald-800",
     glow: "shadow-emerald-500/30",
   },
@@ -50,16 +50,15 @@ export function HowItWorksSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <span className="inline-flex items-center px-3 py-1 rounded-full glass border border-white/10 text-xs text-slate-400 mb-4">
+          <span className="inline-flex items-center px-3 py-1 rounded-full glass border border-coral-500/25 text-[11px] font-mono uppercase tracking-[0.25em] text-coral-300/90 mb-4">
             How It Works
           </span>
-          <h2 className="text-4xl sm:text-5xl font-bold text-white tracking-tight mb-4">
-            From zero to{" "}
-            <span className="gradient-text">AI memory</span>
-            {" "}in minutes
+          <h2 className="text-4xl sm:text-5xl font-serif font-medium text-white tracking-tight mb-4">
+            Memory that{" "}
+            <span className="gradient-text">grows with every word</span>
           </h2>
           <p className="text-slate-400 text-lg max-w-xl mx-auto">
-            No setup. No configuration. Just sign up and start remembering.
+            No setup, no configuration. Every conversation quietly becomes memory.
           </p>
         </motion.div>
 

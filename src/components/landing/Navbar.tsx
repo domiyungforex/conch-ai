@@ -51,7 +51,7 @@ export function Navbar() {
                 <Link href="/sign-in">Sign In</Link>
               </Button>
               <Button size="sm" asChild>
-                <Link href="/sign-up">Get Started Free</Link>
+                <Link href="/sign-up">Start Remembering</Link>
               </Button>
             </Show>
             <Show when="signed-in">
@@ -66,7 +66,7 @@ export function Navbar() {
           <div className="md:hidden ml-auto">
             <Show when="signed-out">
               <Button size="sm" asChild>
-                <Link href="/sign-up">Get Started</Link>
+                <Link href="/sign-up">Start Remembering</Link>
               </Button>
             </Show>
             <Show when="signed-in">

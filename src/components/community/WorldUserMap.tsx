@@ -132,7 +132,7 @@ export function WorldUserMap() {
           </ComposableMap>
 
           {hovered && (
-            <div className="absolute bottom-4 left-4 rounded-lg bg-[#04060d] border border-white/10 px-3 py-2 text-sm shadow-lg pointer-events-none">
+            <div className="absolute bottom-4 left-4 rounded-lg bg-[#100b06] border border-white/10 px-3 py-2 text-sm shadow-lg pointer-events-none">
               <span className="mr-1.5">{flagEmoji(hovered.code)}</span>
               <span className="text-white font-medium">{hovered.name}</span>
               <span className="text-slate-400 ml-1.5">

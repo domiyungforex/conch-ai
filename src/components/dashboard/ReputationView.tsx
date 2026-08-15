@@ -108,7 +108,7 @@ export function ReputationView({ reputation, counts }: Props) {
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Page header */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-        <h1 className="text-2xl sm:text-3xl font-bold text-white">
+        <h1 className="font-serif text-2xl sm:text-3xl font-medium text-white">
           Your <span className="gradient-text">Reputation</span>
         </h1>
         <p className="text-slate-400 mt-1">The trust profile of your memory — built through everything you&apos;ve remembered.</p>
@@ -127,8 +127,8 @@ export function ReputationView({ reputation, counts }: Props) {
               <svg viewBox="0 0 120 120" className="w-48 h-48 -rotate-90">
                 <defs>
                   <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#a08cff" />
-                    <stop offset="100%" stopColor="#41ebcf" />
+                    <stop offset="0%" stopColor="#e7b353" />
+                    <stop offset="100%" stopColor="#4faa87" />
                   </linearGradient>
                 </defs>
                 {/* Track */}

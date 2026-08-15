@@ -10,7 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-gradient-to-r from-coral-600 to-gold-600 text-white shadow-lg shadow-coral-500/25 hover:from-coral-500 hover:to-gold-500 hover:shadow-coral-500/40",
+          "bg-gradient-to-r from-coral-600 to-gold-600 text-primary-foreground shadow-lg shadow-coral-500/25 hover:from-coral-500 hover:to-gold-500 hover:shadow-coral-500/40",
         secondary:
           "glass border border-white/10 text-white hover:bg-white/10",
         ghost:

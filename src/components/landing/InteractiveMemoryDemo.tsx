@@ -264,9 +264,9 @@ export function InteractiveMemoryDemo() {
                   scale: 1,
                   boxShadow:
                     phase === 2
-                      ? "0 0 32px rgba(122,93,255,0.55)"
+                      ? "0 0 32px rgba(224,163,78,0.5)"
                       : phase === 0
-                      ? "0 0 20px rgba(122,93,255,0.3)"
+                      ? "0 0 20px rgba(224,163,78,0.28)"
                       : "none",
                 }}
                 transition={{ duration: 0.5, type: "spring", stiffness: 200, damping: 20 }}
@@ -299,7 +299,7 @@ export function InteractiveMemoryDemo() {
                           y1="1"
                           x2="32"
                           y2="1"
-                          stroke="rgba(122,93,255,0.6)"
+                          stroke="rgba(224,163,78,0.6)"
                           strokeWidth="1.5"
                           className="neural-line"
                         />
@@ -359,7 +359,7 @@ export function InteractiveMemoryDemo() {
                 <motion.div
                   animate={{
                     width: phase === p ? 24 : 8,
-                    backgroundColor: phase === p ? "rgb(160,140,255)" : "rgb(71,85,105)",
+                    backgroundColor: phase === p ? "rgb(231,179,83)" : "rgb(71,85,105)",
                   }}
                   transition={{ duration: 0.3 }}
                   className="h-2 rounded-full"

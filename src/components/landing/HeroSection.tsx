@@ -114,7 +114,7 @@ export function HeroSection() {
         <div>
           {/* Badge */}
           <div className="flex justify-center mb-8">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass border border-coral-500/30 text-xs text-coral-300 font-medium">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass border border-coral-500/30 text-[11px] font-mono uppercase tracking-[0.25em] text-coral-300 font-medium">
               <Sparkles className="w-3.5 h-3.5 text-coral-400" />
               The memory layer for AI
             </div>
@@ -122,9 +122,9 @@ export function HeroSection() {
 
           {/* Main headline */}
           <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-normal text-white leading-[1.05] tracking-tight mb-4">
-            Your Memory Should
+            AI can think.
             <br />
-            <GradientText variant="full">Belong To You</GradientText>
+            <GradientText variant="full">Conch remembers.</GradientText>
           </h1>
 
           {/* Animated sub-phrase */}
@@ -137,15 +137,15 @@ export function HeroSection() {
 
           {/* Static subheadline */}
           <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed mb-10">
-            Every conversation becomes memory. Every memory stays yours. Carried everywhere, recalled whenever —
-            an AI that knows you because it remembers you.
+            Every conversation becomes memory. Every memory stays yours — carried across every model, app, and
+            device, recalled the moment you need it.
           </p>
 
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button size="xl" asChild className="w-full sm:w-auto group glow-pulse">
               <Link href="/sign-up">
-                Get Started Now
+                Start Remembering
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
@@ -156,7 +156,7 @@ export function HeroSection() {
 
           {/* Social proof */}
           <p className="mt-8 text-xs text-slate-600">
-            No credit card required · Free plan available · Join thousands of AI power users
+            No credit card required · Free plan available · Your memory travels with you
           </p>
 
           {/* Memory motif — connection lines under the cards */}
@@ -176,7 +176,7 @@ export function HeroSection() {
               <path
                 d="M 50 20 Q 30 10 18 30"
                 fill="none"
-                stroke="rgba(122,93,255,0.22)"
+                stroke="rgba(224,163,78,0.2)"
                 strokeWidth="0.15"
                 strokeDasharray="0.4 0.5"
                 vectorEffect="non-scaling-stroke"
@@ -184,7 +184,7 @@ export function HeroSection() {
               <path
                 d="M 50 20 Q 72 10 82 28"
                 fill="none"
-                stroke="rgba(122,93,255,0.22)"
+                stroke="rgba(224,163,78,0.2)"
                 strokeWidth="0.15"
                 strokeDasharray="0.4 0.5"
                 vectorEffect="non-scaling-stroke"
@@ -245,7 +245,7 @@ export function HeroSection() {
       </div>
 
       {/* Bottom gradient fade */}
-      <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-[#04060d] to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-[#100b06] to-transparent pointer-events-none" />
     </section>
   );
 }

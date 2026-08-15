@@ -83,10 +83,10 @@ export function PricingSection() {
         transition={{ duration: 0.6 }}
         className="text-center mb-12"
       >
-        <span className="inline-flex items-center px-3 py-1 rounded-full glass border border-white/10 text-xs text-slate-400 mb-4">
+        <span className="inline-flex items-center px-3 py-1 rounded-full glass border border-coral-500/25 text-[11px] font-mono uppercase tracking-[0.25em] text-coral-300/90 mb-4">
           Pricing
         </span>
-        <h2 className="text-4xl sm:text-5xl font-bold text-white tracking-tight mb-4">
+        <h2 className="text-4xl sm:text-5xl font-serif font-medium text-white tracking-tight mb-4">
           Simple,{" "}
           <span className="gradient-text">transparent</span>
           {" "}pricing
