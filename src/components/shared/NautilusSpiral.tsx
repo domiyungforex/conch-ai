@@ -26,7 +26,7 @@ export function NautilusSpiral({ size = 320, className }: { size?: number; class
     const steps = 260;
 
     const grad = ctx.createLinearGradient(0, 0, size, size);
-    grad.addColorStop(0, "#9485ff");
+    grad.addColorStop(0, "#a08cff");
     grad.addColorStop(1, "#e879f9");
     ctx.strokeStyle = grad;
     ctx.lineWidth = 1.4;

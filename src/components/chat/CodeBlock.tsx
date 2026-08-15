@@ -86,7 +86,7 @@ function buildConsolePreview(lang: string, code: string): string {
   return `<!DOCTYPE html><html><head><meta charset="utf-8" />
 ${isTs ? '<script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>' : ""}
 <style>
-body{font-family:ui-monospace,Menlo,monospace;margin:0;padding:12px;background:#0a0d17;color:#c9d1d9;font-size:12.5px;white-space:pre-wrap;word-break:break-word}
+body{font-family:ui-monospace,Menlo,monospace;margin:0;padding:12px;background:#090c16;color:#c9d1d9;font-size:12.5px;white-space:pre-wrap;word-break:break-word}
 .err{color:#f87171}
 .empty{color:#6b7280;font-style:italic}
 </style>
@@ -204,7 +204,7 @@ export function CodeBlock({ language, code }: Props) {
   const buttonLabel = kind === "render" ? "Preview" : "Run";
 
   return (
-    <div className="my-3 rounded-xl overflow-hidden border border-white/10 bg-[#0a0d17] not-prose">
+    <div className="my-3 rounded-xl overflow-hidden border border-white/10 bg-[#090c16] not-prose">
       <div className="flex items-center justify-between px-3 py-1.5 bg-white/5 border-b border-white/10">
         <span className="text-xs font-mono text-slate-400">{language || "text"}</span>
         <div className="flex items-center gap-1">
@@ -246,7 +246,7 @@ export function CodeBlock({ language, code }: Props) {
       )}
 
       {showPreview && kind === "python" && (
-        <div className="border-b border-white/10 bg-[#0a0d17] px-3 py-2 font-mono text-xs">
+        <div className="border-b border-white/10 bg-[#090c16] px-3 py-2 font-mono text-xs">
           {pyLoading ? (
             <div className="flex items-center gap-2 text-slate-400 py-2">
               <Loader2 className="w-3.5 h-3.5 animate-spin" /> Running…

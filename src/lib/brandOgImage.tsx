@@ -10,7 +10,7 @@ export function BrandOgImage() {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        background: "linear-gradient(135deg, #05070e 0%, #0a0d17 55%, #171244 100%)",
+        background: "linear-gradient(135deg, #04060d 0%, #090c16 55%, #181348 100%)",
         fontFamily: "sans-serif",
       }}
     >
@@ -20,11 +20,11 @@ export function BrandOgImage() {
           width: 120,
           height: 120,
           borderRadius: 28,
-          background: "linear-gradient(135deg, #6d5cff, #e879f9)",
+          background: "linear-gradient(135deg, #7a5dff, #e879f9)",
           alignItems: "center",
           justifyContent: "center",
           marginBottom: 40,
-          boxShadow: "0 0 80px rgba(109,92,255,0.35)",
+          boxShadow: "0 0 80px rgba(122,93,255,0.4)",
         }}
       >
         <svg width="66" height="66" viewBox="0 0 24 24" fill="none">

@@ -11,9 +11,9 @@ const root = join(__dirname, "..");
 const publicDir = join(root, "public");
 mkdirSync(publicDir, { recursive: true });
 
-const VIOLET_600 = "#5b48f5";
+const VIOLET_600 = "#6648f5";
 const FUCHSIA_600 = "#c026d3";
-const BG = "#05070e";
+const BG = "#04060d";
 
 // square = rounded-square app icon; solidBg = opaque background (for tiles/ICO,
 // which shouldn't rely on transparency compositing)
