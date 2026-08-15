@@ -176,7 +176,7 @@ export function HeroSection() {
               <path
                 d="M 50 20 Q 30 10 18 30"
                 fill="none"
-                stroke="rgba(124,58,237,0.15)"
+                stroke="rgba(109,92,255,0.2)"
                 strokeWidth="0.15"
                 strokeDasharray="0.4 0.5"
                 vectorEffect="non-scaling-stroke"
@@ -184,7 +184,7 @@ export function HeroSection() {
               <path
                 d="M 50 20 Q 72 10 82 28"
                 fill="none"
-                stroke="rgba(124,58,237,0.15)"
+                stroke="rgba(109,92,255,0.2)"
                 strokeWidth="0.15"
                 strokeDasharray="0.4 0.5"
                 vectorEffect="non-scaling-stroke"
@@ -245,7 +245,7 @@ export function HeroSection() {
       </div>
 
       {/* Bottom gradient fade */}
-      <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-[#0a1613] to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-[#05070e] to-transparent pointer-events-none" />
     </section>
   );
 }

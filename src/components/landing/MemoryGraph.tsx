@@ -47,8 +47,8 @@ nodes.forEach((node) => {
 });
 
 const categoryStyle: Record<NodeCategory, { border: string; bg: string; dot: string; text: string; activeStroke: string }> = {
-  episodic:   { border: "border-coral-500/40", bg: "bg-coral-500/10", dot: "bg-coral-400",  text: "text-coral-300",  activeStroke: "rgba(124,58,237,0.6)" },
-  semantic:   { border: "border-teal-500/40",   bg: "bg-teal-500/10",   dot: "bg-teal-400",    text: "text-teal-300",    activeStroke: "rgba(6,182,212,0.6)" },
+  episodic:   { border: "border-coral-500/40", bg: "bg-coral-500/10", dot: "bg-coral-400",  text: "text-coral-300",  activeStroke: "rgba(109,92,255,0.6)" },
+  semantic:   { border: "border-teal-500/40",   bg: "bg-teal-500/10",   dot: "bg-teal-400",    text: "text-teal-300",    activeStroke: "rgba(28,207,182,0.6)" },
   preference: { border: "border-amber-500/40",  bg: "bg-amber-500/10",  dot: "bg-amber-400",   text: "text-amber-300",   activeStroke: "rgba(245,158,11,0.6)" },
   procedural: { border: "border-emerald-500/40",bg: "bg-emerald-500/10",dot: "bg-emerald-400", text: "text-emerald-300", activeStroke: "rgba(16,185,129,0.6)" },
 };

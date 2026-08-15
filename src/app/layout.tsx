@@ -33,10 +33,10 @@ export const metadata: Metadata = {
       { url: "/android-chrome-512x512.png", sizes: "512x512", type: "image/png" },
     ],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
-    other: [{ rel: "mask-icon", url: "/mask-icon.svg", color: "#c05f47" }],
+    other: [{ rel: "mask-icon", url: "/mask-icon.svg", color: "#6d5cff" }],
   },
   other: {
-    "msapplication-TileColor": "#c05f47",
+    "msapplication-TileColor": "#6d5cff",
     "msapplication-TileImage": "/mstile-150x150.png",
     "msapplication-config": "/browserconfig.xml",
   },
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#c05f47",
+  themeColor: "#6d5cff",
 };
 
 const jsonLd = {

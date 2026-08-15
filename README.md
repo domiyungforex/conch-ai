@@ -125,11 +125,11 @@ Keys use the format `cnch_<64 hex chars>`. The full key is shown exactly once on
 
 Authenticate with `Authorization: Bearer cnch_...` (scopes: `FULL`, `MEMORY_READ`, `MEMORY_WRITE`, `CHAT`). Interactive docs live at `/developers`.
 
-- `POST /api/memory` — save a memory (`namespace` isolates projects/clients; `relatedMemoryIds` links it to other memories, or it auto-links to the most similar one)
+- `POST /api/memory` — save a memory (`namespace` isolates projects/clients; `relatedMemoryIds` links it to other memories — links are bidirectional, each target gets a back-link — or it auto-links to the most similar one)
 - `GET /api/memory` — list (filter by `category`, `namespace`, `archived`)
 - `POST /api/search` — semantic search (optionally scoped to a `namespace`)
 - `POST /api/memory/recall` — search + a prompt-ready `context` block for AI apps (expands through relationship links)
 - `GET /api/memory/export` — download all memories as JSON
-- `PATCH` / `DELETE /api/memory/{id}` — update / delete
+- `PATCH` / `DELETE /api/memory/{id}` — update / delete (link changes keep back-links in sync; delete strips stale back-links from linked memories)
 
 API-key memory mutations and key lifecycle events are written to the `audit_logs` collection. Adding the `namespace` attribute requires the migration: `npx tsx scripts/add-memory-namespace.ts`.

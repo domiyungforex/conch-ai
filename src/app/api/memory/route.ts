@@ -2,7 +2,7 @@ import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type MemoryDoc, type ReputationDoc, type AppwriteDoc } from "@/lib/db";
 import { generateEmbedding } from "@/lib/embeddings";
 import { topKBySimilarity } from "@/lib/vectorSearch";
-import { linkMemories } from "@/lib/memory";
+import { backlinkMemory, linkMemories } from "@/lib/memory";
 import { MemoryCreateSchema } from "@/lib/validators";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
@@ -121,10 +121,21 @@ export async function POST(req: Request) {
     Permission.delete(Role.user(appwriteId)),
   ]) as unknown as AppwriteDoc<MemoryDoc>;
 
-  // Relationship creation: when the caller didn't specify links, auto-link to
-  // the most semantically similar existing memory so related context is
-  // connected rather than isolated. Non-fatal — never blocks the save.
-  if (embedding.length > 0 && !parsed.data.relatedMemoryIds) {
+  // Relationship creation:
+  // - Explicit links: the source's own list was set by the payload above; back-link
+  //   each target so the relationship is bidirectional (same behavior as auto-links).
+  // - No links specified: auto-link to the most semantically similar existing memory
+  //   so related context is connected rather than isolated.
+  // Non-fatal either way — never blocks the save.
+  if (parsed.data.relatedMemoryIds && parsed.data.relatedMemoryIds.length > 0) {
+    try {
+      await Promise.all(
+        parsed.data.relatedMemoryIds.map((tid) => backlinkMemory(databases, memId, tid, appwriteId))
+      );
+    } catch {
+      // Relationship maintenance must never break the save.
+    }
+  } else if (embedding.length > 0) {
     try {
       const candidates = await databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, [
         Query.equal("userId", appwriteId),

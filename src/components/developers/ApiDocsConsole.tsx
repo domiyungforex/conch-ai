@@ -368,7 +368,7 @@ export function ApiDocsConsole() {
         <div>
           <h1 className="font-serif text-2xl text-white">Conch API</h1>
           <p className="text-sm text-slate-400 mt-1">
-            The full CRUD surface behind Memory, Search, Chat, Agents, and Conversations. Every request below
+            The full CRUD surface behind your memory — store, search, recall, export, and chat. Every request below
             runs live against production — try it right from the browser.
           </p>
         </div>

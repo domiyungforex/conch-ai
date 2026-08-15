@@ -7,11 +7,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useUserSettings, type UserSettings } from "@/hooks/useUserSettings";
 
 const ITEMS: { key: keyof UserSettings; label: string; desc: string }[] = [
-  { key: "notifyChatSummaries", label: "Chat Summaries", desc: "Weekly summary of your AI conversations." },
-  { key: "notifyMemoryInsights", label: "Memory Insights", desc: "When new patterns are detected in your memory." },
-  { key: "notifyAgentAlerts", label: "Agent Alerts", desc: "Alerts when your agents complete tasks." },
-  { key: "notifyWeeklyDigest", label: "Weekly Digest", desc: "Your Conch activity summary every Monday." },
-  { key: "notifyProductUpdates", label: "Product Updates", desc: "News about new features and improvements." },
+  { key: "notifyChatSummaries", label: "Conversation Summaries", desc: "A weekly recap of the conversations that became memory." },
+  { key: "notifyMemoryInsights", label: "Memory Insights", desc: "When new patterns are detected in what your memory holds." },
+  { key: "notifyAgentAlerts", label: "Agent Alerts", desc: "Alerts when your memory-scoped agents complete tasks." },
+  { key: "notifyWeeklyDigest", label: "Weekly Digest", desc: "A summary of your memory&apos;s activity every Monday." },
+  { key: "notifyProductUpdates", label: "Product Updates", desc: "News about new ways to remember and recall." },
 ];
 
 export default function NotificationsPage() {

@@ -53,7 +53,7 @@ export function AssistantPanel({ askPath, placeholder, hint }: AssistantPanelPro
         <Input
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
-          placeholder={placeholder ?? "Ask about this workspace…"}
+          placeholder={placeholder ?? "Ask from this memory…"}
           disabled={loading}
         />
         <Button type="submit" disabled={loading || !question.trim()} className="shrink-0">

@@ -103,6 +103,48 @@ export async function linkMemories(
   }
 }
 
+// One-directional back-link on the target only: ensures `sourceId` appears in
+// `targetId`'s related list. Used by the explicit-link paths (create/update)
+// where the source's own list is set by the request payload directly, so we
+// only need to keep the far side in sync. Deduped, bounded, non-fatal.
+export async function backlinkMemory(
+  databases: ReturnType<typeof createAdminClient>["databases"],
+  sourceId: string,
+  targetId: string,
+  userId?: string
+): Promise<void> {
+  if (sourceId === targetId) return;
+  try {
+    const target = await databases.getDocument(DB_ID, COLLECTIONS.MEMORIES, targetId) as unknown as AppwriteDoc<MemoryDoc>;
+    // Never write a link into another user's memory — same-user only.
+    if (userId && target.userId !== userId) return;
+    const list = (target.relatedMemoryIds ?? []).filter((id: string) => id !== sourceId).slice(0, 19);
+    list.push(sourceId);
+    await databases.updateDocument(DB_ID, COLLECTIONS.MEMORIES, targetId, { relatedMemoryIds: list });
+  } catch {
+    // Relationship maintenance must never break the request it's attached to.
+  }
+}
+
+// Remove `sourceId` from `targetId`'s related list (stale back-link cleanup
+// when a link is removed or a memory is deleted). Non-fatal.
+export async function unbacklinkMemory(
+  databases: ReturnType<typeof createAdminClient>["databases"],
+  sourceId: string,
+  targetId: string,
+  userId?: string
+): Promise<void> {
+  if (sourceId === targetId) return;
+  try {
+    const target = await databases.getDocument(DB_ID, COLLECTIONS.MEMORIES, targetId) as unknown as AppwriteDoc<MemoryDoc>;
+    if (userId && target.userId !== userId) return;
+    const list = (target.relatedMemoryIds ?? []).filter((id: string) => id !== sourceId);
+    await databases.updateDocument(DB_ID, COLLECTIONS.MEMORIES, targetId, { relatedMemoryIds: list });
+  } catch {
+    // Relationship maintenance must never break the request it's attached to.
+  }
+}
+
 export function injectMemoryContext(memories: MemoryWithScore[]): string {
   if (memories.length === 0) return "";
 

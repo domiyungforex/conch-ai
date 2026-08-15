@@ -11,9 +11,9 @@ const root = join(__dirname, "..");
 const publicDir = join(root, "public");
 mkdirSync(publicDir, { recursive: true });
 
-const CORAL_600 = "#c05f47";
-const GOLD_600 = "#9c7530";
-const BG = "#0a1613";
+const VIOLET_600 = "#5b48f5";
+const FUCHSIA_600 = "#c026d3";
+const BG = "#05070e";
 
 // square = rounded-square app icon; solidBg = opaque background (for tiles/ICO,
 // which shouldn't rely on transparency compositing)
@@ -28,8 +28,8 @@ function markSvg({ size, radiusRatio = 0.22, solidBg = false, strokeWidth = 1.9 
   return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="${CORAL_600}"/>
-      <stop offset="100%" stop-color="${GOLD_600}"/>
+      <stop offset="0%" stop-color="${VIOLET_600}"/>
+      <stop offset="100%" stop-color="${FUCHSIA_600}"/>
     </linearGradient>
   </defs>
   ${bg}

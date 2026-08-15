@@ -90,7 +90,7 @@ export default function ApiKeysPage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-base font-semibold text-white">API Keys</h2>
-          <p className="text-xs text-slate-400 mt-0.5">Use these keys to access Conch programmatically.</p>
+          <p className="text-xs text-slate-400 mt-0.5">Give your own apps access to this memory — read, write, recall, and chat.</p>
         </div>
         <Button size="sm" onClick={() => setCreateOpen(true)} className="gap-1.5">
           <Plus className="w-3.5 h-3.5" /> New Key
@@ -100,7 +100,7 @@ export default function ApiKeysPage() {
       {isLoading ? (
         <div className="space-y-3">{[1,2].map((i) => <Skeleton key={i} className="h-16 rounded-xl bg-white/5" />)}</div>
       ) : !keys?.length ? (
-        <EmptyState icon={Key} title="No API keys" description="Create a key to access Conch from your own apps." action={{ label: "Create Key", onClick: () => setCreateOpen(true) }} />
+        <EmptyState icon={Key} title="No API keys" description="Create a key to let your own apps read and write this memory." action={{ label: "Create Key", onClick: () => setCreateOpen(true) }} />
       ) : (
         <div className="space-y-3">
           {keys.map((k) => (

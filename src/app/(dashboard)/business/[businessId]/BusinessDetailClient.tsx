@@ -35,6 +35,7 @@ export function BusinessDetailClient({ businessId }: { businessId: string }) {
         <p className="text-sm text-slate-400 mt-1">
           {business.industry ?? "No industry set"} · {business.region} · {business.currency}
         </p>
+        <p className="text-xs text-slate-500 mt-1">Every record below becomes part of this business&apos;s memory.</p>
       </div>
 
       <Tabs defaultValue="customers">

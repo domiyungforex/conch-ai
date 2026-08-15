@@ -10,7 +10,7 @@ export function BrandOgImage() {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        background: "linear-gradient(135deg, #0a1613 0%, #0d1a17 55%, #16231f 100%)",
+        background: "linear-gradient(135deg, #05070e 0%, #0a0d17 55%, #171244 100%)",
         fontFamily: "sans-serif",
       }}
     >
@@ -20,11 +20,11 @@ export function BrandOgImage() {
           width: 120,
           height: 120,
           borderRadius: 28,
-          background: "linear-gradient(135deg, #c05f47, #9c7530)",
+          background: "linear-gradient(135deg, #6d5cff, #e879f9)",
           alignItems: "center",
           justifyContent: "center",
           marginBottom: 40,
-          boxShadow: "0 0 80px rgba(226,145,127,0.35)",
+          boxShadow: "0 0 80px rgba(109,92,255,0.35)",
         }}
       >
         <svg width="66" height="66" viewBox="0 0 24 24" fill="none">
@@ -37,10 +37,10 @@ export function BrandOgImage() {
           />
         </svg>
       </div>
-      <div style={{ display: "flex", fontSize: 84, color: "#f2e8e0", fontWeight: 600, letterSpacing: "-0.02em" }}>
+      <div style={{ display: "flex", fontSize: 84, color: "#e9edf7", fontWeight: 600, letterSpacing: "-0.02em" }}>
         Conch
       </div>
-      <div style={{ display: "flex", fontSize: 32, color: "#a89c92", marginTop: 18 }}>
+      <div style={{ display: "flex", fontSize: 32, color: "#8b97ad", marginTop: 18 }}>
         Own Your AI Memory
       </div>
     </div>

@@ -3,61 +3,66 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* Conch's identity: nacre and deep water, not generic AI-SaaS violet. */
-  --color-background: #0a1613;
-  --color-foreground: #f2e8e0;
-  --color-muted: #0d1a17;
-  --color-muted-foreground: #a89c92;
-  --color-border: rgba(226, 158, 138, 0.12);
-  --color-card: rgba(243, 233, 226, 0.045);
-  --color-card-hover: rgba(243, 233, 226, 0.075);
-  --color-primary: #c05f47;
-  --color-primary-hover: #a94f39;
-  --color-primary-foreground: #0a1613;
-  --color-secondary: #2b7268;
-  --color-accent: #9c7530;
-  --color-destructive: #e2786a;
-  --color-success: #8fc27d;
-  --color-warning: #e0b559;
+  /* Conch's identity: the Neural Abyss — a bioluminescent deep-sea memory.
+     A shell is memory: it accretes a record of every day it lives. So Conch
+     lives in abyss-blue ink lit by electric-violet synapses, bioluminescent
+     teal recalls, and aurora-fuchsia insights — not generic AI-SaaS violet.
+     Token names (coral/teal/gold) are kept for compatibility — each maps to a
+     violet/teal/fuchsia hue of the memory-AI palette. */
+  --color-background: #05070e;
+  --color-foreground: #e9edf7;
+  --color-muted: #0a0d17;
+  --color-muted-foreground: #8b97ad;
+  --color-border: rgba(109, 92, 255, 0.14);
+  --color-card: rgba(109, 92, 255, 0.05);
+  --color-card-hover: rgba(109, 92, 255, 0.085);
+  --color-primary: #6d5cff;
+  --color-primary-hover: #5b48f5;
+  --color-primary-foreground: #05070e;
+  --color-secondary: #35e5cb;
+  --color-accent: #e879f9;
+  --color-destructive: #f87171;
+  --color-success: #4ade80;
+  --color-warning: #fbbf24;
 
-  /* coral — replaces violet as the primary accent */
-  --color-coral-50: #fdf4f1;
-  --color-coral-100: #fbe6df;
-  --color-coral-200: #f6cabc;
-  --color-coral-300: #eda893;
-  --color-coral-400: #e2917f;
-  --color-coral-500: #d97a63;
-  --color-coral-600: #c05f47;
-  --color-coral-700: #9c4a37;
-  --color-coral-800: #7a3a2c;
-  --color-coral-900: #5c2c21;
-  --color-coral-950: #341810;
+  /* coral — maps to electric memory-violet, the primary accent */
+  --color-coral-50: #f3f1ff;
+  --color-coral-100: #e7e3ff;
+  --color-coral-200: #d0c9ff;
+  --color-coral-300: #b3a8ff;
+  --color-coral-400: #9485ff;
+  --color-coral-500: #6d5cff;
+  --color-coral-600: #5b48f5;
+  --color-coral-700: #4b38d9;
+  --color-coral-800: #3d2db3;
+  --color-coral-900: #32268e;
+  --color-coral-950: #1d1466;
 
-  /* teal — replaces cyan as the secondary accent */
-  --color-teal-50: #eef8f6;
-  --color-teal-100: #d7efea;
-  --color-teal-200: #b0ded5;
-  --color-teal-300: #82c7ba;
-  --color-teal-400: #62b3a7;
-  --color-teal-500: #439189;
-  --color-teal-600: #2b7268;
-  --color-teal-700: #235d55;
-  --color-teal-800: #1c4a44;
-  --color-teal-900: #163a35;
-  --color-teal-950: #0d2320;
+  /* teal — maps to bioluminescent teal-cyan, the secondary accent */
+  --color-teal-50: #e9fffb;
+  --color-teal-100: #c8fff4;
+  --color-teal-200: #93ffe9;
+  --color-teal-300: #57f2d8;
+  --color-teal-400: #35e5cb;
+  --color-teal-500: #1ccfb6;
+  --color-teal-600: #11ac98;
+  --color-teal-700: #128a7c;
+  --color-teal-800: #146d63;
+  --color-teal-900: #135a52;
+  --color-teal-950: #06332e;
 
-  /* gold — replaces indigo as the tertiary accent */
-  --color-gold-50: #faf6ee;
-  --color-gold-100: #f2e8d3;
-  --color-gold-200: #e3cea2;
-  --color-gold-300: #d3b073;
-  --color-gold-400: #cda05f;
-  --color-gold-500: #b3873f;
-  --color-gold-600: #9c7530;
-  --color-gold-700: #7d5d26;
-  --color-gold-800: #614920;
-  --color-gold-900: #4a381a;
-  --color-gold-950: #2b200e;
+  /* gold — maps to aurora fuchsia, the tertiary accent */
+  --color-gold-50: #fdf4ff;
+  --color-gold-100: #fae8ff;
+  --color-gold-200: #f5d0fe;
+  --color-gold-300: #f0abfc;
+  --color-gold-400: #e879f9;
+  --color-gold-500: #d946ef;
+  --color-gold-600: #c026d3;
+  --color-gold-700: #a21caf;
+  --color-gold-800: #86198f;
+  --color-gold-900: #701a75;
+  --color-gold-950: #4a044e;
 
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
@@ -70,8 +75,8 @@
   --font-mono: var(--font-geist-mono), monospace;
   --font-serif: var(--font-fraunces), "Iowan Old Style", Georgia, serif;
 
-  --shadow-glow-primary: 0 0 40px rgba(226, 145, 127, 0.25);
-  --shadow-glow-secondary: 0 0 40px rgba(43, 114, 104, 0.2);
+  --shadow-glow-primary: 0 0 40px rgba(109, 92, 255, 0.30);
+  --shadow-glow-secondary: 0 0 40px rgba(53, 229, 203, 0.18);
   --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
 }
 
@@ -105,16 +110,16 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(192, 95, 71, 0.4);
+  background: rgba(109, 92, 255, 0.4);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(192, 95, 71, 0.7);
+  background: rgba(109, 92, 255, 0.7);
 }
 
 /* Selection */
 ::selection {
-  background: rgba(192, 95, 71, 0.35);
+  background: rgba(109, 92, 255, 0.35);
   color: #f8fafc;
 }
 
@@ -136,8 +141,8 @@ body {
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(192, 95, 71, 0.3); }
-  50% { box-shadow: 0 0 40px rgba(192, 95, 71, 0.6); }
+  0%, 100% { box-shadow: 0 0 20px rgba(109, 92, 255, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(109, 92, 255, 0.6); }
 }
 
 @keyframes spin-slow {
@@ -171,22 +176,22 @@ body {
 }
 
 .glow-primary {
-  box-shadow: 0 0 40px rgba(192, 95, 71, 0.25);
+  box-shadow: 0 0 40px rgba(109, 92, 255, 0.3);
 }
 
 .glow-secondary {
-  box-shadow: 0 0 40px rgba(43, 114, 104, 0.2);
+  box-shadow: 0 0 40px rgba(53, 229, 203, 0.18);
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #c05f47, #2b7268);
+  background: linear-gradient(135deg, #6d5cff, #35e5cb);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .gradient-text-full {
-  background: linear-gradient(135deg, #e2917f, #c05f47, #2b7268);
+  background: linear-gradient(135deg, #b3a8ff, #6d5cff, #e879f9);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -201,7 +206,7 @@ body {
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(135deg, rgba(192, 95, 71, 0.5), rgba(43, 114, 104, 0.5));
+  background: linear-gradient(135deg, rgba(109, 92, 255, 0.5), rgba(53, 229, 203, 0.4));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
@@ -234,15 +239,15 @@ body {
 /* Mesh gradient background for hero */
 .mesh-gradient {
   background:
-    radial-gradient(ellipse at 20% 50%, rgba(192, 95, 71, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(43, 114, 104, 0.1) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 80%, rgba(156, 117, 48, 0.1) 0%, transparent 50%),
-    #0a1613;
+    radial-gradient(ellipse at 20% 50%, rgba(109, 92, 255, 0.16) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(53, 229, 203, 0.09) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(232, 121, 249, 0.08) 0%, transparent 50%),
+    #05070e;
 }
 
 /* Focus styles */
 :focus-visible {
-  outline: 2px solid rgba(192, 95, 71, 0.7);
+  outline: 2px solid rgba(109, 92, 255, 0.7);
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -253,8 +258,8 @@ body {
 }
 .prose-conch p { margin: 0.75rem 0; }
 .prose-conch code {
-  background: rgba(192, 95, 71, 0.15);
-  color: #e2917f;
+  background: rgba(109, 92, 255, 0.15);
+  color: #b3a8ff;
   padding: 0.125rem 0.375rem;
   border-radius: 4px;
   font-size: 0.875em;
@@ -266,7 +271,7 @@ body {
   padding: 1rem;
   overflow-x: auto;
 }
-.prose-conch a { color: #e2917f; text-decoration: underline; }
+.prose-conch a { color: #b3a8ff; text-decoration: underline; }
 .prose-conch strong { color: #f8fafc; }
 .prose-conch ul { list-style: disc; padding-left: 1.5rem; }
 .prose-conch ol { list-style: decimal; padding-left: 1.5rem; }
@@ -298,8 +303,8 @@ body {
 }
 
 @keyframes magnetic-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(192, 95, 71, 0.35), 0 0 60px rgba(192, 95, 71, 0.1); }
-  50%       { box-shadow: 0 0 40px rgba(192, 95, 71, 0.65), 0 0 90px rgba(192, 95, 71, 0.2); }
+  0%, 100% { box-shadow: 0 0 20px rgba(109, 92, 255, 0.35), 0 0 60px rgba(109, 92, 255, 0.1); }
+  50%       { box-shadow: 0 0 40px rgba(109, 92, 255, 0.65), 0 0 90px rgba(109, 92, 255, 0.2); }
 }
 
 @keyframes scroll-bounce {
@@ -323,7 +328,7 @@ body {
 .particle {
   position: absolute;
   border-radius: 9999px;
-  background: rgba(192, 95, 71, 0.55);
+  background: rgba(109, 92, 255, 0.5);
   animation: particle-drift var(--duration, 6s) ease-in-out infinite;
   animation-delay: var(--delay, 0s);
   pointer-events: none;
@@ -345,17 +350,17 @@ body {
   height: 0.5rem;
   border-radius: 9999px;
 }
-.importance-dot--low    { background: rgba(192,95,71,0.35); box-shadow: 0 0 4px  rgba(192,95,71,0.15); }
-.importance-dot--medium { background: rgba(192,95,71,0.55); box-shadow: 0 0 6px  rgba(192,95,71,0.35); }
-.importance-dot--high   { background: rgba(192,95,71,0.75); box-shadow: 0 0 9px  rgba(192,95,71,0.55); }
-.importance-dot--max    { background: rgba(192,95,71,0.95); box-shadow: 0 0 13px rgba(192,95,71,0.75); }
+.importance-dot--low    { background: rgba(109,92,255,0.35); box-shadow: 0 0 4px  rgba(109,92,255,0.15); }
+.importance-dot--medium { background: rgba(109,92,255,0.55); box-shadow: 0 0 6px  rgba(109,92,255,0.35); }
+.importance-dot--high   { background: rgba(109,92,255,0.75); box-shadow: 0 0 9px  rgba(109,92,255,0.55); }
+.importance-dot--max    { background: rgba(109,92,255,0.95); box-shadow: 0 0 13px rgba(109,92,255,0.75); }
 
 /* Memory node hover (class-based for non-Framer elements) */
 .memory-node-hover {
   transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 .memory-node-hover:hover {
-  box-shadow: 0 0 28px rgba(192, 95, 71, 0.45);
+  box-shadow: 0 0 28px rgba(109, 92, 255, 0.45);
   transform: translateY(-2px) scale(1.03);
 }
 
@@ -371,7 +376,7 @@ body {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  border: 1px solid rgba(192, 95, 71, 0.45);
+  border: 1px solid rgba(109, 92, 255, 0.45);
   animation: recall-ripple 1.6s ease-out infinite;
   pointer-events: none;
 }
@@ -379,8 +384,8 @@ body {
 /* Memory lattice — a faint connective grid, like linked memory traces */
 .memory-lattice {
   background-image:
-    radial-gradient(rgba(192, 95, 71, 0.10) 1px, transparent 1px),
-    radial-gradient(rgba(43, 114, 104, 0.08) 1px, transparent 1px);
+    radial-gradient(rgba(109, 92, 255, 0.10) 1px, transparent 1px),
+    radial-gradient(rgba(53, 229, 203, 0.08) 1px, transparent 1px);
   background-size: 28px 28px, 44px 44px;
   background-position: 0 0, 14px 14px;
 }
@@ -394,7 +399,7 @@ body {
   background: linear-gradient(
     100deg,
     transparent 30%,
-    rgba(226, 145, 127, 0.08) 50%,
+    rgba(148, 133, 255, 0.08) 50%,
     transparent 70%
   );
   background-size: 200% 100%;
@@ -403,6 +408,6 @@ body {
 
 /* Memory-wave divider — used under section headers */
 .memory-divider {
-  background: linear-gradient(90deg, transparent, rgba(192, 95, 71, 0.5), rgba(43, 114, 104, 0.5), transparent);
+  background: linear-gradient(90deg, transparent, rgba(109, 92, 255, 0.5), rgba(53, 229, 203, 0.5), transparent);
   height: 1px;
 }

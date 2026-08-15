@@ -127,8 +127,8 @@ export function ReputationView({ reputation, counts }: Props) {
               <svg viewBox="0 0 120 120" className="w-48 h-48 -rotate-90">
                 <defs>
                   <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#e2917f" />
-                    <stop offset="100%" stopColor="#2b7268" />
+                    <stop offset="0%" stopColor="#9485ff" />
+                    <stop offset="100%" stopColor="#35e5cb" />
                   </linearGradient>
                 </defs>
                 {/* Track */}

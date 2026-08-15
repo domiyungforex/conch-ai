@@ -18,11 +18,11 @@ export default function FeaturesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-white">Activate other features</h1>
+        <h1 className="text-xl font-bold text-white">Add memory spaces</h1>
         <p className="text-sm text-slate-400 mt-1">
-          These are fully built and working — they just stay out of your sidebar until you turn them on, so it
-          doesn&apos;t get cluttered with things you don&apos;t use. Activating one adds it to your Modules section;
-          deactivating just hides the link again, nothing gets deleted. Included with Pro and Premium.
+          These memory spaces are fully built and working — they just stay out of your sidebar until you turn them on,
+          so it doesn&apos;t get cluttered with memories you don&apos;t use. Activating one adds it to your Memory Spaces
+          section; deactivating just hides the link again, nothing gets forgotten. Included with Pro and Premium.
         </p>
       </div>
 

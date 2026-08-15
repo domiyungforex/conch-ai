@@ -60,7 +60,7 @@ export function AgentSelector({ value, onChange }: Props) {
         {activeAgents.map((agent) => (
           <SelectItem key={agent.$id} value={agent.$id}>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-linear-to-br from-teal-500 to-blue-500 flex items-center justify-center">
+              <div className="w-4 h-4 rounded-full bg-linear-to-br from-teal-500 to-coral-500 flex items-center justify-center">
                 <span className="text-[8px] font-bold text-white">
                   {(agent.name ?? "A")[0].toUpperCase()}
                 </span>

@@ -13,7 +13,7 @@ export default function FinancialAccountPage({ params }: { params: Promise<{ acc
     <div className="space-y-6">
       <div>
         <h1 className="text-xl font-bold text-white">Transactions</h1>
-        <p className="text-sm text-slate-400 mt-1">All entries for this account.</p>
+        <p className="text-sm text-slate-400 mt-1">Every entry this account has remembered.</p>
       </div>
 
       <ResourcePanel<Transaction>

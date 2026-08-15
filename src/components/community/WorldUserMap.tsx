@@ -72,17 +72,17 @@ export function WorldUserMap() {
           Live
         </span>
         <h1 className="font-serif text-3xl md:text-5xl font-normal text-white text-balance">
-          Conch, around the world
+          Memories being made, around the world
         </h1>
         <p className="text-slate-400 max-w-xl text-balance">
-          Every account on this map is a real person who signed up — this counts
-          live as new people join, nothing more.
+          Every account on this map is a real person who signed up — each one
+          beginning a memory that stays theirs. This counts live as new people join.
         </p>
         <div className="mt-4 font-serif text-5xl md:text-6xl text-white tabular-nums">
           {isLoading ? "—" : (data?.total ?? 0).toLocaleString()}
         </div>
         <div className="text-sm text-slate-500">
-          {isLoading ? "Loading…" : isError ? "Couldn't load live data." : "people using Conch"}
+          {isLoading ? "Loading…" : isError ? "Couldn't load live data." : "people building their memory with Conch"}
         </div>
       </div>
 
@@ -132,7 +132,7 @@ export function WorldUserMap() {
           </ComposableMap>
 
           {hovered && (
-            <div className="absolute bottom-4 left-4 rounded-lg bg-[#0a1613] border border-white/10 px-3 py-2 text-sm shadow-lg pointer-events-none">
+            <div className="absolute bottom-4 left-4 rounded-lg bg-[#05070e] border border-white/10 px-3 py-2 text-sm shadow-lg pointer-events-none">
               <span className="mr-1.5">{flagEmoji(hovered.code)}</span>
               <span className="text-white font-medium">{hovered.name}</span>
               <span className="text-slate-400 ml-1.5">

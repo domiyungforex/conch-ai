@@ -19,7 +19,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
     <div className="max-w-5xl mx-auto">
       <div className="mb-8">
         <h1 className="font-serif text-2xl font-normal text-white">Settings</h1>
-        <p className="text-sm text-slate-400 mt-0.5">Manage your account and preferences</p>
+        <p className="text-sm text-slate-400 mt-0.5">Manage your account and what your memory holds</p>
       </div>
       <div className="flex flex-col md:flex-row gap-8">
         <nav className="md:w-48 flex-shrink-0 overflow-x-auto">

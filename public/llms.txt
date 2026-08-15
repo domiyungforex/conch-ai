@@ -1,8 +1,8 @@
 # Conch
 
-> Conch is an AI with persistent memory. It remembers what you tell it, carries agents that can do real math and keep business records, and gives you a portable AI identity you own across apps, devices, and chains.
+> Conch is a memory layer for AI. Every conversation becomes memory, every memory stays yours — portable across apps, devices, and chains, recalled whenever you need it.
 
-Conch stores memory in a real database tied to your account, not to a single chat session — anything you teach it stays available in every future conversation and every device you sign into. Memory is organized, searchable, and yours: you can list it, search it, and delete it at any time.
+Conch stores memory in a real database tied to your account, not to a single chat session — anything you teach it stays available in every future conversation and every device you sign into. Memory is organized, searchable, and yours: you can list it, search it, recall it, export it, and delete it at any time.
 
 ## Key pages
 

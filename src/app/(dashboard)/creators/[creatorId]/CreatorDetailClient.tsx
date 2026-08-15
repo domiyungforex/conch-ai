@@ -39,6 +39,7 @@ export function CreatorDetailClient({ creatorId }: { creatorId: string }) {
         <p className="text-sm text-slate-400 mt-1">
           {creator.stage} {creator.genre ? `· ${creator.genre}` : ""}
         </p>
+        <p className="text-xs text-slate-500 mt-1">Songs, ideas, campaigns, and collaborators — all part of this creator&apos;s memory.</p>
       </div>
 
       <Tabs defaultValue="songs">

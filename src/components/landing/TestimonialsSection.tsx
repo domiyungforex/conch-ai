@@ -21,7 +21,7 @@ const testimonials = [
     title: "Principal Engineer at Scale",
     avatar: "",
     initials: "SO",
-    gradient: "from-teal-500 to-blue-500",
+    gradient: "from-teal-500 to-coral-500",
   },
   {
     quote: "The portability is wild. I switched AI providers and everything just... worked. My preferences, history, persona — all intact. That's never happened before.",

@@ -4,7 +4,7 @@ import { generateEmbedding } from "@/lib/embeddings";
 import { MemoryUpdateSchema } from "@/lib/validators";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
 import { logAudit } from "@/lib/audit";
-import { getRelatedMemories } from "@/lib/memory";
+import { backlinkMemory, getRelatedMemories, unbacklinkMemory } from "@/lib/memory";
 import { Query, Permission, Role } from "node-appwrite";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -65,6 +65,24 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   // without a separate backfill.
   let memory = await databases.updateDocument(DB_ID, COLLECTIONS.MEMORIES, id, parsed.data, ownerPermissions) as unknown as AppwriteDoc<MemoryDoc>;
 
+  // Relationship updates are bidirectional: back-link any newly added targets
+  // and strip the stale back-link from targets that were unlinked. Non-fatal —
+  // relationship maintenance never blocks the update.
+  if (parsed.data.relatedMemoryIds) {
+    const prev = existing.relatedMemoryIds ?? [];
+    const next = parsed.data.relatedMemoryIds;
+    const added = next.filter((tid) => !prev.includes(tid));
+    const removed = prev.filter((tid) => !next.includes(tid));
+    try {
+      await Promise.all([
+        ...added.map((tid) => backlinkMemory(databases, id, tid, appwriteId)),
+        ...removed.map((tid) => unbacklinkMemory(databases, id, tid, appwriteId)),
+      ]);
+    } catch {
+      // Relationship maintenance must never break the update.
+    }
+  }
+
   if (parsed.data.content && parsed.data.content !== existing.content) {
     try {
       const embedding = await generateEmbedding(memory.content);
@@ -101,6 +119,17 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 
   if (resolved.viaApiKey) {
     await logAudit(appwriteId, "memory.deleted", id, { via: "api_key" });
+  }
+
+  // Remove this memory's stale back-links from everything it pointed to, so
+  // no surviving memory keeps referencing a deleted id. Non-fatal.
+  const targetIds = memory.relatedMemoryIds ?? [];
+  if (targetIds.length > 0) {
+    try {
+      await Promise.all(targetIds.map((tid) => unbacklinkMemory(databases, id, tid, appwriteId)));
+    } catch {
+      // Relationship maintenance must never break the delete.
+    }
   }
 
   await databases.deleteDocument(DB_ID, COLLECTIONS.MEMORIES, id);
