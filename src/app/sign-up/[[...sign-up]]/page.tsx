@@ -26,9 +26,15 @@ export default function SignUpPage() {
 
   // Same guard as /sign-in — a leftover session here should land you in the
   // app instead of erroring on a form you can't actually submit.
+  // The middleware bounces signed-in users server-side; this is a fallback
+  // for sessions that start while the page is up.
   useEffect(() => {
     if (isLoaded && isSignedIn) window.location.href = "/dashboard";
   }, [isLoaded, isSignedIn]);
+
+  // Don't paint the form until we know there's no session.
+  if (!isLoaded) return null;
+  if (isSignedIn) return null; // the effect above is already navigating
 
   async function handleCreate(e: FormEvent) {
     e.preventDefault();

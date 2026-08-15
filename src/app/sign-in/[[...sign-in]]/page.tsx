@@ -25,9 +25,16 @@ export default function SignInPage() {
   // Landing here with a session already active (a leftover tab, browser
   // back, or the create()/setActive() race this page used to have) should
   // land you in the app, not on a form that errors with "already signed in".
+  // The middleware now bounces signed-in users server-side; this guard is a
+  // belt-and-braces fallback for sessions that start while the page is up.
   useEffect(() => {
     if (isLoaded && isSignedIn) window.location.href = "/dashboard";
   }, [isLoaded, isSignedIn]);
+
+  // Don't paint the form until we know there's no session (the middleware
+  // handles the normal case; this avoids a flash in edge races).
+  if (!isLoaded) return null;
+  if (isSignedIn) return null; // the effect above is already navigating
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
