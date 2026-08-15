@@ -82,8 +82,8 @@ export function MemoryOwnershipSection() {
             transition={{ duration: 0.7 }}
             className="order-1 lg:order-2"
           >
-            <p className="text-sm font-mono text-coral-400 tracking-[0.25em] uppercase mb-4">Memory Ownership</p>
-            <h2 className="text-4xl sm:text-5xl font-serif font-medium text-white leading-tight mb-6">
+            <p className="eyebrow text-coral-400 mb-4">Memory Ownership</p>
+            <h2 className="text-4xl sm:text-5xl font-display font-medium text-white leading-tight mb-6">
               Your memories.{" "}
               <GradientText>Your rules.</GradientText>
             </h2>

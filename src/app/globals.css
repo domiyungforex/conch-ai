@@ -3,66 +3,83 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* Conch's identity: The Memory Vault — a midnight archive, not another
-     violet AI-SaaS. A shell is memory: it accretes a record of every day it
-     lives. So Conch is kept like a beautiful record — espresso-ink depths,
-     parchment-cream words, molten amber for what matters, jade for what
-     lives on. Token names (coral/teal/gold) are kept for compatibility —
-     each maps to an amber/jade/copper hue of the memory-vault palette. */
-  --color-background: #100b06;
-  --color-foreground: #f4ead6;
-  --color-muted: #181209;
-  --color-muted-foreground: #a8997c;
-  --color-border: rgba(224, 163, 78, 0.16);
-  --color-card: rgba(224, 163, 78, 0.05);
-  --color-card-hover: rgba(224, 163, 78, 0.09);
-  --color-primary: #e0a34e;
-  --color-primary-hover: #cf8b35;
-  --color-primary-foreground: #171006;
-  --color-secondary: #4faa87;
-  --color-accent: #d97a56;
-  --color-destructive: #e0775f;
-  --color-success: #9ecf7f;
-  --color-warning: #e0b559;
+  /* Conch's identity: The Memory Archive — a light, editorial memory layer.
+     A shell is memory: it accretes a record of every day it lives. So Conch
+     is kept like a beautiful record — warm-white parchment, espresso-ink
+     words, molten amber for what matters, jade for what lives on, copper
+     for the craft. Token names (coral/teal/gold) are kept for compatibility
+     — each maps to an amber/jade/copper hue of the archive palette.
+     --color-white is remapped to espresso ink so the app's existing
+     `text-white` headings read as ink on the light background. */
+  --color-background: #faf7f1;
+  --color-foreground: #241b10;
+  --color-muted: #f2eddf;
+  --color-muted-foreground: #83775f;
+  --color-border: rgba(146, 99, 30, 0.16);
+  --color-card: rgba(255, 255, 255, 0.55);
+  --color-card-hover: rgba(255, 255, 255, 0.85);
+  --color-primary: #c8891f;
+  --color-primary-hover: #b06f1b;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #2e7f61;
+  --color-accent: #bd5f33;
+  --color-destructive: #c24032;
+  --color-success: #3e8a52;
+  --color-warning: #b8860b;
+
+  --color-white: #241b10;
 
   /* coral — maps to molten amber, the primary accent */
-  --color-coral-50: #fdf7ea;
-  --color-coral-100: #faeed0;
-  --color-coral-200: #f4dca1;
-  --color-coral-300: #edc774;
-  --color-coral-400: #e7b353;
-  --color-coral-500: #e0a34e;
-  --color-coral-600: #c9893a;
-  --color-coral-700: #a96e2f;
-  --color-coral-800: #8a5827;
-  --color-coral-900: #6f4622;
-  --color-coral-950: #3f2610;
+  --color-coral-50: #fdf6e7;
+  --color-coral-100: #fbeccd;
+  --color-coral-200: #f6d89a;
+  --color-coral-300: #c98a2a;
+  --color-coral-400: #b06f1b;
+  --color-coral-500: #9c5f12;
+  --color-coral-600: #874f0f;
+  --color-coral-700: #6f400e;
+  --color-coral-800: #58320c;
+  --color-coral-900: #43260a;
+  --color-coral-950: #271404;
 
   /* teal — maps to jade, the secondary accent */
-  --color-teal-50: #eaf6f0;
-  --color-teal-100: #cdeadd;
-  --color-teal-200: #a0d5bd;
-  --color-teal-300: #70bd9c;
-  --color-teal-400: #4faa87;
-  --color-teal-500: #3d9274;
-  --color-teal-600: #2f7a61;
-  --color-teal-700: #28624f;
-  --color-teal-800: #224e40;
-  --color-teal-900: #1c3e34;
-  --color-teal-950: #0f221c;
+  --color-teal-50: #e8f5ef;
+  --color-teal-100: #c8e8da;
+  --color-teal-200: #98d2ba;
+  --color-teal-300: #358d6d;
+  --color-teal-400: #2e7f61;
+  --color-teal-500: #276a51;
+  --color-teal-600: #1f5a46;
+  --color-teal-700: #1b4a3a;
+  --color-teal-800: #173c30;
+  --color-teal-900: #122f26;
+  --color-teal-950: #091a14;
 
   /* gold — maps to copper, the tertiary accent */
-  --color-gold-50: #fdf4f0;
-  --color-gold-100: #fae6dc;
-  --color-gold-200: #f4cbb8;
-  --color-gold-300: #eca98e;
-  --color-gold-400: #e58f6d;
-  --color-gold-500: #d97a56;
-  --color-gold-600: #bd5f3e;
-  --color-gold-700: #9c4c31;
-  --color-gold-800: #7e3e2a;
-  --color-gold-900: #653224;
-  --color-gold-950: #391a11;
+  --color-gold-50: #fdf3ee;
+  --color-gold-100: #f9e2d6;
+  --color-gold-200: #f2c5ad;
+  --color-gold-300: #cf7a4e;
+  --color-gold-400: #bd5f33;
+  --color-gold-500: #a94e24;
+  --color-gold-600: #8e3f1c;
+  --color-gold-700: #74331a;
+  --color-gold-800: #5c2917;
+  --color-gold-900: #482113;
+  --color-gold-950: #291107;
+
+  /* slate — warm parchment greys, tuned for text on light surfaces */
+  --color-slate-50: #faf8f3;
+  --color-slate-100: #f3efe6;
+  --color-slate-200: #e6dfd0;
+  --color-slate-300: #d0c6b2;
+  --color-slate-400: #a2947c;
+  --color-slate-500: #6f6350;
+  --color-slate-600: #4e4433;
+  --color-slate-700: #3a3225;
+  --color-slate-800: #2a241a;
+  --color-slate-900: #1c1710;
+  --color-slate-950: #141008;
 
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
@@ -75,9 +92,9 @@
   --font-mono: var(--font-geist-mono), monospace;
   --font-serif: var(--font-fraunces), "Iowan Old Style", Georgia, serif;
 
-  --shadow-glow-primary: 0 0 40px rgba(224, 163, 78, 0.22);
-  --shadow-glow-secondary: 0 0 40px rgba(79, 170, 135, 0.16);
-  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.45);
+  --shadow-glow-primary: 0 0 40px rgba(217, 146, 43, 0.18);
+  --shadow-glow-secondary: 0 0 40px rgba(46, 127, 97, 0.14);
+  --shadow-card: 0 4px 24px rgba(60, 40, 10, 0.08);
 }
 
 *,
@@ -110,17 +127,17 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(224, 163, 78, 0.35);
+  background: rgba(180, 120, 30, 0.3);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(224, 163, 78, 0.6);
+  background: rgba(180, 120, 30, 0.55);
 }
 
 /* Selection */
 ::selection {
-  background: rgba(224, 163, 78, 0.3);
-  color: #fdf7ea;
+  background: rgba(217, 146, 43, 0.3);
+  color: #241b10;
 }
 
 /* Animated gradient background */
@@ -141,8 +158,8 @@ body {
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(224, 163, 78, 0.25); }
-  50% { box-shadow: 0 0 40px rgba(224, 163, 78, 0.5); }
+  0%, 100% { box-shadow: 0 0 20px rgba(217, 146, 43, 0.2); }
+  50% { box-shadow: 0 0 40px rgba(217, 146, 43, 0.4); }
 }
 
 @keyframes spin-slow {
@@ -162,36 +179,36 @@ body {
 
 /* Utility classes */
 .glass {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.6);
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(120, 84, 30, 0.12);
 }
 
 .glass-strong {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.8);
   -webkit-backdrop-filter: blur(24px);
   backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(120, 84, 30, 0.16);
 }
 
 .glow-primary {
-  box-shadow: 0 0 40px rgba(224, 163, 78, 0.22);
+  box-shadow: 0 0 40px rgba(217, 146, 43, 0.18);
 }
 
 .glow-secondary {
-  box-shadow: 0 0 40px rgba(79, 170, 135, 0.16);
+  box-shadow: 0 0 40px rgba(46, 127, 97, 0.14);
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #e7b353, #4faa87);
+  background: linear-gradient(135deg, #b06f1b, #2e7f61);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .gradient-text-full {
-  background: linear-gradient(135deg, #edc774, #e0a34e, #d97a56);
+  background: linear-gradient(135deg, #9c5f12, #b06f1b, #a94e24);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -206,7 +223,7 @@ body {
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(135deg, rgba(224, 163, 78, 0.5), rgba(79, 170, 135, 0.4));
+  background: linear-gradient(135deg, rgba(156, 95, 18, 0.4), rgba(46, 127, 97, 0.35));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
@@ -231,7 +248,7 @@ body {
 }
 
 .shimmer {
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.08) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
@@ -239,15 +256,15 @@ body {
 /* Mesh gradient background for hero */
 .mesh-gradient {
   background:
-    radial-gradient(ellipse at 20% 50%, rgba(224, 163, 78, 0.14) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(79, 170, 135, 0.09) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 80%, rgba(217, 122, 86, 0.07) 0%, transparent 50%),
-    #100b06;
+    radial-gradient(ellipse at 20% 50%, rgba(217, 146, 43, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(46, 127, 97, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(189, 95, 51, 0.06) 0%, transparent 50%),
+    #faf7f1;
 }
 
 /* Focus styles */
 :focus-visible {
-  outline: 2px solid rgba(224, 163, 78, 0.65);
+  outline: 2px solid rgba(180, 120, 30, 0.6);
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -258,25 +275,27 @@ body {
 }
 .prose-conch p { margin: 0.75rem 0; }
 .prose-conch code {
-  background: rgba(224, 163, 78, 0.14);
-  color: #edc774;
+  background: rgba(180, 120, 30, 0.12);
+  color: #8a5510;
   padding: 0.125rem 0.375rem;
   border-radius: 4px;
   font-size: 0.875em;
 }
 .prose-conch pre {
-  background: rgba(0, 0, 0, 0.4);
+  background: #181209;
+  color: #f0e9da;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 0.75rem;
   padding: 1rem;
   overflow-x: auto;
 }
-.prose-conch a { color: #e7b353; text-decoration: underline; }
-.prose-conch strong { color: #fdf7ea; }
+.prose-conch pre code { background: transparent; color: #f0e9da; }
+.prose-conch a { color: #9c5f12; text-decoration: underline; }
+.prose-conch strong { color: #241b10; }
 .prose-conch ul { list-style: disc; padding-left: 1.5rem; }
 .prose-conch ol { list-style: decimal; padding-left: 1.5rem; }
 .prose-conch li { margin: 0.25rem 0; }
-.prose-conch h1, .prose-conch h2, .prose-conch h3 { color: #fdf7ea; font-weight: 600; margin: 1rem 0 0.5rem; }
+.prose-conch h1, .prose-conch h2, .prose-conch h3 { color: #241b10; font-weight: 600; margin: 1rem 0 0.5rem; }
 
 /* ─── Cinematic upgrade additions ─────────────────────────────────── */
 
@@ -303,8 +322,8 @@ body {
 }
 
 @keyframes magnetic-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(224, 163, 78, 0.3), 0 0 60px rgba(224, 163, 78, 0.08); }
-  50%       { box-shadow: 0 0 40px rgba(224, 163, 78, 0.55), 0 0 90px rgba(224, 163, 78, 0.16); }
+  0%, 100% { box-shadow: 0 0 20px rgba(217, 146, 43, 0.25), 0 0 60px rgba(217, 146, 43, 0.08); }
+  50%       { box-shadow: 0 0 40px rgba(217, 146, 43, 0.45), 0 0 90px rgba(217, 146, 43, 0.14); }
 }
 
 @keyframes scroll-bounce {
@@ -328,7 +347,7 @@ body {
 .particle {
   position: absolute;
   border-radius: 9999px;
-  background: rgba(224, 163, 78, 0.45);
+  background: rgba(217, 146, 43, 0.4);
   animation: particle-drift var(--duration, 6s) ease-in-out infinite;
   animation-delay: var(--delay, 0s);
   pointer-events: none;
@@ -350,17 +369,17 @@ body {
   height: 0.5rem;
   border-radius: 9999px;
 }
-.importance-dot--low    { background: rgba(224,163,78,0.35); box-shadow: 0 0 4px  rgba(224,163,78,0.15); }
-.importance-dot--medium { background: rgba(224,163,78,0.55); box-shadow: 0 0 6px  rgba(224,163,78,0.35); }
-.importance-dot--high   { background: rgba(224,163,78,0.75); box-shadow: 0 0 9px  rgba(224,163,78,0.55); }
-.importance-dot--max    { background: rgba(224,163,78,0.95); box-shadow: 0 0 13px rgba(224,163,78,0.75); }
+.importance-dot--low    { background: rgba(180,120,30,0.35); box-shadow: 0 0 4px  rgba(180,120,30,0.15); }
+.importance-dot--medium { background: rgba(180,120,30,0.55); box-shadow: 0 0 6px  rgba(180,120,30,0.35); }
+.importance-dot--high   { background: rgba(180,120,30,0.75); box-shadow: 0 0 9px  rgba(180,120,30,0.55); }
+.importance-dot--max    { background: rgba(180,120,30,0.95); box-shadow: 0 0 13px rgba(180,120,30,0.75); }
 
 /* Memory node hover (class-based for non-Framer elements) */
 .memory-node-hover {
   transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 .memory-node-hover:hover {
-  box-shadow: 0 0 28px rgba(224, 163, 78, 0.4);
+  box-shadow: 0 0 28px rgba(180, 120, 30, 0.3);
   transform: translateY(-2px) scale(1.03);
 }
 
@@ -376,7 +395,7 @@ body {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  border: 1px solid rgba(224, 163, 78, 0.45);
+  border: 1px solid rgba(180, 120, 30, 0.4);
   animation: recall-ripple 1.6s ease-out infinite;
   pointer-events: none;
 }
@@ -384,8 +403,8 @@ body {
 /* Memory lattice — a faint connective grid, like linked memory traces */
 .memory-lattice {
   background-image:
-    radial-gradient(rgba(224, 163, 78, 0.09) 1px, transparent 1px),
-    radial-gradient(rgba(79, 170, 135, 0.07) 1px, transparent 1px);
+    radial-gradient(rgba(180, 120, 30, 0.09) 1px, transparent 1px),
+    radial-gradient(rgba(46, 127, 97, 0.07) 1px, transparent 1px);
   background-size: 28px 28px, 44px 44px;
   background-position: 0 0, 14px 14px;
 }
@@ -399,7 +418,7 @@ body {
   background: linear-gradient(
     100deg,
     transparent 30%,
-    rgba(231, 179, 83, 0.08) 50%,
+    rgba(176, 111, 27, 0.08) 50%,
     transparent 70%
   );
   background-size: 200% 100%;
@@ -408,6 +427,22 @@ body {
 
 /* Memory-wave divider — used under section headers */
 .memory-divider {
-  background: linear-gradient(90deg, transparent, rgba(224, 163, 78, 0.5), rgba(79, 170, 135, 0.5), transparent);
+  background: linear-gradient(90deg, transparent, rgba(176, 111, 27, 0.45), rgba(46, 127, 97, 0.45), transparent);
   height: 1px;
+}
+
+/* ─── Bulletproof typography ─────────────────────────────────────── */
+/* Plain CSS, unlayered — survives any build pipeline (webpack or
+   Turbopack) without relying on generated utility classes. */
+.font-display {
+  font-family: var(--font-fraunces), "Iowan Old Style", Georgia, "Times New Roman", serif;
+  letter-spacing: -0.015em;
+}
+
+.eyebrow {
+  font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
 }

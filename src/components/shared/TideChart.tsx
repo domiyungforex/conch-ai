@@ -11,7 +11,7 @@ interface Props {
 
 // A filled wave line — replaces the old generic audio-equalizer bar chart with
 // something that means something in Conch's ocean/shell material world.
-export function TideChart({ values, color = "#e0a34e", height = 64, className }: Props) {
+export function TideChart({ values, color = "#c8891f", height = 64, className }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {

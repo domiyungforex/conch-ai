@@ -5,6 +5,7 @@ import { BenefitsSection } from "@/components/landing/BenefitsSection";
 import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
 import { MemoryOwnershipSection } from "@/components/landing/MemoryOwnershipSection";
 import { AIPortabilitySection } from "@/components/landing/AIPortabilitySection";
+import { DeveloperSection } from "@/components/landing/DeveloperSection";
 import { MemoryGraph } from "@/components/landing/MemoryGraph";
 import { PrivacySection } from "@/components/landing/PrivacySection";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
@@ -23,6 +24,7 @@ export default function LandingPage() {
         <HowItWorksSection />
         <MemoryOwnershipSection />
         <AIPortabilitySection />
+        <DeveloperSection />
         <MemoryGraph />
         <PrivacySection />
         <TestimonialsSection />

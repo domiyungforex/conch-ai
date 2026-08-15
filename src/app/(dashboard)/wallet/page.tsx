@@ -5,7 +5,7 @@ export default function WalletPage() {
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h1 className="font-serif text-xl font-normal text-white">Wallet & Identity</h1>
+        <h1 className="font-display text-xl font-normal text-white">Wallet & Identity</h1>
         <p className="text-sm text-slate-400 mt-0.5">
           Anchor your memory to an on-chain identity — verify, build reputation, and prove what you remember.
         </p>

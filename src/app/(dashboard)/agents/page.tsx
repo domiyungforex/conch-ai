@@ -25,7 +25,7 @@ export default function AgentsPage() {
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-serif text-2xl font-normal text-white">Agents</h1>
+          <h1 className="font-display text-2xl font-normal text-white">Agents</h1>
           <p className="text-sm text-slate-400 mt-0.5">Custom AI personas that draw on your memory</p>
         </div>
         <Button onClick={() => setCreateOpen(true)} className="gap-2">

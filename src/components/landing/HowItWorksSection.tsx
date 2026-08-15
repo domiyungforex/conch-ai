@@ -50,10 +50,10 @@ export function HowItWorksSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <span className="inline-flex items-center px-3 py-1 rounded-full glass border border-coral-500/25 text-[11px] font-mono uppercase tracking-[0.25em] text-coral-300/90 mb-4">
+          <span className="inline-flex items-center px-3 py-1 rounded-full glass border border-coral-500/25 eyebrow text-coral-300/90 mb-4">
             How It Works
           </span>
-          <h2 className="text-4xl sm:text-5xl font-serif font-medium text-white tracking-tight mb-4">
+          <h2 className="text-4xl sm:text-5xl font-display font-medium text-white tracking-tight mb-4">
             Memory that{" "}
             <span className="gradient-text">grows with every word</span>
           </h2>

@@ -46,10 +46,10 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
   const firstName = user.name?.split(" ")[0] ?? "there";
 
   const statCards = [
-    { label: "Memories",      value: stats.memoryCount,       icon: Brain,         accent: "#e7b353" },
-    { label: "Conversations", value: stats.conversationCount, icon: MessageSquare, accent: "#4faa87" },
-    { label: "Agents",        value: stats.agentCount,        icon: Bot,           accent: "#d97a56" },
-    { label: "Reputation",    value: Math.round(stats.reputation?.score ?? 0), icon: Star, accent: "#e7b353" },
+    { label: "Memories",      value: stats.memoryCount,       icon: Brain,         accent: "#b06f1b" },
+    { label: "Conversations", value: stats.conversationCount, icon: MessageSquare, accent: "#2e7f61" },
+    { label: "Agents",        value: stats.agentCount,        icon: Bot,           accent: "#a94e24" },
+    { label: "Reputation",    value: Math.round(stats.reputation?.score ?? 0), icon: Star, accent: "#b06f1b" },
   ];
 
   // Ambient activity texture — not wired to real per-hour telemetry (that would need a
@@ -80,7 +80,7 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
           className="absolute -top-14 -right-10 pointer-events-none hidden sm:block opacity-60"
         />
         <p className="text-xs uppercase tracking-widest text-slate-500 font-semibold mb-2">Your Memory</p>
-        <h1 className="font-serif text-3xl sm:text-4xl font-normal text-white leading-tight">
+        <h1 className="font-display text-3xl sm:text-4xl font-normal text-white leading-tight">
           Good {getTimeOfDay()},<br className="sm:hidden" />{" "}
           <em className="not-italic gradient-text">{firstName}</em>.
         </h1>
@@ -116,7 +116,7 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
             <div className="flex items-start justify-between relative">
               <div>
                 <p className="text-sm text-slate-400 mb-1">{label}</p>
-                <p className="font-serif text-2xl text-white">
+                <p className="font-display text-2xl text-white">
                   <AnimatedCounter to={value} />
                 </p>
               </div>
@@ -138,7 +138,7 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
           <span className="text-xs text-slate-600">last 24 hours</span>
         </div>
         <GlassCard className="p-4">
-          <TideChart values={tideValues} color="#e7b353" height={56} />
+          <TideChart values={tideValues} color="#b06f1b" height={56} />
         </GlassCard>
       </motion.div>
 

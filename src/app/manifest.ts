@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Conch AI Operating System",
     start_url: "/",
     display: "standalone",
-    background_color: "#100b06",
-    theme_color: "#e0a34e",
+    background_color: "#faf7f1",
+    theme_color: "#c8891f",
     icons: [
       { src: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
       { src: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },

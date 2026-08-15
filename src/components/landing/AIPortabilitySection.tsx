@@ -34,8 +34,8 @@ export function AIPortabilitySection() {
           transition={{ duration: 0.7 }}
           className="text-center mb-16"
         >
-          <p className="text-sm font-mono text-teal-400 tracking-[0.25em] uppercase mb-4">Model-Agnostic</p>
-          <h2 className="text-4xl sm:text-5xl font-serif font-medium text-white leading-tight mb-6">
+          <p className="eyebrow text-teal-400 mb-4">Model-Agnostic</p>
+          <h2 className="text-4xl sm:text-5xl font-display font-medium text-white leading-tight mb-6">
             One memory.{" "}
             <GradientText variant="full">Every app.</GradientText>
           </h2>

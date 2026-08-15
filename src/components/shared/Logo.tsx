@@ -28,7 +28,7 @@ export function Logo({ className, size = "md", href = "/" }: LogoProps) {
         </svg>
       </div>
       <span className={cn(
-        "font-serif font-normal text-white",
+        "font-display font-normal text-white",
         size === "sm" && "text-base",
         size === "md" && "text-xl",
         size === "lg" && "text-2xl"

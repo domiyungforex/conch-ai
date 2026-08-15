@@ -58,8 +58,8 @@ export function TestimonialsSection() {
           transition={{ duration: 0.7 }}
           className="text-center mb-16"
         >
-          <p className="text-sm font-mono text-coral-400 tracking-[0.25em] uppercase mb-4">Testimonials</p>
-          <h2 className="text-4xl sm:text-5xl font-serif font-medium text-white leading-tight">
+          <p className="eyebrow text-coral-400 mb-4">Testimonials</p>
+          <h2 className="text-4xl sm:text-5xl font-display font-medium text-white leading-tight">
             Loved by{" "}
             <GradientText>builders</GradientText>
           </h2>

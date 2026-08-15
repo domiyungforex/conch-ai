@@ -366,7 +366,7 @@ export function ApiDocsConsole() {
       {/* Intro / auth */}
       <GlassCard className="p-5 md:p-6 space-y-4">
         <div>
-          <h1 className="font-serif text-2xl text-white">Conch API</h1>
+          <h1 className="font-display text-2xl text-white">Conch API</h1>
           <p className="text-sm text-slate-400 mt-1">
             The full CRUD surface behind your memory — store, search, recall, export, and chat. Every request below
             runs live against production — try it right from the browser.

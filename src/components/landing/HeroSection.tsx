@@ -114,14 +114,14 @@ export function HeroSection() {
         <div>
           {/* Badge */}
           <div className="flex justify-center mb-8">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass border border-coral-500/30 text-[11px] font-mono uppercase tracking-[0.25em] text-coral-300 font-medium">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass border border-coral-500/30 eyebrow text-coral-300 font-medium">
               <Sparkles className="w-3.5 h-3.5 text-coral-400" />
               The memory layer for AI
             </div>
           </div>
 
           {/* Main headline */}
-          <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-normal text-white leading-[1.05] tracking-tight mb-4">
+          <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-normal text-white leading-[1.05] tracking-tight mb-4">
             AI can think.
             <br />
             <GradientText variant="full">Conch remembers.</GradientText>
@@ -176,7 +176,7 @@ export function HeroSection() {
               <path
                 d="M 50 20 Q 30 10 18 30"
                 fill="none"
-                stroke="rgba(224,163,78,0.2)"
+                stroke="rgba(156,95,18,0.25)"
                 strokeWidth="0.15"
                 strokeDasharray="0.4 0.5"
                 vectorEffect="non-scaling-stroke"
@@ -184,7 +184,7 @@ export function HeroSection() {
               <path
                 d="M 50 20 Q 72 10 82 28"
                 fill="none"
-                stroke="rgba(224,163,78,0.2)"
+                stroke="rgba(156,95,18,0.25)"
                 strokeWidth="0.15"
                 strokeDasharray="0.4 0.5"
                 vectorEffect="non-scaling-stroke"
@@ -245,7 +245,7 @@ export function HeroSection() {
       </div>
 
       {/* Bottom gradient fade */}
-      <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-[#100b06] to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-[#faf7f1] to-transparent pointer-events-none" />
     </section>
   );
 }
