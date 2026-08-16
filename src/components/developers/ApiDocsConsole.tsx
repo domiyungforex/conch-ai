@@ -113,7 +113,7 @@ function buildJsSample(endpoint: EndpointSpec, values: FieldValues, authMode: Au
   const headerLines: string[] = [];
 
   if (endpoint.auth === "session") {
-    headerLines.push(`    // dashboard-only endpoint — send with credentials: "include" from a logged-in browser`);
+    headerLines.push(`    // dashboard-only endpoint. Send with credentials: "include" from a logged-in browser`);
   } else {
     const key = authMode === "apiKey" && apiKeyValue.trim() ? apiKeyValue.trim() : "cnch_your_api_key";
     headerLines.push(`    "Authorization": "Bearer ${key}",`);
@@ -133,7 +133,7 @@ function buildJsSample(endpoint: EndpointSpec, values: FieldValues, authMode: Au
   if (endpoint.streaming) {
     optsLines.push(
       ``,
-      `// Real-time text stream — read and concatenate "0:"-prefixed chunks`,
+      `// Real-time text stream. Read and concatenate "0:"-prefixed chunks`,
       `const reader = res.body.getReader();`,
       `const decoder = new TextDecoder();`,
       `let text = "";`,
@@ -368,8 +368,8 @@ export function ApiDocsConsole() {
         <div>
           <h1 className="font-display text-2xl text-white">Conch API</h1>
           <p className="text-sm text-slate-400 mt-1">
-            The full CRUD surface behind your memory — store, search, recall, export, and chat. Every request below
-            runs live against production — try it right from the browser.
+            The full CRUD surface behind your memory. Store, search, recall, export, and chat. Every request below
+            runs live against production. Try it right from the browser.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3 text-xs">
@@ -380,7 +380,7 @@ export function ApiDocsConsole() {
           <div className="rounded-xl bg-white/[0.03] border border-white/8 p-3.5">
             <p className="text-xs font-semibold text-white flex items-center gap-1.5"><Radio className="w-3.5 h-3.5 text-teal-400" /> Dashboard session</p>
             <p className="text-xs text-slate-400 mt-1">
-              Signed-in requests from conchportal.com carry a Clerk session cookie automatically — no header needed.
+              Signed-in requests from conchportal.com carry a Clerk session cookie automatically. No header needed.
               Full access to your own data.
             </p>
           </div>
@@ -532,7 +532,7 @@ export function ApiDocsConsole() {
 
             {active.auth === "session" && (
               <p className="text-xs text-amber-300 bg-amber-500/10 border border-amber-500/20 rounded-xl px-3 py-2">
-                This endpoint only accepts your dashboard session — sign in and it&apos;ll use your browser cookie automatically.
+                This endpoint only accepts your dashboard session. Sign in and it&apos;ll use your browser cookie automatically.
               </p>
             )}
 

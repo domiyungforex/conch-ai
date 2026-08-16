@@ -4,6 +4,7 @@ import { DB_ID, COLLECTIONS, type ApiKeyDoc, type AppwriteDoc } from "@/lib/db";
 import { ApiKeyCreateSchema } from "@/lib/validators";
 import { logAudit } from "@/lib/audit";
 import { generateRandomBytes } from "@/lib/utils";
+import { checkFeatureAccess, upgradeRequiredResponse } from "@/lib/planLimits";
 import bcrypt from "bcryptjs";
 import { Query, ID } from "node-appwrite";
 
@@ -13,6 +14,10 @@ export async function GET() {
   const appwriteId = userId;
 
   const { databases } = createAdminClient();
+
+  const featureAccess = await checkFeatureAccess(databases, appwriteId);
+  if (!featureAccess.allowed) return upgradeRequiredResponse();
+
   const result = await databases.listDocuments(DB_ID, COLLECTIONS.API_KEYS, [
     Query.equal("userId", appwriteId),
     Query.equal("isRevoked", false),
@@ -34,12 +39,16 @@ export async function POST(req: Request) {
     return new Response(JSON.stringify({ error: "Invalid request", details: parsed.error.flatten() }), { status: 400 });
   }
 
+  const { databases } = createAdminClient();
+
+  const featureAccess = await checkFeatureAccess(databases, appwriteId);
+  if (!featureAccess.allowed) return upgradeRequiredResponse();
+
   const rawBytes = generateRandomBytes(32);
   const fullKey = `cnch_${rawBytes}`;
   const keyPrefix = fullKey.slice(0, 12);
   const keyHash = await bcrypt.hash(fullKey, 10);
 
-  const { databases } = createAdminClient();
   const apiKey = await databases.createDocument(DB_ID, COLLECTIONS.API_KEYS, ID.unique(), {
     userId: appwriteId,
     name: parsed.data.name,

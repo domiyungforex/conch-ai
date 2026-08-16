@@ -138,7 +138,7 @@ export default function SignInPage() {
   return (
     <AuthShell
       title="Welcome back to your memory"
-      subtitle="Sign in and pick up exactly where you left off — nothing forgotten."
+      subtitle="Sign in and pick up exactly where you left off. Nothing forgotten."
       footer={{ label: "Don't have an account?", linkLabel: "Start remembering", href: "/sign-up" }}
     >
       <SocialAuthButtons mode="sign-in" onError={setError} />

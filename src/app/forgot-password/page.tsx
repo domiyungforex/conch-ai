@@ -116,7 +116,7 @@ export default function ForgotPasswordPage() {
   return (
     <AuthShell
       title="Forgot your password?"
-      subtitle="Your memory is safe — enter your email and we'll send a code to get you back in."
+      subtitle="Your memory is safe. Enter your email and we&apos;ll send a code to get you back in."
       footer={{ label: "Remembered it?", linkLabel: "Sign in", href: "/sign-in" }}
     >
       <form onSubmit={handleRequest} className="space-y-4">

@@ -5,6 +5,7 @@ import { MemoryUpdateSchema } from "@/lib/validators";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
 import { logAudit } from "@/lib/audit";
 import { backlinkMemory, getRelatedMemories, unbacklinkMemory } from "@/lib/memory";
+import { checkFeatureAccess, upgradeRequiredResponse } from "@/lib/planLimits";
 import { Query, Permission, Role } from "node-appwrite";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -15,6 +16,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
   const { id } = await params;
   const { databases } = createAdminClient();
+
+  const featureAccess = await checkFeatureAccess(databases, appwriteId);
+  if (!featureAccess.allowed) return upgradeRequiredResponse();
 
   let memory: AppwriteDoc<MemoryDoc>;
   try {
@@ -39,6 +43,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
   const { id } = await params;
   const { databases } = createAdminClient();
+
+  const featureAccess = await checkFeatureAccess(databases, appwriteId);
+  if (!featureAccess.allowed) return upgradeRequiredResponse();
 
   let existing: AppwriteDoc<MemoryDoc>;
   try {
@@ -107,6 +114,9 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 
   const { id } = await params;
   const { databases } = createAdminClient();
+
+  const featureAccess = await checkFeatureAccess(databases, appwriteId);
+  if (!featureAccess.allowed) return upgradeRequiredResponse();
 
   let memory: AppwriteDoc<MemoryDoc>;
   try {

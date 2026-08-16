@@ -111,7 +111,7 @@ export default function SignUpPage() {
   return (
     <AuthShell
       title="Begin your memory"
-      subtitle="Create an account and start a memory that stays yours — portable, persistent, recalled everywhere."
+      subtitle="Create an account and start a memory that stays yours. Portable, persistent, recalled everywhere."
       footer={{ label: "Already have an account?", linkLabel: "Sign in to your memory", href: "/sign-in" }}
     >
       <SocialAuthButtons mode="sign-up" onError={setError} />

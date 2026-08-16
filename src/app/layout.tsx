@@ -16,10 +16,10 @@ const fraunces = Fraunces({
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://conchportal.com";
 const SITE_DESCRIPTION =
-  "Conch is a memory layer for AI — every conversation becomes memory, every memory stays yours. Portable across apps, devices, and chains, recalled whenever you need it.";
+  "Conch is a memory layer for AI. Every conversation becomes memory, every memory stays yours. Portable across apps, devices, and chains, recalled whenever you need it.";
 
 export const metadata: Metadata = {
-  title: { default: "Conch — Own Your AI Memory", template: "%s | Conch" },
+  title: { default: "Conch | Own Your AI Memory", template: "%s | Conch" },
   description: SITE_DESCRIPTION,
   metadataBase: new URL(APP_URL),
   alternates: { canonical: "/" },
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     "msapplication-config": "/browserconfig.xml",
   },
   openGraph: {
-    title: "Conch — Own Your AI Memory",
+    title: "Conch | Own Your AI Memory",
     description: SITE_DESCRIPTION,
     type: "website",
     url: APP_URL,
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Conch — Own Your AI Memory",
+    title: "Conch | Own Your AI Memory",
     description: SITE_DESCRIPTION,
   },
   keywords: [

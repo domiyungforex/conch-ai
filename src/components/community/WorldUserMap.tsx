@@ -75,11 +75,11 @@ export function WorldUserMap() {
           Memories being made, around the world
         </h1>
         <p className="text-slate-400 max-w-xl text-balance">
-          Every account on this map is a real person who signed up — each one
+          Every account on this map is a real person who signed up. Each one
           beginning a memory that stays theirs. This counts live as new people join.
         </p>
         <div className="mt-4 font-display text-5xl md:text-6xl text-white tabular-nums">
-          {isLoading ? "—" : (data?.total ?? 0).toLocaleString()}
+          {isLoading ? "…" : (data?.total ?? 0).toLocaleString()}
         </div>
         <div className="text-sm text-slate-500">
           {isLoading ? "Loading…" : isError ? "Couldn't load live data." : "people building their memory with Conch"}
@@ -145,7 +145,7 @@ export function WorldUserMap() {
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
           <h2 className="text-sm font-medium text-white mb-4">By country</h2>
           {ranked.length === 0 && !isLoading ? (
-            <p className="text-sm text-slate-500">No signups yet — check back soon.</p>
+            <p className="text-sm text-slate-500">No signups yet. Check back soon.</p>
           ) : (
             <ul className="space-y-3">
               {ranked.map((c) => (

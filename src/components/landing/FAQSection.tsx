@@ -10,7 +10,7 @@ const faqs = [
   },
   {
     q: "Is my data private and secure?",
-    a: "Yes. Your memories are stored with encryption at rest. Only you can access them. We support granular sharing permissions — you choose exactly what to share, with whom, and for how long. You can delete everything instantly.",
+    a: "Yes. Your memories are stored with encryption at rest. Only you can access them. We support granular sharing permissions. You choose exactly what to share, with whom, and for how long. You can delete everything instantly.",
   },
   {
     q: "How is this different from ChatGPT or other AI tools?",
@@ -22,7 +22,7 @@ const faqs = [
   },
   {
     q: "What is a Conch AI Agent?",
-    a: "Agents are custom AI personalities you create with specific system prompts, memory scopes, and behavior settings. You might have a coding agent, a writing agent, and a business strategy agent — each with its own context.",
+    a: "Agents are custom AI personalities you create with specific system prompts, memory scopes, and behavior settings. You might have a coding agent, a writing agent, and a business strategy agent, each with its own context.",
   },
   {
     q: "Can I export my memory?",

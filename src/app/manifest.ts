@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Conch — Own Your AI Memory",
+    name: "Conch | Own Your AI Memory",
     short_name: "Conch",
     description: "Conch AI Operating System",
     start_url: "/",

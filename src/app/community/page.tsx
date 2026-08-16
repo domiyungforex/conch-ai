@@ -5,7 +5,7 @@ import { WorldUserMap } from "@/components/community/WorldUserMap";
 
 export const metadata: Metadata = {
   title: "Community",
-  description: "Where Conch is used, live — real signups, real countries, updating as they happen.",
+  description: "Where Conch is used, live. Real signups, real countries, updating as they happen.",
 };
 
 export default function CommunityPage() {

@@ -12,7 +12,7 @@ const apps = [
 ];
 
 const features = [
-  "Model-agnostic — swap AIs freely",
+  "Model-agnostic. Swap AIs freely",
   "No re-training or re-explaining yourself",
   "Permissions control which apps see what",
   "Real-time sync across all your devices",
@@ -40,7 +40,7 @@ export function AIPortabilitySection() {
             <GradientText variant="full">Every app.</GradientText>
           </h2>
           <p className="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            Conch is not married to any model. Swap GPT for Claude for Gemini and keep every memory intact — the same you, on every surface.
+            Conch is not married to any model. Swap GPT for Claude for Gemini and keep every memory intact. The same you, on every surface.
           </p>
         </motion.div>
 

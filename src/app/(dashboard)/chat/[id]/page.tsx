@@ -9,6 +9,7 @@ import { ChatMessage } from "@/components/chat/ChatMessage";
 import { ChatInput } from "@/components/chat/ChatInput";
 import { AgentSelector } from "@/components/chat/AgentSelector";
 import { ChatErrorBoundary } from "@/components/chat/ChatErrorBoundary";
+import { UpgradeGate } from "@/components/shared/UpgradeGate";
 import { useChat } from "@/hooks/useChat";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -74,6 +75,7 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
   const title = conversation?.title ?? (loadingConv ? "Loading…" : "Conversation");
 
   return (
+    <UpgradeGate>
     <ChatErrorBoundary>
       <div className="flex h-full -m-4 md:-m-6 lg:-m-8">
         <div className="hidden lg:flex flex-col w-64 border-r border-white/8 shrink-0">
@@ -144,5 +146,6 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
         </div>
       </div>
     </ChatErrorBoundary>
+    </UpgradeGate>
   );
 }

@@ -120,7 +120,7 @@ export function HeroSection() {
 
           {/* Static subheadline */}
           <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed mb-10">
-            Every conversation becomes memory. Every memory stays yours — carried across every model, app, and
+            Every conversation becomes memory. Every memory stays yours, carried across every model, app, and
             device, recalled the moment you need it.
           </p>
 

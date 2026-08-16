@@ -8,7 +8,7 @@ import { GradientText } from "@/components/shared/GradientText";
 
 const testimonials = [
   {
-    quote: "Conch changed how I work with AI. Every tool I use now knows my context — my stack, my goals, my style. It's like having a senior engineer who never forgets.",
+    quote: "Conch changed how I work with AI. Every tool I use now knows my context: my stack, my goals, my style. It's like having a senior engineer who never forgets.",
     name: "Alex Chen",
     title: "Founder at BuildFast.ai",
     avatar: "",
@@ -24,7 +24,7 @@ const testimonials = [
     gradient: "from-teal-500 to-coral-500",
   },
   {
-    quote: "The portability is wild. I switched AI providers and everything just... worked. My preferences, history, persona — all intact. That's never happened before.",
+    quote: "The portability is wild. I switched AI providers and everything just... worked. My preferences, history, persona, all intact. That's never happened before.",
     name: "Marcus Reyes",
     title: "AI Product Lead at Vercel",
     avatar: "",

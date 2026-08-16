@@ -7,7 +7,7 @@ export default function WalletPage() {
       <div>
         <h1 className="font-display text-xl font-normal text-white">Wallet & Identity</h1>
         <p className="text-sm text-slate-400 mt-0.5">
-          Anchor your memory to an on-chain identity — verify, build reputation, and prove what you remember.
+          Anchor your memory to an on-chain identity. Verify, build reputation, and prove what you remember.
         </p>
       </div>
       <WalletConnectCard />

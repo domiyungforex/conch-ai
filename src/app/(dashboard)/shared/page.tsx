@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Share2, Plus, Users, Lock, Globe, RefreshCw, AlertCircle } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
+import { UpgradeGate } from "@/components/shared/UpgradeGate";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -98,6 +99,7 @@ export default function SharedContextsPage() {
   });
 
   return (
+    <UpgradeGate>
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
@@ -150,5 +152,6 @@ export default function SharedContextsPage() {
         </div>
       )}
     </div>
+    </UpgradeGate>
   );
 }

@@ -23,7 +23,7 @@ export function RenewalBanner() {
       <AlertTriangle className="w-4 h-4 shrink-0" />
       <span className="flex-1">
         {overdue
-          ? `Your ${planLabel} renewal is overdue — renew now to keep your access.`
+          ? `Your ${planLabel} renewal is overdue. Renew now to keep your access.`
           : `Your ${planLabel} subscription renews on ${expiresAt.toLocaleDateString()}.`}
       </span>
       <Link href="/settings/billing" className="font-medium underline hover:no-underline shrink-0">

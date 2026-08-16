@@ -10,6 +10,7 @@ import { MemoryCard } from "@/components/memory/MemoryCard";
 import { MemoryCreateDialog } from "@/components/memory/MemoryCreateDialog";
 import { MemoryEditDialog } from "@/components/memory/MemoryEditDialog";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { UpgradeGate } from "@/components/shared/UpgradeGate";
 import { MemoryErrorBoundary } from "@/components/memory/MemoryErrorBoundary";
 import { useMemory } from "@/hooks/useMemory";
 import { useVerifyMemory } from "@/hooks/useVerifyMemory";
@@ -90,12 +91,13 @@ onError: () => toast({ title: "Delete failed", description: "Could not delete th
 
   return (
     <MemoryErrorBoundary>
+      <UpgradeGate>
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="font-display text-2xl font-normal text-white">Memory</h1>
-            <p className="text-sm text-slate-400 mt-0.5">Everything you&apos;ve shared — recalled whenever you need it</p>
+            <p className="text-sm text-slate-400 mt-0.5">Everything you&apos;ve shared, recalled whenever you need it</p>
           </div>
           <Button onClick={() => setCreateOpen(true)} className="gap-2">
             <Plus className="w-4 h-4" /> Add Memory
@@ -225,6 +227,7 @@ onError: () => toast({ title: "Delete failed", description: "Could not delete th
         <MemoryCreateDialog open={createOpen} onClose={() => setCreateOpen(false)} />
         <MemoryEditDialog memory={editTarget} onClose={() => setEditTarget(null)} />
       </div>
+      </UpgradeGate>
     </MemoryErrorBoundary>
   );
 }

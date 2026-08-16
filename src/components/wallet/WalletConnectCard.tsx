@@ -97,7 +97,7 @@ export function WalletConnectCard() {
           )}
 
           {/* Linking to Conch never expires, but the live session in this browser
-              can — a new device, cleared storage, or an expired mobile
+              can. A new device, cleared storage, or an expired mobile
               WalletConnect session all drop `isConnected` without unlinking the
               wallet. Surface a reconnect path right here instead of leaving the
               user stuck on a page with no connect button at all. */}
@@ -105,7 +105,7 @@ export function WalletConnectCard() {
             <div className="flex items-center justify-between gap-3 p-3 bg-amber-500/10 rounded-xl border border-amber-500/20 flex-wrap">
               <div className="flex items-center gap-2 text-xs text-amber-200">
                 <WifiOff className="w-3.5 h-3.5 shrink-0" />
-                Not connected in this browser right now — reconnect to pay or manage your wallet.
+                Not connected in this browser right now. Reconnect to pay or manage your wallet.
               </div>
               <ConnectButton showBalance={false} chainStatus="none" accountStatus="address" />
             </div>

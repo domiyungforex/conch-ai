@@ -61,7 +61,7 @@ export const MODULE_REGISTRY: Record<ModuleKey, ModuleInfo> = {
   personal_ai: {
     key: "personal_ai",
     label: "Personal AI",
-    tagline: "Persistent memory, preferences, and context — Conch's foundation.",
+    tagline: "Persistent memory, preferences, and context. Conch's foundation.",
     description: "Persistent personal memory, preferences, goals, projects, conversations, and personal AI agents.",
     activationCriteria: [],
   },
@@ -89,9 +89,9 @@ export const MODULE_REGISTRY: Record<ModuleKey, ModuleInfo> = {
   business_ai: {
     key: "business_ai",
     label: "Business AI",
-    tagline: "Business memory — every record remembered, every question answered.",
+    tagline: "Business memory. Every record remembered, every question answered.",
     description:
-      "A business memory that Conch builds over time — customers, suppliers, products, orders, inventory, expenses, and revenue — so it can recall and answer from your own records.",
+      "A business memory that Conch builds over time. Customers, suppliers, products, orders, inventory, expenses, and revenue, so it can recall and answer from your own records.",
     activationCriteria: [
       "Core Conch stable",
       "Minimum active users reached",
@@ -104,9 +104,9 @@ export const MODULE_REGISTRY: Record<ModuleKey, ModuleInfo> = {
   creator_ai: {
     key: "creator_ai",
     label: "Creator Memory",
-    tagline: "Your creative memory — songs, ideas, campaigns, and collaborators.",
+    tagline: "Your creative memory. Songs, ideas, campaigns, and collaborators.",
     description:
-      "A creator memory for musicians, artists, YouTubers, writers, and producers — tracks songs, lyrics, unreleased ideas, campaigns, content, and collaborations, with an assistant that remembers your creative history.",
+      "A creator memory for musicians, artists, YouTubers, writers, and producers. Tracks songs, lyrics, unreleased ideas, campaigns, content, and collaborations, with an assistant that remembers your creative history.",
     activationCriteria: [],
   },
   economic_intelligence: {
@@ -114,7 +114,7 @@ export const MODULE_REGISTRY: Record<ModuleKey, ModuleInfo> = {
     label: "Economic Intelligence",
     tagline: "Market signals, remembered with their sources.",
     description:
-      "Analysis of permitted data sources to surface market signals — every insight carries its source, timestamp, confidence, and methodology, never presented as certainty.",
+      "Analysis of permitted data sources to surface market signals. Every insight carries its source, timestamp, confidence, and methodology, never presented as certainty.",
     activationCriteria: [
       "Sufficient data sources",
       "Reliable data pipelines",
@@ -126,7 +126,7 @@ export const MODULE_REGISTRY: Record<ModuleKey, ModuleInfo> = {
   financial_intelligence: {
     key: "financial_intelligence",
     label: "Financial Intelligence",
-    tagline: "Cash flow, budgeting, and financial forecasting — remembered.",
+    tagline: "Cash flow, budgeting, and financial forecasting, remembered.",
     description: "Cash-flow analysis, budgeting, expense intelligence, and revenue forecasting through a provider-agnostic payments abstraction.",
     activationCriteria: [
       "Business AI validated first",
@@ -140,7 +140,7 @@ export const MODULE_REGISTRY: Record<ModuleKey, ModuleInfo> = {
     label: "Opportunity Engine",
     tagline: "\"Where is the opportunity?\"",
     description:
-      "Surfaces underserved markets, rising demand, and pricing opportunities from real evidence — every result includes its data sources, risk factors, and a confidence score.",
+      "Surfaces underserved markets, rising demand, and pricing opportunities from real evidence. Every result includes its data sources, risk factors, and a confidence score.",
     activationCriteria: ["Economic Intelligence active", "Validated data sources", "User demand"],
   },
   marketplace: {
@@ -155,7 +155,7 @@ export const MODULE_REGISTRY: Record<ModuleKey, ModuleInfo> = {
     label: "Credit Intelligence",
     tagline: "Understand your business's financial health.",
     description:
-      "An opt-in business financial profile — revenue, expense, and payment history — to help a business understand its own health and, eventually, connect with financing partners. Never an unauthorized credit score or lending decision.",
+      "An opt-in business financial profile. Revenue, expense, and payment history, to help a business understand its own health and, eventually, connect with financing partners. Never an unauthorized credit score or lending decision.",
     activationCriteria: [
       "Financial Intelligence active",
       "Explicit per-business consent flow",

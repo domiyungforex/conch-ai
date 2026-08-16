@@ -111,7 +111,7 @@ export function ReputationView({ reputation, counts }: Props) {
         <h1 className="font-display text-2xl sm:text-3xl font-medium text-white">
           Your <span className="gradient-text">Reputation</span>
         </h1>
-        <p className="text-slate-400 mt-1">The trust profile of your memory — built through everything you&apos;ve remembered.</p>
+        <p className="text-slate-400 mt-1">The trust profile of your memory, built through everything you&apos;ve remembered.</p>
       </motion.div>
 
       {/* Score + bars */}

@@ -8,6 +8,7 @@ import { AgentCard } from "@/components/agents/AgentCard";
 import { AgentCreateDialog } from "@/components/agents/AgentCreateDialog";
 import { AgentEditDialog } from "@/components/agents/AgentEditDialog";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { UpgradeGate } from "@/components/shared/UpgradeGate";
 import { useAgent } from "@/hooks/useAgent";
 import type { AgentDoc, AppwriteDoc } from "@/lib/db";
 type Agent = AppwriteDoc<AgentDoc>;
@@ -22,6 +23,7 @@ export default function AgentsPage() {
   };
 
   return (
+    <UpgradeGate>
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
@@ -61,5 +63,6 @@ export default function AgentsPage() {
       <AgentCreateDialog open={createOpen} onClose={() => setCreateOpen(false)} />
       <AgentEditDialog agent={editTarget} onClose={() => setEditTarget(null)} />
     </div>
+    </UpgradeGate>
   );
 }

@@ -5,6 +5,7 @@ import { DB_ID, COLLECTIONS, type MemoryDoc, type WalletDoc, type AppwriteDoc } 
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
 import { MemoryVerifyConfirmSchema } from "@/lib/validators";
 import { computeContentHash, decodeMemorySchemaData, EAS_CONTRACT_ADDRESS } from "@/lib/eas";
+import { checkFeatureAccess, upgradeRequiredResponse } from "@/lib/planLimits";
 import { Query } from "node-appwrite";
 
 const RPC_URL = process.env.BASE_RPC_URL ?? "https://mainnet.base.org";
@@ -31,6 +32,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
   const { id } = await params;
   const { databases } = createAdminClient();
+
+  const featureAccess = await checkFeatureAccess(databases, appwriteId);
+  if (!featureAccess.allowed) return upgradeRequiredResponse();
 
   let memory: AppwriteDoc<MemoryDoc>;
   try {

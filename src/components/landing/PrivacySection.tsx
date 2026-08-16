@@ -24,7 +24,7 @@ const pillars = [
     color: "text-emerald-400",
     bg: "bg-emerald-500/10 border-emerald-500/20",
     title: "Right to Delete",
-    description: "Request full data deletion at any time. Your memories are removed from our servers and vector database within 30 days — permanently.",
+    description: "Request full data deletion at any time. Your memories are removed from our servers and vector database within 30 days, permanently.",
   },
 ];
 
@@ -48,7 +48,7 @@ export function PrivacySection() {
             <span className="gradient-text">not ours</span>
           </h2>
           <p className="text-slate-400 text-lg max-w-xl mx-auto">
-            Conch is built on radical transparency and user control. Memory is yours — review, edit, or delete it anytime.
+            Conch is built on radical transparency and user control. Memory is yours. Review, edit, or delete it anytime.
           </p>
         </motion.div>
 

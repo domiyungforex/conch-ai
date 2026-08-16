@@ -2,6 +2,7 @@
 
 import { use } from "react";
 import { ResourcePanel } from "@/components/modules/ResourcePanel";
+import { UpgradeGate } from "@/components/shared/UpgradeGate";
 import type { AppwriteDoc, FinancialTransactionDoc } from "@/lib/db";
 
 type Transaction = AppwriteDoc<FinancialTransactionDoc>;
@@ -10,6 +11,7 @@ export default function FinancialAccountPage({ params }: { params: Promise<{ acc
   const { accountId } = use(params);
 
   return (
+    <UpgradeGate>
     <div className="space-y-6">
       <div>
         <h1 className="text-xl font-bold text-white">Transactions</h1>
@@ -43,5 +45,6 @@ export default function FinancialAccountPage({ params }: { params: Promise<{ acc
         ]}
       />
     </div>
+    </UpgradeGate>
   );
 }

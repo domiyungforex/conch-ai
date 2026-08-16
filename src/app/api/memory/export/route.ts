@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type MemoryDoc, type AppwriteDoc } from "@/lib/db";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
+import { checkFeatureAccess, upgradeRequiredResponse } from "@/lib/planLimits";
 import { Query } from "node-appwrite";
 
 const PAGE_SIZE = 100;
@@ -17,6 +18,9 @@ export async function GET(req: Request) {
   const includeArchived = searchParams.get("includeArchived") === "true";
 
   const { databases } = createAdminClient();
+
+  const featureAccess = await checkFeatureAccess(databases, appwriteId);
+  if (!featureAccess.allowed) return upgradeRequiredResponse();
 
   const memories: AppwriteDoc<MemoryDoc>[] = [];
   let offset = 0;

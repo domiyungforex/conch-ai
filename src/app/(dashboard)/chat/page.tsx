@@ -10,6 +10,7 @@ import { ChatInput } from "@/components/chat/ChatInput";
 import { AgentSelector } from "@/components/chat/AgentSelector";
 import { SuggestedPrompts } from "@/components/chat/SuggestedPrompts";
 import { ChatErrorBoundary } from "@/components/chat/ChatErrorBoundary";
+import { UpgradeGate } from "@/components/shared/UpgradeGate";
 import { useChat } from "@/hooks/useChat";
 
 export default function ChatPage() {
@@ -28,6 +29,7 @@ export default function ChatPage() {
 
   return (
     <ChatErrorBoundary>
+    <UpgradeGate>
     <div className="flex h-full -m-4 md:-m-6 lg:-m-8">
       {/* Conversation sidebar */}
       <div className="hidden lg:flex flex-col w-64 border-r border-white/8 shrink-0">
@@ -40,7 +42,7 @@ export default function ChatPage() {
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/8 shrink-0">
           <div className="flex items-center gap-2">
             <MessageSquare className="w-4 h-4 text-coral-400" />
-            <span className="text-sm font-medium text-white">New Conversation — it becomes memory</span>
+            <span className="text-sm font-medium text-white">New Conversation. It becomes memory</span>
           </div>
           <AgentSelector value={agentId} onChange={setAgentId} />
         </div>
@@ -63,7 +65,7 @@ export default function ChatPage() {
                   </div>
                   <h3 className="text-lg font-semibold text-white mb-2">Start a conversation</h3>
                   <p className="text-sm text-slate-400 max-w-sm">
-                    Ask me anything. What matters becomes memory — and I&apos;ll recall it every time we talk.
+                    Ask me anything. What matters becomes memory, and I&apos;ll recall it every time we talk.
                   </p>
                 </div>
                 <SuggestedPrompts onSelect={(prompt) => setInput(prompt)} />
@@ -102,6 +104,7 @@ export default function ChatPage() {
         </div>
       </div>
     </div>
+    </UpgradeGate>
     </ChatErrorBoundary>
   );
 }

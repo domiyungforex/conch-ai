@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type AgentDoc, type AppwriteDoc } from "@/lib/db";
 import { AgentUpdateSchema } from "@/lib/validators";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
+import { checkFeatureAccess, upgradeRequiredResponse } from "@/lib/planLimits";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const resolved = await resolveAuth(req);
@@ -11,6 +12,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
   const { id } = await params;
   const { databases } = createAdminClient();
+
+  const featureAccess = await checkFeatureAccess(databases, appwriteId);
+  if (!featureAccess.allowed) return upgradeRequiredResponse();
 
   let agent: AppwriteDoc<AgentDoc>;
   try {
@@ -32,6 +36,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
   const { id } = await params;
   const { databases } = createAdminClient();
+
+  const featureAccess = await checkFeatureAccess(databases, appwriteId);
+  if (!featureAccess.allowed) return upgradeRequiredResponse();
 
   let existing: AppwriteDoc<AgentDoc>;
   try {
@@ -59,6 +66,9 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 
   const { id } = await params;
   const { databases } = createAdminClient();
+
+  const featureAccess = await checkFeatureAccess(databases, appwriteId);
+  if (!featureAccess.allowed) return upgradeRequiredResponse();
 
   let agent: AppwriteDoc<AgentDoc>;
   try {

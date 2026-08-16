@@ -37,7 +37,7 @@ function FlagRow({ item }: { item: AdminFlagItem }) {
             )}
             <Badge className={cn("text-xs", STATUS_STYLES[item.status])}>{item.status}</Badge>
             {item.source === "default" && (
-              <span className="text-[10px] text-slate-500">using default — no flag row yet</span>
+              <span className="text-[10px] text-slate-500">using default (no flag row yet)</span>
             )}
           </div>
           <p className="text-xs text-slate-400 mt-0.5">{item.info.tagline}</p>

@@ -32,7 +32,7 @@ function tokenize(expr: string): Token[] {
     if (c === ",") { tokens.push({ type: "comma", value: c }); i++; continue; }
     if (c === "!") { tokens.push({ type: "bang", value: c }); i++; continue; }
     if (c === "[" || c === "]") {
-      throw new Error("Square brackets aren't supported — use plain parentheses with comma-separated arguments, e.g. mean(1, 2, 3) not mean([1, 2, 3])");
+      throw new Error("Square brackets aren't supported. Use plain parentheses with comma-separated arguments, e.g. mean(1, 2, 3) not mean([1, 2, 3])");
     }
     throw new Error(`Unexpected character: "${c}"`);
   }

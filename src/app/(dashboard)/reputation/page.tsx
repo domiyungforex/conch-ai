@@ -6,7 +6,7 @@ import { ReputationView } from "@/components/dashboard/ReputationView";
 import { computeReputationScore, getLevelInfo } from "@/lib/reputation";
 import { Query } from "node-appwrite";
 
-export const metadata = { title: "Reputation — Conch" };
+export const metadata = { title: "Reputation | Conch" };
 
 export default async function ReputationPage() {
   const { userId } = await auth();

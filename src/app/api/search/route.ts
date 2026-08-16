@@ -5,6 +5,7 @@ import { topKBySimilarity } from "@/lib/vectorSearch";
 import { SearchSchema } from "@/lib/validators";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
+import { checkFeatureAccess, upgradeRequiredResponse } from "@/lib/planLimits";
 import { Query } from "node-appwrite";
 
 const MAX_CANDIDATES = 1000;
@@ -14,6 +15,10 @@ export async function POST(req: Request) {
   if (!resolved) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   if (!scopeAllows(resolved.scope, "read")) return forbiddenScope();
   const { userId: appwriteId } = resolved;
+
+  const { databases } = createAdminClient();
+  const featureAccess = await checkFeatureAccess(databases, appwriteId);
+  if (!featureAccess.allowed) return upgradeRequiredResponse();
 
   const rateCheck = checkRateLimit(`search:${appwriteId}`, 30, 60_000);
   if (!rateCheck.success) return rateLimitResponse(rateCheck.resetAt);
@@ -34,7 +39,6 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { databases } = createAdminClient();
     const filters = [
       Query.equal("userId", appwriteId),
       Query.equal("isArchived", false),

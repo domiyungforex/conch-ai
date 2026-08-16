@@ -2,7 +2,7 @@ import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type AgentDoc, type ReputationDoc, type AppwriteDoc } from "@/lib/db";
 import { AgentCreateSchema } from "@/lib/validators";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
-import { checkAgentQuota, upgradeHint, getPlan } from "@/lib/planLimits";
+import { checkAgentQuota, upgradeHint, getPlan, checkFeatureAccess, upgradeRequiredResponse } from "@/lib/planLimits";
 import { requiredModuleFor } from "@/lib/agentTypes";
 import { checkModuleAccess, moduleUnavailableResponse } from "@/lib/moduleFlags";
 import { Query, ID } from "node-appwrite";
@@ -14,6 +14,10 @@ export async function GET(req: Request) {
   const { userId: appwriteId } = resolved;
 
   const { databases } = createAdminClient();
+
+  const featureAccess = await checkFeatureAccess(databases, appwriteId);
+  if (!featureAccess.allowed) return upgradeRequiredResponse();
+
   const result = await databases.listDocuments(DB_ID, COLLECTIONS.AGENTS, [
     Query.equal("userId", appwriteId),
     Query.notEqual("status", "ARCHIVED"),
@@ -37,6 +41,9 @@ export async function POST(req: Request) {
   }
 
   const { databases } = createAdminClient();
+
+  const featureAccess = await checkFeatureAccess(databases, appwriteId);
+  if (!featureAccess.allowed) return upgradeRequiredResponse();
 
   const requiredModule = requiredModuleFor(parsed.data.agentType);
   if (requiredModule) {

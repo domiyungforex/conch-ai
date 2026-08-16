@@ -73,7 +73,7 @@ export default function PrivacyPage() {
 
       <GlassCard className="p-6">
         <h2 className="text-base font-semibold text-white mb-2">Export Your Memory</h2>
-        <p className="text-sm text-slate-400 mb-4">Download every memory, conversation, and agent configuration — your memory is yours to take anywhere.</p>
+        <p className="text-sm text-slate-400 mb-4">Download every memory, conversation, and agent configuration. Your memory is yours to take anywhere.</p>
         <Button variant="secondary" onClick={handleExport} className="gap-2">
           <Download className="w-4 h-4" /> Export Memory
         </Button>
@@ -91,7 +91,7 @@ export default function PrivacyPage() {
           <Button variant="destructive" onClick={() => setConfirmDelete(true)}>Delete Account</Button>
         ) : (
           <div className="space-y-3">
-            <p className="text-sm text-red-300">Are you sure? Every memory you&apos;ve made — all of it — will be permanently erased.</p>
+            <p className="text-sm text-red-300">Are you sure? Every memory you&apos;ve made, all of it, will be permanently erased.</p>
             <div className="flex gap-3">
               <Button variant="destructive" onClick={handleDeleteAccount} disabled={deleting} className="gap-2">
                 <Trash2 className="w-4 h-4" /> {deleting ? "Deleting…" : "Yes, delete my account"}

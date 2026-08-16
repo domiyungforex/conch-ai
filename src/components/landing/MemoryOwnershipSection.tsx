@@ -29,7 +29,7 @@ const benefits = [
 ];
 
 const floatingCards = [
-  { category: "EPISODIC", color: "text-coral-300", bg: "bg-coral-500/10 border-coral-500/20", content: "Launched SaaS product on Base chain — 247 early adopters in 48 hours.", delay: 0 },
+  { category: "EPISODIC", color: "text-coral-300", bg: "bg-coral-500/10 border-coral-500/20", content: "Launched SaaS product on Base chain. 247 early adopters in 48 hours.", delay: 0 },
   { category: "PREFERENCE", color: "text-teal-300", bg: "bg-teal-500/10 border-teal-500/20", content: "Prefers async communication. Best focus window: 6–10am.", delay: 1.5 },
   { category: "SEMANTIC", color: "text-emerald-300", bg: "bg-emerald-500/10 border-emerald-500/20", content: "Expert in distributed systems and zero-knowledge proofs.", delay: 3 },
 ];
@@ -88,7 +88,7 @@ export function MemoryOwnershipSection() {
               <GradientText>Your rules.</GradientText>
             </h2>
             <p className="text-lg text-slate-400 leading-relaxed mb-10">
-              In a world of AI platforms that mine your data, Conch flips the model. Every memory you create belongs exclusively to you — provably, cryptographically, permanently.
+              In a world of AI platforms that mine your data, Conch flips the model. Every memory you create belongs exclusively to you. Provably, cryptographically, permanently.
             </p>
 
             <div className="space-y-6">

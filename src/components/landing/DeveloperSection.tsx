@@ -56,7 +56,7 @@ export function DeveloperSection() {
             </h2>
             <p className="text-lg text-slate-500 leading-relaxed mb-8">
               Conch is a persistent, model-agnostic memory layer behind one API. Any app, agent, or
-              model — GPT, Claude, Gemini, or your own — can store, search, and recall memory in
+              model, GPT, Claude, Gemini, or your own, can store, search, and recall memory in
               minutes, not months. AI can think. Conch remembers.
             </p>
 

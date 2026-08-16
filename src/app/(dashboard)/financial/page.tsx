@@ -2,24 +2,26 @@
 
 import Link from "next/link";
 import { ResourcePanel } from "@/components/modules/ResourcePanel";
+import { UpgradeGate } from "@/components/shared/UpgradeGate";
 import type { AppwriteDoc, FinancialAccountDoc } from "@/lib/db";
 
 type Account = AppwriteDoc<FinancialAccountDoc>;
 
 export default function FinancialPage() {
   return (
+    <UpgradeGate>
     <div className="space-y-6">
       <div>
         <h1 className="text-xl font-bold text-white">Financial Memory</h1>
         <p className="text-sm text-slate-400 mt-1">
-          Your accounts and transactions, remembered through a provider-agnostic layer — nothing here moves money.
+          Your accounts and transactions, remembered through a provider-agnostic layer. Nothing here moves money.
         </p>
       </div>
 
       <ResourcePanel<Account>
         basePath="/api/financial/accounts"
         title="Accounts"
-        emptyLabel="No accounts yet — add one to start tracking transactions."
+        emptyLabel="No accounts yet. Add one to start tracking transactions."
         fields={[
           { key: "provider", label: "Provider", type: "text", placeholder: "e.g. Chase, Manual" },
           { key: "accountType", label: "Account type", type: "text", placeholder: "checking, savings, wallet" },
@@ -40,5 +42,6 @@ export default function FinancialPage() {
         ]}
       />
     </div>
+    </UpgradeGate>
   );
 }

@@ -47,7 +47,8 @@ export async function createSignal(req: Request) {
   if (!isAdmin(userId)) return forbiddenAdmin();
 
   const { databases } = createAdminClient();
-  const createAccess = await checkModuleAccess(databases, MODULE, { userId });
+  const plan = await getPlan(databases, userId);
+  const createAccess = await checkModuleAccess(databases, MODULE, { userId, plan });
   if (!createAccess.allowed) return moduleUnavailableResponse(MODULE, createAccess);
 
   const parsed = EconomicSignalCreateSchema.safeParse(await req.json().catch(() => ({})));

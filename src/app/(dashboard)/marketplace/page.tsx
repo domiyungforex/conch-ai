@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { toast } from "@/components/ui/toaster";
+import { UpgradeGate } from "@/components/shared/UpgradeGate";
 import type { AppwriteDoc, MarketplaceListingDoc } from "@/lib/db";
 
 type Listing = AppwriteDoc<MarketplaceListingDoc>;
@@ -152,6 +153,7 @@ function MineTab() {
 
 export default function MarketplacePage() {
   return (
+    <UpgradeGate>
     <div className="space-y-6">
       <div>
         <h1 className="text-xl font-bold text-white">Marketplace</h1>
@@ -167,5 +169,6 @@ export default function MarketplacePage() {
         <TabsContent value="mine" className="mt-4"><MineTab /></TabsContent>
       </Tabs>
     </div>
+    </UpgradeGate>
   );
 }

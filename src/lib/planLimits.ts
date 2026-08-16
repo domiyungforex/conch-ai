@@ -32,6 +32,28 @@ export async function getPlan(databases: Databases, userId: string): Promise<Pla
   return user ? getEffectivePlan(user) : "free";
 }
 
+// The feature-access gate: the tester account (dominionakinyele@gmail.com)
+// has every feature unlocked, and paid subscribers keep theirs — everyone
+// else must upgrade before using any feature. This is the single chokepoint
+// every core route (chat, memory, agents, conversations, search, export)
+// calls after auth; module routes are gated separately in moduleFlags.ts.
+export async function checkFeatureAccess(
+  databases: Databases,
+  userId: string
+): Promise<{ allowed: boolean; plan: PlanId }> {
+  const plan = await getPlan(databases, userId);
+  return { allowed: plan !== "free", plan };
+}
+
+// The controlled response every gated core route returns for a non-tester
+// free user — never a generic 403, always the upgrade call to action.
+export function upgradeRequiredResponse(): Response {
+  return new Response(
+    JSON.stringify({ error: "This feature requires Pro or Premium. Upgrade to unlock it.", code: "PLAN_REQUIRED" }),
+    { status: 402 }
+  );
+}
+
 interface QuotaResult {
   allowed: boolean;
   limit?: number;

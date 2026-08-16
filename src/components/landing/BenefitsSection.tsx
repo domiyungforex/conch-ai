@@ -10,21 +10,21 @@ const benefits = [
     color: "text-coral-400",
     bg: "bg-coral-500/10 border-coral-500/20",
     title: "Persistent Memory",
-    description: "Everything you say becomes memory — preferences, goals, decisions, and context. Your AI never forgets, so you never repeat yourself.",
+    description: "Everything you say becomes memory: preferences, goals, decisions, and context. Your AI never forgets, so you never repeat yourself.",
   },
   {
     icon: Globe,
     color: "text-teal-400",
     bg: "bg-teal-500/10 border-teal-500/20",
     title: "Memory That Travels",
-    description: "Carry your memory across platforms, devices, and models — GPT today, Claude tomorrow. It all remembers the same you.",
+    description: "Carry your memory across platforms, devices, and models. GPT today, Claude tomorrow. It all remembers the same you.",
   },
   {
     icon: Shield,
     color: "text-emerald-400",
     bg: "bg-emerald-500/10 border-emerald-500/20",
     title: "You Own Every Memory",
-    description: "Cryptographically secured memory under your identity. Delete, export, or share any memory — on your terms, at any time.",
+    description: "Cryptographically secured memory under your identity. Delete, export, or share any memory on your terms, at any time.",
   },
   {
     icon: Zap,
@@ -38,7 +38,7 @@ const benefits = [
     color: "text-gold-400",
     bg: "bg-gold-500/10 border-gold-500/20",
     title: "Memory-Scoped Agents",
-    description: "Give each agent its own slice of memory — a coder, a writer, a strategist — each working from the context it needs.",
+    description: "Give each agent its own slice of memory. A coder, a writer, a strategist, each working from the context it needs."
   },
   {
     icon: Lock,

@@ -7,7 +7,7 @@ import { MemoryCreateSchema } from "@/lib/validators";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
 import { logAudit } from "@/lib/audit";
-import { checkMemoryQuota, upgradeHint } from "@/lib/planLimits";
+import { checkMemoryQuota, upgradeHint, checkFeatureAccess, upgradeRequiredResponse } from "@/lib/planLimits";
 import { Query, ID, Permission, Role } from "node-appwrite";
 
 export async function GET(req: Request) {
@@ -17,6 +17,10 @@ export async function GET(req: Request) {
   const { userId: appwriteId } = resolved;
 
   const { databases } = createAdminClient();
+
+  const featureAccess = await checkFeatureAccess(databases, appwriteId);
+  if (!featureAccess.allowed) return upgradeRequiredResponse();
+
   const { searchParams } = new URL(req.url);
   const category = searchParams.get("category") ?? undefined;
   const namespace = searchParams.get("namespace") ?? undefined;
@@ -81,6 +85,11 @@ export async function POST(req: Request) {
   if (!scopeAllows(resolved.scope, "write")) return forbiddenScope();
   const { userId: appwriteId } = resolved;
 
+  const { databases } = createAdminClient();
+
+  const featureAccess = await checkFeatureAccess(databases, appwriteId);
+  if (!featureAccess.allowed) return upgradeRequiredResponse();
+
   const rateCheck = checkRateLimit(`memory:create:${appwriteId}`, 20, 60_000);
   if (!rateCheck.success) return rateLimitResponse(rateCheck.resetAt);
 
@@ -88,8 +97,6 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return new Response(JSON.stringify({ error: "Invalid request", details: parsed.error.flatten() }), { status: 400 });
   }
-
-  const { databases } = createAdminClient();
 
   const quota = await checkMemoryQuota(databases, appwriteId);
   if (!quota.allowed) {

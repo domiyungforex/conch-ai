@@ -49,7 +49,7 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
           {...props}
         >
           {children}
-          <SheetPrimitive.Close className="absolute right-4 top-4 text-slate-400 hover:text-white transition-colors rounded-lg p-1">
+          <SheetPrimitive.Close className="absolute right-4 top-4 text-slate-500 hover:text-white transition-colors rounded-lg p-1">
             <X className="h-4 w-4" />
           </SheetPrimitive.Close>
         </SheetPrimitive.Content>

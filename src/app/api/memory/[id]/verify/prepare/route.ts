@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type MemoryDoc, type WalletDoc, type AppwriteDoc } from "@/lib/db";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
 import { computeContentHash, encodeMemorySchemaData, EAS_CONTRACT_ADDRESS } from "@/lib/eas";
+import { checkFeatureAccess, upgradeRequiredResponse } from "@/lib/planLimits";
 import { Query } from "node-appwrite";
 
 // Prepares (but does not submit) the on-chain attestation for a memory. The
@@ -21,6 +22,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
   const { id } = await params;
   const { databases } = createAdminClient();
+
+  const featureAccess = await checkFeatureAccess(databases, appwriteId);
+  if (!featureAccess.allowed) return upgradeRequiredResponse();
 
   let memory: AppwriteDoc<MemoryDoc>;
   try {

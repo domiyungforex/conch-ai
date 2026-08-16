@@ -62,7 +62,7 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
   );
 
   const suggestions = [
-    { prompt: "Ask your AI something — it remembers everything", href: "/chat",   icon: MessageSquare },
+    { prompt: "Ask your AI something. It remembers everything", href: "/chat",   icon: MessageSquare },
     { prompt: "Browse what your memory holds",                    href: "/memory", icon: Brain },
   ];
 
@@ -100,7 +100,7 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
           <span className="absolute inset-0 rounded-full bg-teal-400/40 animate-ping" />
         </motion.div>
         <span className="text-sm text-slate-300">
-          <span className="text-teal-300 font-medium">Conch</span> is remembering — every conversation becomes memory
+          <span className="text-teal-300 font-medium">Conch</span> is remembering. Every conversation becomes memory
         </span>
       </motion.div>
 

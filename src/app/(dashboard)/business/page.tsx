@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ResourcePanel } from "@/components/modules/ResourcePanel";
+import { UpgradeGate } from "@/components/shared/UpgradeGate";
 import { BUSINESS_TEMPLATES } from "@/lib/businessTemplates";
 import type { AppwriteDoc, BusinessDoc } from "@/lib/db";
 
@@ -9,18 +10,19 @@ type Business = AppwriteDoc<BusinessDoc>;
 
 export default function BusinessPage() {
   return (
+    <UpgradeGate>
     <div className="space-y-6">
       <div>
         <h1 className="text-xl font-bold text-white">Business Memory</h1>
         <p className="text-sm text-slate-400 mt-1">
-          Every customer, supplier, product, order, inventory, expense, and revenue — remembered and queryable.
+          Every customer, supplier, product, order, inventory, expense, and revenue, remembered and queryable.
         </p>
       </div>
 
       <ResourcePanel<Business>
         basePath="/api/business"
         title="Your businesses"
-        emptyLabel="No businesses yet — add one to get started."
+        emptyLabel="No businesses yet. Add one to get started."
         fields={[
           { key: "name", label: "Name", type: "text", placeholder: "Acme Inc." },
           {
@@ -63,5 +65,6 @@ export default function BusinessPage() {
         ]}
       />
     </div>
+    </UpgradeGate>
   );
 }

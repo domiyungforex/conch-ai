@@ -85,6 +85,12 @@ export async function checkModuleAccess(
 
   if (ctx.userId && state.allowlistUserIds.includes(ctx.userId)) return { allowed: true, reason: "ok" };
 
+  // Everyone except the tester account must upgrade before using any module.
+  // The tester resolves to effective plan "premium" via getEffectivePlan, so
+  // this only ever fires for real free users — regardless of what minPlan a
+  // module's flag row says, free access to every module is off.
+  if (ctx.plan === "free") return { allowed: false, reason: "plan", minPlan: "pro" };
+
   if (state.status === "disabled") return { allowed: false, reason: "disabled" };
 
   if (state.status === "enabled") {

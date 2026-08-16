@@ -133,7 +133,7 @@ export function MemoryGraph() {
             <span className="gradient-text">visualized</span>
           </h2>
           <p className="text-slate-400 max-w-xl mx-auto">
-            Conch maps your memories into a living knowledge graph — connected, searchable, and always growing.
+            Conch maps your memories into a living knowledge graph. Connected, searchable, and always growing.
             Click any node to explore its connections.
           </p>
         </div>

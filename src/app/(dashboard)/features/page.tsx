@@ -20,7 +20,7 @@ export default function FeaturesPage() {
       <div>
         <h1 className="text-xl font-bold text-white">Add memory spaces</h1>
         <p className="text-sm text-slate-400 mt-1">
-          These memory spaces are fully built and working — they just stay out of your sidebar until you turn them on,
+          These memory spaces are fully built and working. They just stay out of your sidebar until you turn them on,
           so it doesn&apos;t get cluttered with memories you don&apos;t use. Activating one adds it to your Memory Spaces
           section; deactivating just hides the link again, nothing gets forgotten. Included with Pro and Premium.
         </p>

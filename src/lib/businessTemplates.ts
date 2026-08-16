@@ -21,7 +21,7 @@ export const BUSINESS_TEMPLATES: BusinessTemplate[] = [
     id: "generic",
     label: "General business",
     icon: "🏢",
-    description: "Start simple — track customers, suppliers, products, orders, and cash flow.",
+    description: "Start simple. Track customers, suppliers, products, orders, and cash flow.",
     whatToTrack: ["Customers", "Suppliers", "Products", "Orders", "Expenses", "Revenue"],
     exampleQuestions: ["Which customers haven't ordered this month?", "What did we sell most last week?"],
   },

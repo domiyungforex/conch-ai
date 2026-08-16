@@ -160,7 +160,7 @@ export function MemoryCard({ memory, onEdit, onArchive, onDelete, onVerify, veri
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-xs text-teal-400 hover:text-teal-300"
-              title="Verified on Base — view attestation"
+              title="Verified on Base. View attestation"
             >
               <ShieldCheck className="w-3 h-3" /> Verified
             </a>

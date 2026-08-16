@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ResourcePanel } from "@/components/modules/ResourcePanel";
+import { UpgradeGate } from "@/components/shared/UpgradeGate";
 import { CreatorStageValues } from "@/lib/validators";
 import type { AppwriteDoc, CreatorDoc } from "@/lib/db";
 
@@ -14,18 +15,19 @@ const STAGE_OPTIONS = CreatorStageValues.map((s) => ({
 
 export default function CreatorsPage() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-white">Creator Memory</h1>
+    <UpgradeGate>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-xl font-bold text-white">Creator Memory</h1>
         <p className="text-sm text-slate-400 mt-1">
-          Your creative memory — songs, lyrics, unreleased ideas, campaigns, content, and collaborations, all remembered.
+          Your creative memory. Songs, lyrics, unreleased ideas, campaigns, content, and collaborations, all remembered.
         </p>
       </div>
 
       <ResourcePanel<Creator>
         basePath="/api/creators"
         title="Your creator profiles"
-        emptyLabel="No profiles yet — add one to start building your creative memory."
+        emptyLabel="No profiles yet. Add one to start building your creative memory."
         fields={[
           { key: "name", label: "Stage name / Brand", type: "text", placeholder: "e.g. Nia Sounds" },
           {
@@ -53,6 +55,7 @@ export default function CreatorsPage() {
           { key: "genre", label: "Genre", render: (c) => c.genre ?? "" },
         ]}
       />
-    </div>
+      </div>
+    </UpgradeGate>
   );
 }

@@ -76,12 +76,15 @@
   --color-gold-900: #482113;
   --color-gold-950: #291107;
 
-  /* slate — warm parchment greys, tuned for text on light surfaces */
+  /* slate — warm parchment greys, tuned for text on light surfaces.
+     The 300/400 steps are deliberately darker than the old values: muted
+     text needs to read clearly on warm-white parchment in light mode, and
+     the dark-mode overrides below brighten them for the night palette. */
   --color-slate-50: #faf8f3;
   --color-slate-100: #f3efe6;
   --color-slate-200: #e6dfd0;
-  --color-slate-300: #d0c6b2;
-  --color-slate-400: #a2947c;
+  --color-slate-300: #b7a788;
+  --color-slate-400: #8d7c60;
   --color-slate-500: #6f6350;
   --color-slate-600: #4e4433;
   --color-slate-700: #3a3225;
@@ -570,13 +573,16 @@ body {
   --color-gold-950: #fdf4ef;
 
   /* slate — warm parchment greys for dark surfaces (muted text becomes
-     light, borders/dividers become deep warm tones) */
+     light, borders/dividers become deep warm tones). slate-300 was kept
+     near-black which made text-slate-300 labels invisible on the dark
+     archive; it now sits at a readable warm mid-tone (and still works as
+     a subtle border), with 400/500 bumped brighter on top of it. */
   --color-slate-50: #1a150d;
   --color-slate-100: #211b12;
   --color-slate-200: #2c2519;
-  --color-slate-300: #3a3326;
-  --color-slate-400: #a89c84;
-  --color-slate-500: #8d8270;
+  --color-slate-300: #b7a788;
+  --color-slate-400: #c9bda6;
+  --color-slate-500: #a49784;
   --color-slate-600: #6f6350;
   --color-slate-700: #4e4433;
   --color-slate-800: #2c2519;
@@ -809,6 +815,17 @@ body {
   --color-gold-600: #b8860b;
   --shadow-glow-primary: 0 0 40px color-mix(in srgb, var(--color-coral-500) 24%, transparent);
   --shadow-glow-secondary: 0 0 40px color-mix(in srgb, var(--color-teal-400) 20%, transparent);
+}
+
+/* ─── Muted text legibility — thicker, clearer in both themes ────── */
+/* Secondary text (slate-400/500) now renders at a heavier weight so it
+   reads clearly on parchment in light mode and on the dark archive at
+   night. Zero-specificity :where() means explicit font-medium/semibold/
+   bold utilities still win where a component chose its own weight. */
+@layer utilities {
+  :where(.text-slate-400, .text-slate-500) {
+    font-weight: 500;
+  }
 }
 
 /* ─── Bulletproof typography ─────────────────────────────────────── */

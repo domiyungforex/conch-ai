@@ -201,7 +201,7 @@ export function BusinessDetailClient({ businessId }: { businessId: string }) {
           <AssistantPanel
             askPath={`${base}/ask`}
             placeholder="e.g. Which customers haven't ordered this month?"
-            hint="The assistant answers from this business's own records — customers, suppliers, products, orders, inventory, expenses, and revenue. It won't invent anything not in the records."
+            hint="The assistant answers from this business's own records: customers, suppliers, products, orders, inventory, expenses, and revenue. It won't invent anything not in the records."
           />
         </TabsContent>
       </Tabs>

@@ -3,6 +3,8 @@ import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 import { CodeRunSchema } from "@/lib/validators";
 import { runPythonSnippet } from "@/lib/codeExecution";
 import { isFeatureEnabled } from "@/lib/featureFlags";
+import { checkFeatureAccess, upgradeRequiredResponse } from "@/lib/planLimits";
+import { createAdminClient } from "@/lib/appwrite";
 
 export const runtime = "nodejs";
 
@@ -11,6 +13,10 @@ export async function POST(req: Request) {
   if (!resolved) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   if (!scopeAllows(resolved.scope, "chat")) return forbiddenScope();
   const { userId } = resolved;
+
+  const { databases } = createAdminClient();
+  const featureAccess = await checkFeatureAccess(databases, userId);
+  if (!featureAccess.allowed) return upgradeRequiredResponse();
 
   if (!isFeatureEnabled("codeExecution")) {
     return new Response(JSON.stringify({ error: "Code execution is temporarily unavailable." }), { status: 503 });

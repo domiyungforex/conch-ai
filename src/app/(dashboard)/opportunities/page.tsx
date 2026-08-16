@@ -1,17 +1,19 @@
 "use client";
 
 import { ResourcePanel } from "@/components/modules/ResourcePanel";
+import { UpgradeGate } from "@/components/shared/UpgradeGate";
 import type { AppwriteDoc, OpportunityDoc } from "@/lib/db";
 
 type Opportunity = AppwriteDoc<OpportunityDoc>;
 
 export default function OpportunitiesPage() {
   return (
+    <UpgradeGate>
     <div className="space-y-6">
       <div>
         <h1 className="text-xl font-bold text-white">Opportunity Memory</h1>
         <p className="text-sm text-slate-400 mt-1">
-          Opportunities, remembered with real evidence — every entry keeps its source and confidence, never presented
+          Opportunities, remembered with real evidence. Every entry keeps its source and confidence, never presented
           as certainty.
         </p>
       </div>
@@ -37,5 +39,6 @@ export default function OpportunitiesPage() {
         ]}
       />
     </div>
+    </UpgradeGate>
   );
 }

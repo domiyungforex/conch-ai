@@ -25,11 +25,11 @@ const TREASURY = process.env.NEXT_PUBLIC_SUBSCRIPTION_TREASURY_ADDRESS_BASE as `
 
 const PLAN_BLURB: Record<PaidPlanId, string> = {
   pro: "1,000 memories, 10 agents, unlimited chat",
-  premium: "Unlimited memories, agents & chat — everything",
+  premium: "Unlimited memories, agents & chat. Everything",
 };
 
 function formatDate(iso: string | null) {
-  if (!iso) return "—";
+  if (!iso) return "N/A";
   return new Date(iso).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
 }
 
@@ -68,7 +68,7 @@ export default function BillingPage() {
     if (address?.toLowerCase() !== wallet.address.toLowerCase()) {
       toast({
         title: "Wrong wallet connected",
-        description: `Switch to ${wallet.address.slice(0, 6)}…${wallet.address.slice(-4)} — the wallet linked to your account — before paying.`,
+        description: `Switch to ${wallet.address.slice(0, 6)}…${wallet.address.slice(-4)}, the wallet linked to your account, before paying.`,
         variant: "destructive",
       });
       return;
@@ -134,7 +134,7 @@ export default function BillingPage() {
                 )}
                 {isPro && sub?.planExpiresAt && (
                   <span className="text-xs text-slate-400">
-                    {status === "grace" ? "Access ends soon — renews " : "Renews "}
+                    {status === "grace" ? "Access ends soon. Renews " : "Renews "}
                     {formatDate(sub.planExpiresAt)}
                   </span>
                 )}
@@ -193,7 +193,7 @@ export default function BillingPage() {
               <div>
                 <p className="text-sm text-white">Connect a wallet to subscribe</p>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Payment is a direct USDC transfer on Base from your own wallet — connect right here to pay.
+                  Payment is a direct USDC transfer on Base from your own wallet. Connect right here to pay.
                 </p>
               </div>
             </div>

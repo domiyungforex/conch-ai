@@ -1,12 +1,14 @@
 "use client";
 
 import { ResourcePanel } from "@/components/modules/ResourcePanel";
+import { UpgradeGate } from "@/components/shared/UpgradeGate";
 import type { AppwriteDoc, EconomicSignalDoc } from "@/lib/db";
 
 type Signal = AppwriteDoc<EconomicSignalDoc>;
 
 export default function EconomicPage() {
   return (
+    <UpgradeGate>
     <div className="space-y-6">
       <div>
         <h1 className="text-xl font-bold text-white">Economic Memory</h1>
@@ -32,5 +34,6 @@ export default function EconomicPage() {
         ]}
       />
     </div>
+    </UpgradeGate>
   );
 }

@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type ApiKeyDoc, type AppwriteDoc } from "@/lib/db";
 import { logAudit } from "@/lib/audit";
+import { checkFeatureAccess, upgradeRequiredResponse } from "@/lib/planLimits";
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { userId } = await auth();
@@ -10,6 +11,9 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 
   const { id } = await params;
   const { databases } = createAdminClient();
+
+  const featureAccess = await checkFeatureAccess(databases, appwriteId);
+  if (!featureAccess.allowed) return upgradeRequiredResponse();
 
   let apiKey: AppwriteDoc<ApiKeyDoc>;
   try {

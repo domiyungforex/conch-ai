@@ -76,7 +76,7 @@ export function ThemeCustomizer({ className }: { className?: string }) {
         onClick={() => setOpen((o) => !o)}
         aria-label="Customize theme"
         aria-expanded={open}
-        title="Customize theme — colors and dark/light"
+        title="Customize theme: colors and dark/light"
       >
         <Palette className="h-4 w-4" />
       </Button>

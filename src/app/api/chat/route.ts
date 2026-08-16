@@ -9,7 +9,7 @@ import type { MemoryWithScore } from "@/lib/memory";
 import { ChatRequestSchema } from "@/lib/validators";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
-import { checkConversationQuota, checkMemoryQuota, checkChatMessageQuota, upgradeHint } from "@/lib/planLimits";
+import { checkConversationQuota, checkMemoryQuota, checkChatMessageQuota, upgradeHint, checkFeatureAccess, upgradeRequiredResponse } from "@/lib/planLimits";
 import { isFeatureEnabled } from "@/lib/featureFlags";
 import { Query, ID, Permission, Role } from "node-appwrite";
 
@@ -33,6 +33,9 @@ export async function POST(req: Request) {
   if (!rateCheck.success) return rateLimitResponse(rateCheck.resetAt);
 
   const { databases } = createAdminClient();
+
+  const featureAccess = await checkFeatureAccess(databases, appwriteId);
+  if (!featureAccess.allowed) return upgradeRequiredResponse();
 
   const chatQuota = await checkChatMessageQuota(databases, appwriteId);
   if (!chatQuota.allowed) {

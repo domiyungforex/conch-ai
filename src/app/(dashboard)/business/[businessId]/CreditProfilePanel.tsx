@@ -46,7 +46,7 @@ export function CreditProfilePanel({ businessId }: { businessId: string }) {
     <GlassCard className="p-6">
       <h2 className="text-base font-semibold text-white mb-1">Credit Profile</h2>
       <p className="text-xs text-slate-400 mb-4">
-        An opt-in summary of this business&apos;s own financial history — never a credit score, never used for a lending
+        An opt-in summary of this business&apos;s own financial history. Never a credit score, never used for a lending
         decision. This is not a credit score.
       </p>
 

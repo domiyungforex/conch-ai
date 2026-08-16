@@ -90,7 +90,7 @@ export default function ApiKeysPage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-base font-semibold text-white">API Keys</h2>
-          <p className="text-xs text-slate-400 mt-0.5">Give your own apps access to this memory — read, write, recall, and chat.</p>
+          <p className="text-xs text-slate-400 mt-0.5">Give your own apps access to this memory. Read, write, recall, and chat.</p>
         </div>
         <Button size="sm" onClick={() => setCreateOpen(true)} className="gap-1.5">
           <Plus className="w-3.5 h-3.5" /> New Key
@@ -171,7 +171,7 @@ export default function ApiKeysPage() {
           <DialogHeader><DialogTitle className="text-white">Your New API Key</DialogTitle></DialogHeader>
           <div className="mt-2">
             <p className="text-sm text-amber-300 bg-amber-500/10 border border-amber-500/20 rounded-xl px-3 py-2 mb-4">
-              ⚠ Copy this key now — it will not be shown again.
+              ⚠ Copy this key now. It will not be shown again.
             </p>
             <div className="flex items-center gap-2">
               <code className="flex-1 text-xs font-mono text-coral-300 bg-white/5 rounded-xl px-3 py-2 border border-white/8 break-all">

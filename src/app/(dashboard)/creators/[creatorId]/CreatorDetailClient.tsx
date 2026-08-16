@@ -39,7 +39,7 @@ export function CreatorDetailClient({ creatorId }: { creatorId: string }) {
         <p className="text-sm text-slate-400 mt-1">
           {creator.stage} {creator.genre ? `· ${creator.genre}` : ""}
         </p>
-        <p className="text-xs text-slate-500 mt-1">Songs, ideas, campaigns, and collaborators — all part of this creator&apos;s memory.</p>
+        <p className="text-xs text-slate-500 mt-1">Songs, ideas, campaigns, and collaborators, all part of this creator&apos;s memory.</p>
       </div>
 
       <Tabs defaultValue="songs">
@@ -56,7 +56,7 @@ export function CreatorDetailClient({ creatorId }: { creatorId: string }) {
           <ResourcePanel<AppwriteDoc<CreatorSongDoc>>
             basePath={`${base}/songs`}
             title="Songs"
-            emptyLabel="No songs yet — add your catalogue (including unreleased work)."
+            emptyLabel="No songs yet. Add your catalogue (including unreleased work)."
             fields={[
               { key: "title", label: "Title", type: "text" },
               { key: "lyrics", label: "Lyrics", type: "textarea" },
@@ -70,7 +70,7 @@ export function CreatorDetailClient({ creatorId }: { creatorId: string }) {
             columns={[
               { key: "title", label: "Title" },
               { key: "status", label: "Status" },
-              { key: "releaseDate", label: "Released", render: (s) => (s.releaseDate ? new Date(s.releaseDate).toLocaleDateString() : "—") },
+              { key: "releaseDate", label: "Released", render: (s) => (s.releaseDate ? new Date(s.releaseDate).toLocaleDateString() : "N/A") },
             ]}
           />
         </TabsContent>
@@ -79,7 +79,7 @@ export function CreatorDetailClient({ creatorId }: { creatorId: string }) {
           <ResourcePanel<AppwriteDoc<CreatorIdeaDoc>>
             basePath={`${base}/ideas`}
             title="Content ideas"
-            emptyLabel="No ideas yet — capture concepts before they're forgotten."
+            emptyLabel="No ideas yet. Capture concepts before they're forgotten."
             fields={[
               { key: "title", label: "Title", type: "text" },
               { key: "description", label: "Description", type: "textarea" },
@@ -125,7 +125,7 @@ export function CreatorDetailClient({ creatorId }: { creatorId: string }) {
           <ResourcePanel<AppwriteDoc<CreatorCollaboratorDoc>>
             basePath={`${base}/collaborators`}
             title="Collaborators"
-            emptyLabel="No collaborators yet — producers, managers, features…"
+            emptyLabel="No collaborators yet. Producers, managers, features…"
             fields={[
               { key: "name", label: "Name", type: "text" },
               { key: "role", label: "Role", type: "text", placeholder: "Producer, manager, feature…" },
@@ -154,7 +154,7 @@ export function CreatorDetailClient({ creatorId }: { creatorId: string }) {
             columns={[
               { key: "title", label: "Title" },
               { key: "platform", label: "Platform", render: (c) => c.platform ?? "" },
-              { key: "publishedAt", label: "Published", render: (c) => (c.publishedAt ? new Date(c.publishedAt).toLocaleDateString() : "—") },
+              { key: "publishedAt", label: "Published", render: (c) => (c.publishedAt ? new Date(c.publishedAt).toLocaleDateString() : "N/A") },
             ]}
           />
         </TabsContent>
@@ -163,7 +163,7 @@ export function CreatorDetailClient({ creatorId }: { creatorId: string }) {
           <AssistantPanel
             askPath={`${base}/ask`}
             placeholder="e.g. Give me five TikTok ideas based on my previous songs"
-            hint="The assistant answers from this creator's own records — songs, ideas, campaigns, collaborators, and content — plus brand identity. It won't invent anything not in the records."
+            hint="The assistant answers from this creator's own records: songs, ideas, campaigns, collaborators, and content, plus brand identity. It won't invent anything not in the records."
           />
         </TabsContent>
       </Tabs>

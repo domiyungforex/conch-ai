@@ -2,7 +2,7 @@ import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type ConversationDoc, type AppwriteDoc } from "@/lib/db";
 import { ConversationCreateSchema } from "@/lib/validators";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
-import { checkConversationQuota } from "@/lib/planLimits";
+import { checkConversationQuota, checkFeatureAccess, upgradeRequiredResponse } from "@/lib/planLimits";
 import { Query, ID } from "node-appwrite";
 
 export async function GET(req: Request) {
@@ -12,6 +12,10 @@ export async function GET(req: Request) {
   const { userId: appwriteId } = resolved;
 
   const { databases } = createAdminClient();
+
+  const featureAccess = await checkFeatureAccess(databases, appwriteId);
+  if (!featureAccess.allowed) return upgradeRequiredResponse();
+
   const { searchParams } = new URL(req.url);
   const page = parseInt(searchParams.get("page") ?? "1", 10);
   const limit = Math.min(parseInt(searchParams.get("limit") ?? "20", 10), 50);
@@ -34,10 +38,13 @@ export async function POST(req: Request) {
   if (!scopeAllows(resolved.scope, "write")) return forbiddenScope();
   const { userId: appwriteId } = resolved;
 
+  const { databases } = createAdminClient();
+
+  const featureAccess = await checkFeatureAccess(databases, appwriteId);
+  if (!featureAccess.allowed) return upgradeRequiredResponse();
+
   const parsed = ConversationCreateSchema.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) return new Response(JSON.stringify({ error: "Invalid request" }), { status: 400 });
-
-  const { databases } = createAdminClient();
 
   const quota = await checkConversationQuota(databases, appwriteId);
   if (!quota.allowed) {

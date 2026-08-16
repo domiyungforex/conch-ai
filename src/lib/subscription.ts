@@ -3,12 +3,23 @@ import { isPaidPlanId, type PlanId, type PaidPlanId } from "./plans";
 
 export const GRACE_PERIOD_MS = 7 * 24 * 60 * 60 * 1000;
 
+// The operator's testing account. All features — old and new — are unlocked
+// for this email regardless of plan, while every other account must upgrade
+// before it can use them (see checkFeatureAccess in planLimits.ts and the
+// free-plan gate in moduleFlags.ts). Lowercased for comparison.
+const TESTER_EMAILS = ["dominionakinyele@gmail.com"];
+
+export function isTesterEmail(email: string | null | undefined): boolean {
+  return !!email && TESTER_EMAILS.includes(email.toLowerCase());
+}
+
 export type SubscriptionStatus = "active" | "grace" | "expired-to-free";
 
 export function getSubscriptionStatus(
-  user: Pick<UserDoc, "plan" | "planExpiresAt">,
+  user: Pick<UserDoc, "email" | "plan" | "planExpiresAt">,
   now: Date = new Date()
 ): SubscriptionStatus {
+  if (isTesterEmail(user.email)) return "active";
   if (!isPaidPlanId(user.plan) || !user.planExpiresAt) return "expired-to-free";
   const expiresAt = new Date(user.planExpiresAt);
   if (now < expiresAt) return "active";
@@ -25,9 +36,10 @@ export function hasProAccess(status: SubscriptionStatus): boolean {
 // grace (still gets the paid tier) and expiry (falls back to free), so
 // callers never have to re-derive this from raw plan + planExpiresAt.
 export function getEffectivePlan(
-  user: Pick<UserDoc, "plan" | "planExpiresAt">,
+  user: Pick<UserDoc, "email" | "plan" | "planExpiresAt">,
   now: Date = new Date()
 ): PlanId {
+  if (isTesterEmail(user.email)) return "premium";
   const status = getSubscriptionStatus(user, now);
   if (status === "expired-to-free") return "free";
   return user.plan as PaidPlanId;

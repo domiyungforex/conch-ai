@@ -100,7 +100,7 @@ export function InteractiveMemoryDemo() {
             <span className="gradient-text">come alive</span>
           </h2>
           <p className="text-slate-400 max-w-xl mx-auto">
-            Tell Conch something once. It remembers forever — and recalls it intelligently when you need it.
+            Tell Conch something once. It remembers forever, and recalls it intelligently when you need it.
           </p>
         </motion.div>
 

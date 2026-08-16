@@ -148,7 +148,7 @@ export function PricingSection() {
                   <div className="text-3xl font-bold text-white">Custom</div>
                 )}
                 {yearly && plan.monthly !== null && plan.monthly > 0 && (
-                  <p className="text-xs text-emerald-400 mt-1">Billed annually — save ${plan.monthly * 12 - plan.annualTotal}/year</p>
+                  <p className="text-xs text-emerald-400 mt-1">Billed annually. Save ${plan.monthly * 12 - plan.annualTotal}/year</p>
                 )}
               </div>
 

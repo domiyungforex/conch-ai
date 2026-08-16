@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type ConversationDoc, type MessageDoc, type AgentDoc, type AppwriteDoc } from "@/lib/db";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
+import { checkFeatureAccess, upgradeRequiredResponse } from "@/lib/planLimits";
 import { Query } from "node-appwrite";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -11,6 +12,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
   const { id } = await params;
   const { databases } = createAdminClient();
+
+  const featureAccess = await checkFeatureAccess(databases, appwriteId);
+  if (!featureAccess.allowed) return upgradeRequiredResponse();
 
   let conv: AppwriteDoc<ConversationDoc>;
   try {
@@ -54,6 +58,9 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 
   const { id } = await params;
   const { databases } = createAdminClient();
+
+  const featureAccess = await checkFeatureAccess(databases, appwriteId);
+  if (!featureAccess.allowed) return upgradeRequiredResponse();
 
   let conv: AppwriteDoc<ConversationDoc>;
   try {
