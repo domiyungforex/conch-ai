@@ -3,6 +3,7 @@ import { Query } from "node-appwrite";
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type UserDoc, type PaymentDoc, type AppwriteDoc } from "@/lib/db";
 import { getSubscriptionStatus } from "@/lib/subscription";
+import { resolveUserEmail } from "@/lib/planLimits";
 
 export async function GET() {
   const { userId } = await auth();
@@ -22,8 +23,14 @@ export async function GET() {
   ]);
   const payments = paymentsResult.documents as unknown as AppwriteDoc<PaymentDoc>[];
 
+  // Docs created before the email field existed have no email on the
+  // Appwrite record, which would defeat the tester override in
+  // getSubscriptionStatus. Resolve it from Clerk so the tester account
+  // still reads as active Premium (and gets the doc backfilled).
+  const email = await resolveUserEmail(databases, userId, user);
+
   return Response.json({
-    status: getSubscriptionStatus(user),
+    status: getSubscriptionStatus({ ...user, email: email ?? "" }),
     plan: user.plan,
     planExpiresAt: user.planExpiresAt,
     payments,

@@ -139,7 +139,7 @@ export function HeroSection() {
 
           {/* Social proof */}
           <p className="mt-8 text-xs text-slate-600">
-            No credit card required · Free plan available · Your memory travels with you
+            No credit card required · Free to start · Your memory travels with you
           </p>
 
           {/* Memory motif — connection lines under the cards */}

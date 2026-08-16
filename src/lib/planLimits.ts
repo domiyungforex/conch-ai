@@ -1,11 +1,13 @@
+import { clerkClient } from "@clerk/nextjs/server";
 import { Query, type Databases } from "node-appwrite";
 import { DB_ID, COLLECTIONS, type UserDoc, type AppwriteDoc } from "./db";
 import { getEffectivePlan } from "./subscription";
 import type { PlanId } from "./plans";
 
-// Matches the numbers advertised on the landing page
-// (src/components/landing/PricingSection.tsx).
-// Free: 100 memories, 1 agent, 50 conversations/month, 20 chat messages/day.
+// Tier limits. Free-tier numbers no longer appear on the landing page
+// (src/components/landing/PricingSection.tsx): non-tester free accounts are
+// gated behind an upgrade via checkFeatureAccess, so these quotas only ever
+// apply to legacy/edge paths, not real free users.
 // Pro: 1,000 memories, 10 agents, unlimited conversations & chat.
 // Premium: unlimited everything — every check below short-circuits for it.
 export const FREE_LIMITS = {
@@ -27,9 +29,57 @@ async function getUser(databases: Databases, userId: string): Promise<AppwriteDo
   }
 }
 
+// Resolves the email that drives plan logic for a user. Docs provisioned
+// before the email field existed (or with a blank email) would otherwise
+// silently defeat the tester override in subscription.ts. Falls back to the
+// Clerk user's primary email and backfills the Appwrite doc so the fallback
+// only runs once per legacy user. Fire-and-forget backfill: a failed write
+// must never break the originating request.
+export async function resolveUserEmail(
+  databases: Databases,
+  userId: string,
+  user: AppwriteDoc<UserDoc> | null
+): Promise<string | null> {
+  const stored = user?.email?.trim();
+  if (stored) return stored;
+
+  let email: string | null = null;
+  try {
+    const clerkUser = await (await clerkClient()).users.getUser(userId);
+    email = clerkUser.emailAddresses[0]?.emailAddress ?? null;
+  } catch {
+    return null;
+  }
+
+  if (email && user) {
+    databases.updateDocument(DB_ID, COLLECTIONS.USERS, userId, { email }).catch(() => {});
+  }
+  return email;
+}
+
+// getEffectivePlan for a user whose email may be missing from the Appwrite
+// doc. Used by every server-side plan chokepoint so the tester override in
+// subscription.ts still fires for pre-email docs; a missing Clerk lookup
+// falls back to the doc's (blank) email, i.e. a plain free user.
+async function resolvePlan(
+  databases: Databases,
+  userId: string,
+  user: AppwriteDoc<UserDoc> | null
+): Promise<PlanId> {
+  if (!user) {
+    // No doc at all: only the tester override can still grant access, so
+    // resolve the email instead of defaulting straight to "free".
+    const email = await resolveUserEmail(databases, userId, null);
+    return getEffectivePlan({ email: email ?? "", plan: "free", planExpiresAt: null });
+  }
+  if (user.email?.trim()) return getEffectivePlan(user);
+  const email = await resolveUserEmail(databases, userId, user);
+  return getEffectivePlan({ ...user, email: email ?? "" });
+}
+
 export async function getPlan(databases: Databases, userId: string): Promise<PlanId> {
   const user = await getUser(databases, userId);
-  return user ? getEffectivePlan(user) : "free";
+  return resolvePlan(databases, userId, user);
 }
 
 // The feature-access gate: the tester account (dominionakinyele@gmail.com)
@@ -69,7 +119,7 @@ export function upgradeHint(plan: PlanId): string {
 
 export async function checkMemoryQuota(databases: Databases, userId: string): Promise<QuotaResult> {
   const user = await getUser(databases, userId);
-  const plan = user ? getEffectivePlan(user) : "free";
+  const plan = await resolvePlan(databases, userId, user);
   // Anyone who was already an active/grace Pro subscriber when the 1,000
   // cap was introduced keeps unlimited memory — see the field comment on
   // UserDoc.grandfatheredUnlimitedMemory in db.ts.

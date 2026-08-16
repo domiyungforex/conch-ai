@@ -14,18 +14,15 @@ const plans = [
     monthly: PLANS.free.priceMonthlyUsd,
     yearly: Math.round(PLANS.free.priceAnnualUsd / 12),
     annualTotal: PLANS.free.priceAnnualUsd,
-    description: "Perfect for getting started",
+    description: "Your account, ready when you are",
     features: [
-      "100 memories",
-      "1 AI agent",
-      "50 conversations/month",
-      "20 chat messages/day",
-      "Semantic search",
-      "Basic memory categories",
-      "Community support",
+      "Free account & dashboard",
+      "Every feature unlocks with Pro or Premium",
+      "Your memories stay yours, always",
+      "Upgrade anytime, no lock-in",
     ],
-    cta: "Start Free",
-    href: "/dashboard",
+    cta: "Create Free Account",
+    href: "/sign-up",
     highlight: false,
   },
   {
@@ -92,7 +89,7 @@ export function PricingSection() {
           {" "}pricing
         </h2>
         <p className="text-slate-400 text-lg max-w-xl mx-auto mb-8">
-          Start free. Scale as you grow. No surprise fees.
+          Start free. Upgrade to unlock every feature. No surprise fees.
         </p>
 
         {/* Toggle */}
