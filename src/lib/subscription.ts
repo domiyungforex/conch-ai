@@ -4,13 +4,23 @@ import { isPaidPlanId, type PlanId, type PaidPlanId } from "./plans";
 export const GRACE_PERIOD_MS = 7 * 24 * 60 * 60 * 1000;
 
 // The operator's testing account. All features — old and new — are unlocked
-// for this email regardless of plan, while every other account must upgrade
+// for this account regardless of plan, while every other account must upgrade
 // before it can use them (see checkFeatureAccess in planLimits.ts and the
-// free-plan gate in moduleFlags.ts). Lowercased for comparison.
+// free-plan gate in moduleFlags.ts).
+//
+// Matched by both the Clerk email and the Clerk user ID (looked up via a
+// read-only Clerk/Appwrite diagnostic). The user-ID match is authoritative:
+// it keeps the override working even if the stored email is blank, stale, or
+// ever changes — the email match is kept as a secondary belt-and-suspenders.
 const TESTER_EMAILS = ["dominionakinyele@gmail.com"];
+const TESTER_USER_IDS = ["user_3Do3FHfevXKyXwIBmbR9fJXJ4tZ"];
 
 export function isTesterEmail(email: string | null | undefined): boolean {
   return !!email && TESTER_EMAILS.includes(email.toLowerCase());
+}
+
+export function isTesterUserId(userId: string | null | undefined): boolean {
+  return !!userId && TESTER_USER_IDS.includes(userId);
 }
 
 export type SubscriptionStatus = "active" | "grace" | "expired-to-free";

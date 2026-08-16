@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type UserDoc, type AppwriteDoc } from "@/lib/db";
-import { getSubscriptionStatus, getEffectivePlan } from "@/lib/subscription";
+import { getSubscriptionStatus, getEffectivePlan, isTesterUserId } from "@/lib/subscription";
 import { resolveUserEmail } from "@/lib/planLimits";
 import { PLANS } from "@/lib/plans";
 import { GlassCard } from "@/components/shared/GlassCard";
@@ -28,8 +28,8 @@ export default async function ProfilePage() {
   const effectiveUser = { ...user, email };
 
   const initial = (user.name?.[0] ?? email[0] ?? "?").toUpperCase();
-  const status = getSubscriptionStatus(effectiveUser);
-  const planLabel = PLANS[getEffectivePlan(effectiveUser)].label;
+  const status = isTesterUserId(userId) ? "active" : getSubscriptionStatus(effectiveUser);
+  const planLabel = isTesterUserId(userId) ? PLANS.premium.label : PLANS[getEffectivePlan(effectiveUser)].label;
 
   return (
     <div className="space-y-6">

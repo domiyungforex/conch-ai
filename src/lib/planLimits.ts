@@ -1,7 +1,7 @@
 import { clerkClient } from "@clerk/nextjs/server";
 import { Query, type Databases } from "node-appwrite";
 import { DB_ID, COLLECTIONS, type UserDoc, type AppwriteDoc } from "./db";
-import { getEffectivePlan } from "./subscription";
+import { getEffectivePlan, isTesterUserId } from "./subscription";
 import type { PlanId } from "./plans";
 
 // Tier limits. Free-tier numbers no longer appear on the landing page
@@ -66,6 +66,10 @@ async function resolvePlan(
   userId: string,
   user: AppwriteDoc<UserDoc> | null
 ): Promise<PlanId> {
+  // The tester account is allowlisted by Clerk user ID, so no email on the
+  // doc and no Clerk lookup is ever needed for it.
+  if (isTesterUserId(userId)) return "premium";
+
   if (!user) {
     // No doc at all: only the tester override can still grant access, so
     // resolve the email instead of defaulting straight to "free".

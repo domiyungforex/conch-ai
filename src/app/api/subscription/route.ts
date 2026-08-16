@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { Query } from "node-appwrite";
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type UserDoc, type PaymentDoc, type AppwriteDoc } from "@/lib/db";
-import { getSubscriptionStatus } from "@/lib/subscription";
+import { getSubscriptionStatus, isTesterUserId } from "@/lib/subscription";
 import { resolveUserEmail } from "@/lib/planLimits";
 
 export async function GET() {
@@ -30,7 +30,7 @@ export async function GET() {
   const email = await resolveUserEmail(databases, userId, user);
 
   return Response.json({
-    status: getSubscriptionStatus({ ...user, email: email ?? "" }),
+    status: isTesterUserId(userId) ? "active" : getSubscriptionStatus({ ...user, email: email ?? "" }),
     plan: user.plan,
     planExpiresAt: user.planExpiresAt,
     payments,
