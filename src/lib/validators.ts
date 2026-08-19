@@ -43,6 +43,11 @@ export const UserSettingsUpdateSchema = z.object({
   notifyAgentAlerts: z.boolean().optional(),
   notifyWeeklyDigest: z.boolean().optional(),
   notifyProductUpdates: z.boolean().optional(),
+  // Conch 2.0: Context Engine settings
+  contextDefaultImportance: z.number().min(0).max(1).optional(),
+  contextDefaultConfidence: z.number().min(0).max(1).optional(),
+  contextRetentionDays: z.number().min(0).max(3650).optional(),
+  contextAutoArchive: z.boolean().optional(),
 });
 
 export const MemoryVerifyConfirmSchema = z.object({

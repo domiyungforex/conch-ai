@@ -82,6 +82,11 @@ export interface UserDoc {
   notifyAgentAlerts?: boolean;
   notifyWeeklyDigest?: boolean;
   notifyProductUpdates?: boolean;
+  // ── Conch 2.0: Context Engine settings ───────────────────────────────
+  contextDefaultImportance?: number;
+  contextDefaultConfidence?: number;
+  contextRetentionDays?: number;
+  contextAutoArchive?: boolean;
   // ISO 3166-1 alpha-2, read from Vercel's x-vercel-ip-country header at
   // signup time and never updated afterward — reflects where the account was
   // created, not current location. Null for accounts created off Vercel

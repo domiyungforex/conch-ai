@@ -10,6 +10,10 @@ export interface UserSettings {
   notifyAgentAlerts: boolean;
   notifyWeeklyDigest: boolean;
   notifyProductUpdates: boolean;
+  contextDefaultImportance: number;
+  contextDefaultConfidence: number;
+  contextRetentionDays: number;
+  contextAutoArchive: boolean;
 }
 
 async function fetchSettings(): Promise<UserSettings> {

@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { User, Bell, Lock, Key, CreditCard } from "lucide-react";
+import { User, Bell, Lock, Key, CreditCard, Layers } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/settings/profile", label: "Profile", icon: User },
   { href: "/settings/billing", label: "Billing", icon: CreditCard },
   { href: "/settings/notifications", label: "Notifications", icon: Bell },
+  { href: "/settings/context", label: "Context Engine", icon: Layers },
   { href: "/settings/privacy", label: "Privacy", icon: Lock },
   { href: "/settings/api-keys", label: "API Keys", icon: Key },
 ];

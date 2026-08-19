@@ -5,7 +5,7 @@ import { UserSettingsUpdateSchema } from "@/lib/validators";
 
 const DEFAULTS: Pick<
   UserDoc,
-  "publicProfile" | "notifyChatSummaries" | "notifyMemoryInsights" | "notifyAgentAlerts" | "notifyWeeklyDigest" | "notifyProductUpdates"
+  "publicProfile" | "notifyChatSummaries" | "notifyMemoryInsights" | "notifyAgentAlerts" | "notifyWeeklyDigest" | "notifyProductUpdates" | "contextDefaultImportance" | "contextDefaultConfidence" | "contextRetentionDays" | "contextAutoArchive"
 > = {
   publicProfile: false,
   notifyChatSummaries: true,
@@ -13,6 +13,10 @@ const DEFAULTS: Pick<
   notifyAgentAlerts: false,
   notifyWeeklyDigest: true,
   notifyProductUpdates: false,
+  contextDefaultImportance: 0.5,
+  contextDefaultConfidence: 0.5,
+  contextRetentionDays: 0,
+  contextAutoArchive: false,
 };
 
 export async function GET() {
@@ -35,6 +39,10 @@ export async function GET() {
       notifyAgentAlerts: user.notifyAgentAlerts ?? DEFAULTS.notifyAgentAlerts,
       notifyWeeklyDigest: user.notifyWeeklyDigest ?? DEFAULTS.notifyWeeklyDigest,
       notifyProductUpdates: user.notifyProductUpdates ?? DEFAULTS.notifyProductUpdates,
+      contextDefaultImportance: user.contextDefaultImportance ?? DEFAULTS.contextDefaultImportance,
+      contextDefaultConfidence: user.contextDefaultConfidence ?? DEFAULTS.contextDefaultConfidence,
+      contextRetentionDays: user.contextRetentionDays ?? DEFAULTS.contextRetentionDays,
+      contextAutoArchive: user.contextAutoArchive ?? DEFAULTS.contextAutoArchive,
     },
   });
 }
@@ -67,6 +75,10 @@ export async function PATCH(req: Request) {
       notifyAgentAlerts: user.notifyAgentAlerts ?? DEFAULTS.notifyAgentAlerts,
       notifyWeeklyDigest: user.notifyWeeklyDigest ?? DEFAULTS.notifyWeeklyDigest,
       notifyProductUpdates: user.notifyProductUpdates ?? DEFAULTS.notifyProductUpdates,
+      contextDefaultImportance: user.contextDefaultImportance ?? DEFAULTS.contextDefaultImportance,
+      contextDefaultConfidence: user.contextDefaultConfidence ?? DEFAULTS.contextDefaultConfidence,
+      contextRetentionDays: user.contextRetentionDays ?? DEFAULTS.contextRetentionDays,
+      contextAutoArchive: user.contextAutoArchive ?? DEFAULTS.contextAutoArchive,
     },
   });
 }
