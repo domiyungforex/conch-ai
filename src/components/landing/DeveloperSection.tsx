@@ -7,9 +7,12 @@ import { Button } from "@/components/ui/button";
 import { GlassCard } from "@/components/shared/GlassCard";
 
 const endpoints = [
-  { method: "POST", path: "/v1/memories", desc: "Store a memory" },
-  { method: "POST", path: "/v1/memories/search", desc: "Semantic search" },
-  { method: "POST", path: "/v1/memories/recall", desc: "Recall context" },
+  { method: "POST", path: "/api/context", desc: "Store context" },
+  { method: "POST", path: "/api/context/decisions", desc: "Store decisions" },
+  { method: "POST", path: "/api/context/constraints", desc: "Store constraints" },
+  { method: "POST", path: "/api/agents/handoffs", desc: "Agent handoffs" },
+  { method: "GET", path: "/api/context?q=...", desc: "Semantic search" },
+  { method: "GET", path: "/api/projects", desc: "List projects" },
 ];
 
 const sdkLines = [
@@ -17,16 +20,26 @@ const sdkLines = [
   "",
   'const conch = new Conch({ apiKey: process.env.CONCH_API_KEY });',
   "",
-  "// Your AI remembers, forever",
-  "await conch.memory.save({",
-  '  userId: "user_123",',
-  '  content: "User prefers concise answers."',
+  "// Store a decision with full reasoning",
+  "await conch.decisions.create({",
+  '  what: "Use Anthropic for model infrastructure",',
+  '  why: "Stable performance, manageable cost",',
+  '  constraints: "Keep initial budget low",',
   "});",
   "",
-  "// Any query finds the right memory",
-  'const context = await conch.memory.recall({',
-  '  userId: "user_123",',
-  '  query: "How does this user prefer answers?"',
+  "// Retrieve context for an agent",
+  'const context = await conch.context.retrieve({',
+  '  query: "What decisions apply to this task?",',
+  '  projectId: "proj_123",',
+  "});",
+  "",
+  "// Hand off structured context between agents",
+  'await conch.handoffs.create({',
+  '  fromAgentId: "agent_a",',
+  '  toAgentId: "agent_b",',
+  '  objective: "Research market fit",',
+  '  workCompleted: "Found 3 key insights",',
+  '  requiredAction: "Create action plan",',
   "});",
 ];
 
@@ -48,16 +61,16 @@ export function DeveloperSection() {
             transition={{ duration: 0.7 }}
           >
             <span className="inline-flex items-center px-3 py-1 rounded-full glass border border-coral-500/25 eyebrow text-coral-600 mb-5">
-              For AI Companies
+              For Developers
             </span>
             <h2 className="font-display text-4xl sm:text-5xl font-medium text-slate-900 tracking-tight mb-5">
-              The memory backend{" "}
-              <span className="gradient-text">for any AI</span>
+              The context API{" "}
+              <span className="gradient-text">for any agent</span>
             </h2>
             <p className="text-lg text-slate-500 leading-relaxed mb-8">
-              Conch is a persistent, model-agnostic memory layer behind one API. Any app, agent, or
-              model, GPT, Claude, Gemini, or your own, can store, search, and recall memory in
-              minutes, not months. AI can think. Conch remembers.
+              Conch is a structured context layer behind one API. Any agent, app, or model can store
+              decisions, retrieve constraints, and hand off structured context in minutes, not months.
+              Intelligence tells an agent what to do. Conch tells it what came before.
             </p>
 
             {/* Endpoint chips */}

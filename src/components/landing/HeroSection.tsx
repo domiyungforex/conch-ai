@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button";
 import { GradientText } from "@/components/shared/GradientText";
 
 const subPhrases = [
-  "Portable memory.",
-  "Persistent memory.",
-  "Every conversation becomes memory.",
-  "AI that remembers you everywhere.",
+  "Context survives every handoff.",
+  "Meaning persists between agents.",
+  "Decisions remembered. Constraints enforced.",
+  "The infrastructure for intelligent continuity.",
 ];
 
 export function HeroSection() {
@@ -99,15 +99,19 @@ export function HeroSection() {
           <div className="flex justify-center mb-8">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass border border-coral-500/30 eyebrow text-coral-300 font-medium">
               <Sparkles className="w-3.5 h-3.5 text-coral-400" />
-              The memory layer for AI
+              The context layer for AI agents
             </div>
           </div>
 
           {/* Main headline */}
           <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-normal text-white leading-[1.05] tracking-tight mb-4">
-            AI can think.
+            Intelligence tells
             <br />
-            <GradientText variant="full">Conch remembers.</GradientText>
+            an agent what to do.
+            <br />
+            <GradientText variant="full">Conch helps it understand</GradientText>
+            <br />
+            <GradientText variant="full">what came before.</GradientText>
           </h1>
 
           {/* Animated sub-phrase */}
@@ -120,8 +124,8 @@ export function HeroSection() {
 
           {/* Static subheadline */}
           <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed mb-10">
-            Every conversation becomes memory. Every memory stays yours, carried across every model, app, and
-            device, recalled the moment you need it.
+            Persistent context, decisions, constraints, and memory — carried across every agent, model,
+            and task. The infrastructure that allows meaning to survive between handoffs.
           </p>
 
           {/* CTAs */}
@@ -146,8 +150,8 @@ export function HeroSection() {
           <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-56 memory-divider opacity-60" />
         </div>
 
-        {/* Floating memory cards */}
-        <div className="relative mt-20 max-w-3xl mx-auto">
+        {/* Agent workflow visualization */}
+        <div className="relative mt-20 max-w-4xl mx-auto">
           {/* SVG neural connections */}
           <div className="absolute inset-0 pointer-events-none hidden sm:block">
             <svg
@@ -156,67 +160,66 @@ export function HeroSection() {
               preserveAspectRatio="none"
               xmlns="http://www.w3.org/2000/svg"
             >
-              <path
-                d="M 50 20 Q 30 10 18 30"
-                fill="none"
-                style={{ stroke: "var(--color-coral-400)" }}
-                strokeOpacity="0.25"
-                strokeWidth="0.75"
-                vectorEffect="non-scaling-stroke"
-              />
-              <path
-                d="M 50 20 Q 72 10 82 28"
-                fill="none"
-                style={{ stroke: "var(--color-coral-400)" }}
-                strokeOpacity="0.25"
-                strokeWidth="0.75"
-                vectorEffect="non-scaling-stroke"
-              />
+              <path d="M 15 50 Q 25 30 35 50" fill="none" style={{ stroke: "var(--color-coral-400)" }} strokeOpacity="0.3" strokeWidth="0.75" vectorEffect="non-scaling-stroke" />
+              <path d="M 35 50 Q 45 30 55 50" fill="none" style={{ stroke: "var(--color-teal-400)" }} strokeOpacity="0.3" strokeWidth="0.75" vectorEffect="non-scaling-stroke" />
+              <path d="M 55 50 Q 65 30 75 50" fill="none" style={{ stroke: "var(--color-gold-400)" }} strokeOpacity="0.3" strokeWidth="0.75" vectorEffect="non-scaling-stroke" />
+              <path d="M 75 50 Q 85 30 95 50" fill="none" style={{ stroke: "var(--color-coral-400)" }} strokeOpacity="0.3" strokeWidth="0.75" vectorEffect="non-scaling-stroke" />
             </svg>
           </div>
 
-          <div className="flex items-start justify-center gap-4 sm:gap-6">
-            {/* Left card — hidden on mobile */}
-            <div className="hidden sm:block w-56 lg:w-64 flex-shrink-0 animate-float-delayed opacity-75 mt-8">
+          <div className="flex items-start justify-center gap-3 sm:gap-5">
+            {/* RESEARCH agent */}
+            <div className="hidden sm:block w-40 lg:w-48 flex-shrink-0 animate-float-delayed opacity-75 mt-8">
               <div className="glass border border-white/8 rounded-2xl p-4 shadow-xl">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-6 h-6 rounded-lg bg-teal-500/20 flex items-center justify-center">
-                    <span className="text-xs text-teal-400">P</span>
+                    <span className="text-xs text-teal-400">R</span>
                   </div>
-                  <p className="text-xs font-semibold text-teal-300">PREFERENCE</p>
+                  <p className="text-xs font-semibold text-teal-300">RESEARCH</p>
                 </div>
-                <p className="text-xs text-slate-300">Dark mode advocate. Minimal UI. Keyboard-first workflows.</p>
+                <p className="text-xs text-slate-300">Gathered 12 data points. Confidence: 0.87</p>
               </div>
             </div>
 
-            {/* Center card */}
-            <div className="w-full sm:w-72 lg:w-80 flex-shrink-0 glass border border-white/10 rounded-2xl p-5 shadow-2xl z-10 animate-float">
+            {/* CONCH CONTEXT — center card */}
+            <div className="w-full sm:w-56 lg:w-64 flex-shrink-0 glass border border-white/10 rounded-2xl p-5 shadow-2xl z-10 animate-float">
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 rounded-xl bg-coral-500/20 flex items-center justify-center flex-shrink-0">
                   <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-coral-400">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" fill="currentColor"/>
+                    <path d="M13.2 20c-4.6 0-7.7-3.4-7.7-7.3 0-3.2 2.3-5.6 5.2-5.6 2.4 0 4.1 1.7 4.1 3.9 0 1.8-1.2 3.1-2.8 3.1-1.3 0-2.2-.9-2.2-2.1 0-.9.6-1.6 1.5-1.6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" fill="none"/>
                   </svg>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-coral-300 mb-1">SEMANTIC MEMORY</p>
-                  <p className="text-sm text-white">Prefers TypeScript over JavaScript for type safety in large codebases.</p>
-                  <p className="text-xs text-slate-500 mt-2">Accessed 47 times · 2 days ago</p>
+                  <p className="text-xs font-semibold text-coral-300 mb-1">CONCH CONTEXT</p>
+                  <p className="text-sm text-white">Structured context preserved. Meaning survives the handoff.</p>
+                  <p className="text-xs text-slate-500 mt-2">3 decisions · 5 constraints · 12 memories</p>
                 </div>
               </div>
             </div>
 
-            {/* Right card — hidden on mobile */}
-            <div className="hidden sm:block w-52 lg:w-60 flex-shrink-0 opacity-75 animate-float mt-4">
+            {/* EXECUTE agent */}
+            <div className="hidden sm:block w-40 lg:w-48 flex-shrink-0 opacity-75 animate-float mt-4">
               <div className="glass border border-white/8 rounded-2xl p-4 shadow-xl">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="w-6 h-6 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                    <span className="text-xs text-emerald-400">E</span>
+                  <div className="w-6 h-6 rounded-lg bg-gold-500/20 flex items-center justify-center">
+                    <span className="text-xs text-gold-400">E</span>
                   </div>
-                  <p className="text-xs font-semibold text-emerald-300">EPISODIC</p>
+                  <p className="text-xs font-semibold text-gold-300">EXECUTE</p>
                 </div>
-                <p className="text-xs text-slate-300">Launched v2.0 on Base chain. Reviewed by 200 users.</p>
+                <p className="text-xs text-slate-300">Received full context. No re-explanation needed.</p>
               </div>
             </div>
+          </div>
+
+          {/* Flow arrows */}
+          <div className="flex justify-center gap-4 sm:gap-8 mt-4 text-[10px] text-slate-500 uppercase tracking-widest">
+            <span>Research</span>
+            <span className="text-coral-400">→ Conch →</span>
+            <span>Plan</span>
+            <span className="text-coral-400">→ Conch →</span>
+            <span>Execute</span>
+            <span className="text-coral-400">→ Conch →</span>
+            <span>Verify</span>
           </div>
         </div>
       </div>

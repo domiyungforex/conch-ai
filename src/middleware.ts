@@ -21,6 +21,8 @@ const isProtectedRoute = createRouteMatcher([
   "/shared(.*)",
   "/developers(.*)",
   "/creators(.*)",
+  "/context(.*)",
+  "/projects(.*)",
 ]);
 
 // Auth pages are only for signed-out users. A signed-in user must never see

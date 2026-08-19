@@ -56,6 +56,80 @@ export const SubscriptionConfirmSchema = z.object({
   plan: z.enum(PAID_PLAN_IDS),
 });
 
+// ── Conch 2.0: Context Engine Validators ───────────────────────────────────
+
+export const ContextCreateSchema = z.object({
+  type: z.enum(["memory", "intent", "goal", "decision", "constraint", "assumption", "instruction", "preference", "task_state", "project_state", "knowledge"]),
+  content: z.string().min(1).max(10000),
+  projectId: z.string().max(36).optional(),
+  agentId: z.string().max(36).optional(),
+  importance: z.number().min(0).max(1).default(0.5),
+  confidence: z.number().min(0).max(1).default(0.5),
+  source: z.enum(["user", "conversation", "document", "agent", "external_api", "database", "developer", "system", "verified_source"]).default("user"),
+  sourceDetail: z.string().max(500).optional(),
+  tags: z.array(z.string().max(50)).max(20).default([]),
+  relatedIds: z.array(z.string().max(36)).max(20).default([]),
+  lifecycle: z.enum(["draft", "active", "verified", "stale", "superseded", "archived", "deleted"]).default("active"),
+});
+
+export const ContextUpdateSchema = z.object({
+  content: z.string().min(1).max(10000).optional(),
+  importance: z.number().min(0).max(1).optional(),
+  confidence: z.number().min(0).max(1).optional(),
+  lifecycle: z.enum(["draft", "active", "verified", "stale", "superseded", "archived", "deleted"]).optional(),
+  tags: z.array(z.string().max(50)).max(20).optional(),
+  relatedIds: z.array(z.string().max(36)).max(20).optional(),
+});
+
+export const DecisionCreateSchema = z.object({
+  projectId: z.string().max(36).optional(),
+  what: z.string().min(1).max(2000),
+  why: z.string().min(1).max(2000),
+  who: z.string().max(200).default("user"),
+  alternatives: z.string().max(2000).default(""),
+  constraints: z.string().max(2000).default(""),
+  assumptions: z.string().max(2000).default(""),
+  fallbackCondition: z.string().max(1000).optional(),
+  agentId: z.string().max(36).optional(),
+  confidence: z.number().min(0).max(1).default(0.5),
+  tags: z.array(z.string().max(50)).max(20).default([]),
+});
+
+export const ConstraintCreateSchema = z.object({
+  projectId: z.string().max(36).optional(),
+  content: z.string().min(1).max(2000),
+  category: z.string().min(1).max(100),
+  severity: z.enum(["hard", "soft"]).default("hard"),
+  source: z.enum(["user", "conversation", "document", "agent", "external_api", "database", "developer", "system", "verified_source"]).default("user"),
+  sourceDetail: z.string().max(500).optional(),
+  agentId: z.string().max(36).optional(),
+  tags: z.array(z.string().max(50)).max(20).default([]),
+});
+
+export const ProjectCreateSchema = z.object({
+  name: z.string().min(1).max(200),
+  description: z.string().max(2000).optional(),
+  tags: z.array(z.string().max(50)).max(20).default([]),
+});
+
+export const HandoffCreateSchema = z.object({
+  fromAgentId: z.string().min(1).max(36),
+  toAgentId: z.string().min(1).max(36),
+  projectId: z.string().max(36).optional(),
+  objective: z.string().min(1).max(2000),
+  workCompleted: z.string().min(1).max(5000),
+  findings: z.string().max(5000).default(""),
+  decisions: z.string().max(5000).default(""),
+  reasoning: z.string().max(5000).default(""),
+  constraints: z.string().max(5000).default(""),
+  unresolvedIssues: z.string().max(5000).default(""),
+  assumptions: z.string().max(5000).default(""),
+  requiredAction: z.string().min(1).max(2000),
+  relevantMemoryIds: z.array(z.string().max(36)).max(50).default([]),
+  sources: z.string().max(2000).default(""),
+  confidence: z.number().min(0).max(1).default(0.5),
+});
+
 export const MemoryUpdateSchema = z.object({
   content: z.string().min(1).max(5000).optional(),
   category: z.enum(["EPISODIC", "SEMANTIC", "PREFERENCE", "PROCEDURAL"]).optional(),

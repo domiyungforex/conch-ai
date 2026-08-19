@@ -231,6 +231,197 @@ async function setupCollections() {
     db.createIndex(DB_ID, "api_keys", "idx_keyHash", IndexType.Unique, ["keyHash"])
   );
 
+  // ── Conch 2.0: Context Engine collections ─────────────────────────────────
+  console.log("\n=== Creating Conch 2.0 context engine collections ===\n");
+
+  // ── projects ──────────────────────────────────────────────────────────────
+  await tryCreate("collection: projects", () =>
+    db.createCollection(DB_ID, "projects", "projects")
+  );
+  for (const [key, fn] of [
+    ["userId",      () => db.createStringAttribute(DB_ID, "projects", "userId",      36,   true)],
+    ["name",        () => db.createStringAttribute(DB_ID, "projects", "name",        256,  true)],
+    ["description", () => db.createStringAttribute(DB_ID, "projects", "description", 2000, false)],
+    ["status",      () => db.createEnumAttribute(DB_ID,   "projects", "status",      ["active","paused","completed","archived"], true, "active")],
+    ["tags",        () => db.createStringAttribute(DB_ID, "projects", "tags",        256,  false, undefined, true)],
+    ["agentIds",    () => db.createStringAttribute(DB_ID, "projects", "agentIds",    36,   false, undefined, true)],
+    ["memoryIds",   () => db.createStringAttribute(DB_ID, "projects", "memoryIds",   36,   false, undefined, true)],
+  ] as [string, () => Promise<unknown>][]) {
+    await tryCreate(`  attr projects.${key}`, fn);
+  }
+  await tryCreate("index: projects.userId", () =>
+    db.createIndex(DB_ID, "projects", "idx_userId", IndexType.Key, ["userId"])
+  );
+
+  // ── context_objects ────────────────────────────────────────────────────────
+  await tryCreate("collection: context_objects", () =>
+    db.createCollection(DB_ID, "context_objects", "context_objects")
+  );
+  for (const [key, fn] of [
+    ["userId",         () => db.createStringAttribute(DB_ID, "context_objects", "userId",         36,    true)],
+    ["projectId",      () => db.createStringAttribute(DB_ID, "context_objects", "projectId",      36,    false)],
+    ["type",           () => db.createEnumAttribute(DB_ID,   "context_objects", "type",           ["memory","intent","goal","decision","constraint","assumption","instruction","preference","task_state","project_state","knowledge"], true, "memory")],
+    ["content",        () => db.createStringAttribute(DB_ID, "context_objects", "content",        10000, true)],
+    ["lifecycle",      () => db.createEnumAttribute(DB_ID,   "context_objects", "lifecycle",      ["draft","active","verified","stale","superseded","archived","deleted"], true, "active")],
+    ["importance",     () => db.createFloatAttribute(DB_ID,  "context_objects", "importance",     false, 0, 1, 0.5)],
+    ["confidence",     () => db.createFloatAttribute(DB_ID,  "context_objects", "confidence",     false, 0, 1, 0.5)],
+    ["source",         () => db.createEnumAttribute(DB_ID,   "context_objects", "source",         ["user","conversation","document","agent","external_api","database","developer","system","verified_source"], true, "user")],
+    ["sourceDetail",   () => db.createStringAttribute(DB_ID, "context_objects", "sourceDetail",   500,   false)],
+    ["agentId",        () => db.createStringAttribute(DB_ID, "context_objects", "agentId",        36,    false)],
+    ["tags",           () => db.createStringAttribute(DB_ID, "context_objects", "tags",           256,   false, undefined, true)],
+    ["relatedIds",     () => db.createStringAttribute(DB_ID, "context_objects", "relatedIds",     36,    false, undefined, true)],
+    ["supersededBy",   () => db.createStringAttribute(DB_ID, "context_objects", "supersededBy",   36,    false)],
+    ["version",        () => db.createIntegerAttribute(DB_ID,"context_objects", "version",        false, 1)],
+    ["embedding",      () => db.createFloatAttribute(DB_ID,  "context_objects", "embedding",      false, undefined, undefined, undefined, true)],
+  ] as [string, () => Promise<unknown>][]) {
+    await tryCreate(`  attr context_objects.${key}`, fn);
+  }
+  await tryCreate("index: context_objects.userId", () =>
+    db.createIndex(DB_ID, "context_objects", "idx_userId", IndexType.Key, ["userId"])
+  );
+  await tryCreate("index: context_objects.projectId", () =>
+    db.createIndex(DB_ID, "context_objects", "idx_projectId", IndexType.Key, ["projectId"])
+  );
+
+  // ── decisions ──────────────────────────────────────────────────────────────
+  await tryCreate("collection: decisions", () =>
+    db.createCollection(DB_ID, "decisions", "decisions")
+  );
+  for (const [key, fn] of [
+    ["userId",             () => db.createStringAttribute(DB_ID, "decisions", "userId",             36,    true)],
+    ["projectId",          () => db.createStringAttribute(DB_ID, "decisions", "projectId",          36,    false)],
+    ["what",               () => db.createStringAttribute(DB_ID, "decisions", "what",               2000,  true)],
+    ["why",                () => db.createStringAttribute(DB_ID, "decisions", "why",                2000,  true)],
+    ["who",                () => db.createStringAttribute(DB_ID, "decisions", "who",                200,   true, "user")],
+    ["alternatives",       () => db.createStringAttribute(DB_ID, "decisions", "alternatives",       2000,  false)],
+    ["constraints",        () => db.createStringAttribute(DB_ID, "decisions", "constraints",        2000,  false)],
+    ["assumptions",        () => db.createStringAttribute(DB_ID, "decisions", "assumptions",        2000,  false)],
+    ["fallbackCondition",  () => db.createStringAttribute(DB_ID, "decisions", "fallbackCondition",  1000,  false)],
+    ["status",             () => db.createEnumAttribute(DB_ID,   "decisions", "status",             ["active","superseded","archived"], true, "active")],
+    ["supersededBy",       () => db.createStringAttribute(DB_ID, "decisions", "supersededBy",       36,    false)],
+    ["agentId",            () => db.createStringAttribute(DB_ID, "decisions", "agentId",            36,    false)],
+    ["confidence",         () => db.createFloatAttribute(DB_ID,  "decisions", "confidence",         false, 0, 1, 0.5)],
+    ["tags",               () => db.createStringAttribute(DB_ID, "decisions", "tags",               256,   false, undefined, true)],
+  ] as [string, () => Promise<unknown>][]) {
+    await tryCreate(`  attr decisions.${key}`, fn);
+  }
+  await tryCreate("index: decisions.userId", () =>
+    db.createIndex(DB_ID, "decisions", "idx_userId", IndexType.Key, ["userId"])
+  );
+
+  // ── constraints ────────────────────────────────────────────────────────────
+  await tryCreate("collection: constraints", () =>
+    db.createCollection(DB_ID, "constraints", "constraints")
+  );
+  for (const [key, fn] of [
+    ["userId",       () => db.createStringAttribute(DB_ID, "constraints", "userId",       36,   true)],
+    ["projectId",    () => db.createStringAttribute(DB_ID, "constraints", "projectId",    36,   false)],
+    ["content",      () => db.createStringAttribute(DB_ID, "constraints", "content",      2000, true)],
+    ["category",     () => db.createStringAttribute(DB_ID, "constraints", "category",     100,  true)],
+    ["severity",     () => db.createEnumAttribute(DB_ID,   "constraints", "severity",     ["hard","soft"], true, "hard")],
+    ["source",       () => db.createEnumAttribute(DB_ID,   "constraints", "source",       ["user","conversation","document","agent","external_api","database","developer","system","verified_source"], true, "user")],
+    ["sourceDetail", () => db.createStringAttribute(DB_ID, "constraints", "sourceDetail", 500,  false)],
+    ["status",       () => db.createEnumAttribute(DB_ID,   "constraints", "status",       ["active","relaxed","removed"], true, "active")],
+    ["agentId",      () => db.createStringAttribute(DB_ID, "constraints", "agentId",      36,   false)],
+    ["tags",         () => db.createStringAttribute(DB_ID, "constraints", "tags",         256,  false, undefined, true)],
+  ] as [string, () => Promise<unknown>][]) {
+    await tryCreate(`  attr constraints.${key}`, fn);
+  }
+  await tryCreate("index: constraints.userId", () =>
+    db.createIndex(DB_ID, "constraints", "idx_userId", IndexType.Key, ["userId"])
+  );
+
+  // ── agent_state ────────────────────────────────────────────────────────────
+  await tryCreate("collection: agent_state", () =>
+    db.createCollection(DB_ID, "agent_state", "agent_state")
+  );
+  for (const [key, fn] of [
+    ["agentId",          () => db.createStringAttribute(DB_ID, "agent_state", "agentId",          36,   true)],
+    ["userId",           () => db.createStringAttribute(DB_ID, "agent_state", "userId",           36,   true)],
+    ["projectId",        () => db.createStringAttribute(DB_ID, "agent_state", "projectId",        36,   false)],
+    ["currentState",     () => db.createStringAttribute(DB_ID, "agent_state", "currentState",     2000, true)],
+    ["currentTask",      () => db.createStringAttribute(DB_ID, "agent_state", "currentTask",      2000, false)],
+    ["lastActiveAt",     () => db.createStringAttribute(DB_ID, "agent_state", "lastActiveAt",     64,   true)],
+    ["contextVersion",   () => db.createIntegerAttribute(DB_ID,"agent_state", "contextVersion",   false, 1)],
+    ["memorySnapshot",   () => db.createStringAttribute(DB_ID, "agent_state", "memorySnapshot",   36,   false, undefined, true)],
+  ] as [string, () => Promise<unknown>][]) {
+    await tryCreate(`  attr agent_state.${key}`, fn);
+  }
+  await tryCreate("index: agent_state.agentId", () =>
+    db.createIndex(DB_ID, "agent_state", "idx_agentId", IndexType.Unique, ["agentId"])
+  );
+
+  // ── agent_handoffs ─────────────────────────────────────────────────────────
+  await tryCreate("collection: agent_handoffs", () =>
+    db.createCollection(DB_ID, "agent_handoffs", "agent_handoffs")
+  );
+  for (const [key, fn] of [
+    ["fromAgentId",       () => db.createStringAttribute(DB_ID, "agent_handoffs", "fromAgentId",       36,    true)],
+    ["toAgentId",         () => db.createStringAttribute(DB_ID, "agent_handoffs", "toAgentId",         36,    true)],
+    ["userId",            () => db.createStringAttribute(DB_ID, "agent_handoffs", "userId",            36,    true)],
+    ["projectId",         () => db.createStringAttribute(DB_ID, "agent_handoffs", "projectId",         36,    false)],
+    ["objective",         () => db.createStringAttribute(DB_ID, "agent_handoffs", "objective",         2000,  true)],
+    ["workCompleted",     () => db.createStringAttribute(DB_ID, "agent_handoffs", "workCompleted",     5000,  true)],
+    ["findings",          () => db.createStringAttribute(DB_ID, "agent_handoffs", "findings",          5000,  false)],
+    ["decisions",         () => db.createStringAttribute(DB_ID, "agent_handoffs", "decisions",         5000,  false)],
+    ["reasoning",         () => db.createStringAttribute(DB_ID, "agent_handoffs", "reasoning",         5000,  false)],
+    ["constraints",       () => db.createStringAttribute(DB_ID, "agent_handoffs", "constraints",       5000,  false)],
+    ["unresolvedIssues",  () => db.createStringAttribute(DB_ID, "agent_handoffs", "unresolvedIssues",  5000,  false)],
+    ["assumptions",       () => db.createStringAttribute(DB_ID, "agent_handoffs", "assumptions",       5000,  false)],
+    ["requiredAction",    () => db.createStringAttribute(DB_ID, "agent_handoffs", "requiredAction",    2000,  true)],
+    ["relevantMemoryIds", () => db.createStringAttribute(DB_ID, "agent_handoffs", "relevantMemoryIds", 36,    false, undefined, true)],
+    ["sources",           () => db.createStringAttribute(DB_ID, "agent_handoffs", "sources",           2000,  false)],
+    ["confidence",        () => db.createFloatAttribute(DB_ID,  "agent_handoffs", "confidence",        false, 0, 1, 0.5)],
+    ["status",            () => db.createEnumAttribute(DB_ID,   "agent_handoffs", "status",            ["pending","accepted","rejected","completed"], true, "pending")],
+    ["contextVersion",    () => db.createIntegerAttribute(DB_ID,"agent_handoffs", "contextVersion",    false, 1)],
+  ] as [string, () => Promise<unknown>][]) {
+    await tryCreate(`  attr agent_handoffs.${key}`, fn);
+  }
+  await tryCreate("index: agent_handoffs.userId", () =>
+    db.createIndex(DB_ID, "agent_handoffs", "idx_userId", IndexType.Key, ["userId"])
+  );
+  await tryCreate("index: agent_handoffs.toAgentId", () =>
+    db.createIndex(DB_ID, "agent_handoffs", "idx_toAgentId", IndexType.Key, ["toAgentId"])
+  );
+
+  // ── context_permissions ─────────────────────────────────────────────────────
+  await tryCreate("collection: context_permissions", () =>
+    db.createCollection(DB_ID, "context_permissions", "context_permissions")
+  );
+  for (const [key, fn] of [
+    ["userId",       () => db.createStringAttribute(DB_ID, "context_permissions", "userId",       36,   true)],
+    ["contextId",    () => db.createStringAttribute(DB_ID, "context_permissions", "contextId",    36,   true)],
+    ["contextType",  () => db.createStringAttribute(DB_ID, "context_permissions", "contextType",  64,   true)],
+    ["granteeType",  () => db.createEnumAttribute(DB_ID,   "context_permissions", "granteeType",  ["agent","user","application"], true, "agent")],
+    ["granteeId",    () => db.createStringAttribute(DB_ID, "context_permissions", "granteeId",    36,   true)],
+    ["level",        () => db.createEnumAttribute(DB_ID,   "context_permissions", "level",        ["PRIVATE","USER_ONLY","PROJECT","TEAM","AGENT","APPLICATION","PUBLIC"], true, "PRIVATE")],
+    ["expiresAt",    () => db.createStringAttribute(DB_ID, "context_permissions", "expiresAt",    64,   false)],
+  ] as [string, () => Promise<unknown>][]) {
+    await tryCreate(`  attr context_permissions.${key}`, fn);
+  }
+  await tryCreate("index: context_permissions.contextId", () =>
+    db.createIndex(DB_ID, "context_permissions", "idx_contextId", IndexType.Key, ["contextId"])
+  );
+
+  // ── context_provenance ─────────────────────────────────────────────────────
+  await tryCreate("collection: context_provenance", () =>
+    db.createCollection(DB_ID, "context_provenance", "context_provenance")
+  );
+  for (const [key, fn] of [
+    ["contextId",     () => db.createStringAttribute(DB_ID, "context_provenance", "contextId",     36,   true)],
+    ["contextType",   () => db.createStringAttribute(DB_ID, "context_provenance", "contextType",   64,   true)],
+    ["source",        () => db.createEnumAttribute(DB_ID,   "context_provenance", "source",        ["user","conversation","document","agent","external_api","database","developer","system","verified_source"], true, "user")],
+    ["sourceDetail",  () => db.createStringAttribute(DB_ID, "context_provenance", "sourceDetail",  500,  false)],
+    ["agentId",       () => db.createStringAttribute(DB_ID, "context_provenance", "agentId",       36,   false)],
+    ["verifiedAt",    () => db.createStringAttribute(DB_ID, "context_provenance", "verifiedAt",    64,   false)],
+    ["confidence",    () => db.createFloatAttribute(DB_ID,  "context_provenance", "confidence",    false, 0, 1, 0.5)],
+  ] as [string, () => Promise<unknown>][]) {
+    await tryCreate(`  attr context_provenance.${key}`, fn);
+  }
+  await tryCreate("index: context_provenance.contextId", () =>
+    db.createIndex(DB_ID, "context_provenance", "idx_contextId", IndexType.Key, ["contextId"])
+  );
+
   console.log("\n✅ All collections and attributes created.\n");
   console.log("Next: add APPWRITE_DATABASE_ID to your .env and run npm run dev\n");
 }

@@ -6,15 +6,17 @@ import { USDC_DECIMALS } from "./subscriptionChain";
 // changes.
 export const PLANS = {
   free: { id: "free", label: "Free", priceMonthlyUsd: 0, priceAnnualUsd: 0 },
+  starter: { id: "starter", label: "Starter", priceMonthlyUsd: 5, priceAnnualUsd: 48 },
   pro: { id: "pro", label: "Pro", priceMonthlyUsd: 19, priceAnnualUsd: 180 },
   premium: { id: "premium", label: "Premium", priceMonthlyUsd: 39, priceAnnualUsd: 374 },
+  enterprise: { id: "enterprise", label: "Enterprise", priceMonthlyUsd: 99, priceAnnualUsd: 950 },
 } as const;
 
 export type PlanId = keyof typeof PLANS;
 
 // Any plan a user can actually be subscribed to and pay for (excludes "free",
 // which is the default state rather than something purchased).
-export const PAID_PLAN_IDS = ["pro", "premium"] as const satisfies readonly PlanId[];
+export const PAID_PLAN_IDS = ["starter", "pro", "premium", "enterprise"] as const satisfies readonly PlanId[];
 export type PaidPlanId = (typeof PAID_PLAN_IDS)[number];
 
 export function isPaidPlanId(id: string): id is PaidPlanId {

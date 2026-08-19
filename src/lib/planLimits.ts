@@ -8,17 +8,28 @@ import type { PlanId } from "./plans";
 // (src/components/landing/PricingSection.tsx): non-tester free accounts are
 // gated behind an upgrade via checkFeatureAccess, so these quotas only ever
 // apply to legacy/edge paths, not real free users.
-// Pro: 1,000 memories, 10 agents, unlimited conversations & chat.
+// Starter: 500 memories, 3 agents, 200 contexts, 5 projects.
+// Pro: 2,000 memories, 10 agents, 1,000 contexts, 20 projects, unlimited conversations & chat.
 // Premium: unlimited everything — every check below short-circuits for it.
 export const FREE_LIMITS = {
   memories: 100,
   agents: 1,
   conversationsPerMonth: 50,
   chatMessagesPerDay: 20,
+  contexts: 0,
+  projects: 0,
+};
+export const STARTER_LIMITS = {
+  memories: 500,
+  agents: 3,
+  contexts: 200,
+  projects: 5,
 };
 export const PRO_LIMITS = {
-  memories: 1000,
+  memories: 2000,
   agents: 10,
+  contexts: 1000,
+  projects: 20,
 };
 
 async function getUser(databases: Databases, userId: string): Promise<AppwriteDoc<UserDoc> | null> {
@@ -124,12 +135,12 @@ export function upgradeHint(plan: PlanId): string {
 export async function checkMemoryQuota(databases: Databases, userId: string): Promise<QuotaResult> {
   const user = await getUser(databases, userId);
   const plan = await resolvePlan(databases, userId, user);
-  // Anyone who was already an active/grace Pro subscriber when the 1,000
-  // cap was introduced keeps unlimited memory — see the field comment on
-  // UserDoc.grandfatheredUnlimitedMemory in db.ts.
   const grandfathered = plan === "pro" && user?.grandfatheredUnlimitedMemory === true;
-  if (plan === "premium" || grandfathered) return { allowed: true, plan };
-  const limit = plan === "pro" ? PRO_LIMITS.memories : FREE_LIMITS.memories;
+  if (plan === "premium" || plan === "enterprise" || grandfathered) return { allowed: true, plan };
+  let limit: number;
+  if (plan === "pro") limit = PRO_LIMITS.memories;
+  else if (plan === "starter") limit = STARTER_LIMITS.memories;
+  else limit = FREE_LIMITS.memories;
   const result = await databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, [
     Query.equal("userId", userId), Query.equal("isArchived", false), Query.limit(1),
   ]);
@@ -138,8 +149,11 @@ export async function checkMemoryQuota(databases: Databases, userId: string): Pr
 
 export async function checkAgentQuota(databases: Databases, userId: string): Promise<QuotaResult> {
   const plan = await getPlan(databases, userId);
-  if (plan === "premium") return { allowed: true, plan };
-  const limit = plan === "pro" ? PRO_LIMITS.agents : FREE_LIMITS.agents;
+  if (plan === "premium" || plan === "enterprise") return { allowed: true, plan };
+  let limit: number;
+  if (plan === "pro") limit = PRO_LIMITS.agents;
+  else if (plan === "starter") limit = STARTER_LIMITS.agents;
+  else limit = FREE_LIMITS.agents;
   const result = await databases.listDocuments(DB_ID, COLLECTIONS.AGENTS, [
     Query.equal("userId", userId), Query.notEqual("status", "ARCHIVED"), Query.limit(1),
   ]);
@@ -158,10 +172,6 @@ export async function checkConversationQuota(databases: Databases, userId: strin
   return { allowed: result.total < FREE_LIMITS.conversationsPerMonth, limit: FREE_LIMITS.conversationsPerMonth, plan };
 }
 
-// Free plan only — Pro and Premium both get unlimited chat. Counts this
-// user's own messages sent since UTC midnight, regardless of which
-// conversation they landed in (a cap on total usage, not on starting new
-// threads — that's checkConversationQuota's job).
 export async function checkChatMessageQuota(databases: Databases, userId: string): Promise<QuotaResult> {
   const plan = await getPlan(databases, userId);
   if (plan !== "free") return { allowed: true, plan };
@@ -174,4 +184,35 @@ export async function checkChatMessageQuota(databases: Databases, userId: string
     Query.limit(1),
   ]);
   return { allowed: result.total < FREE_LIMITS.chatMessagesPerDay, limit: FREE_LIMITS.chatMessagesPerDay, plan };
+}
+
+// Conch 2.0: Context Engine quotas
+export async function checkContextQuota(databases: Databases, userId: string): Promise<QuotaResult> {
+  const plan = await getPlan(databases, userId);
+  if (plan === "premium" || plan === "enterprise") return { allowed: true, plan };
+  let limit: number;
+  if (plan === "pro") limit = PRO_LIMITS.contexts;
+  else if (plan === "starter") limit = STARTER_LIMITS.contexts;
+  else limit = FREE_LIMITS.contexts;
+  const result = await databases.listDocuments(DB_ID, COLLECTIONS.CONTEXT_OBJECTS, [
+    Query.equal("userId", userId),
+    Query.notEqual("lifecycle", "deleted"),
+    Query.limit(1),
+  ]);
+  return { allowed: result.total < limit, limit, plan };
+}
+
+export async function checkProjectQuota(databases: Databases, userId: string): Promise<QuotaResult> {
+  const plan = await getPlan(databases, userId);
+  if (plan === "premium" || plan === "enterprise") return { allowed: true, plan };
+  let limit: number;
+  if (plan === "pro") limit = PRO_LIMITS.projects;
+  else if (plan === "starter") limit = STARTER_LIMITS.projects;
+  else limit = FREE_LIMITS.projects;
+  const result = await databases.listDocuments(DB_ID, COLLECTIONS.PROJECTS, [
+    Query.equal("userId", userId),
+    Query.notEqual("status", "archived"),
+    Query.limit(1),
+  ]);
+  return { allowed: result.total < limit, limit, plan };
 }

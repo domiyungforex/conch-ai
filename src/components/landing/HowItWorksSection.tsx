@@ -7,32 +7,32 @@ const steps = [
   {
     step: "01",
     icon: UserPlus,
-    title: "Open Your Memory",
-    description: "Sign up with email, Google, or your Web3 wallet. Your memory vault opens instantly. Empty, private, yours.",
+    title: "Create Your Context",
+    description: "Sign up and Conch builds your context layer - decisions, constraints, preferences, goals. Your AI's persistent memory.",
     color: "from-coral-600 to-coral-800",
     glow: "shadow-coral-500/30",
   },
   {
     step: "02",
     icon: MessageSquare,
-    title: "Conversations Become Memories",
-    description: "Talk naturally. Conch classifies, extracts, and scores what matters: preferences, facts, decisions. And files it all away.",
+    title: "Agents Exchange Structured Context",
+    description: "When Agent A hands off to Agent B, Conch delivers structured context - not raw transcripts. Meaning survives.",
     color: "from-gold-600 to-gold-800",
     glow: "shadow-gold-500/30",
   },
   {
     step: "03",
     icon: Brain,
-    title: "Memory Compounds",
-    description: "Every new conversation begins with full recall of everything before it. Your AI knows you better each time, because it never forgets.",
+    title: "Context Compounds Across Tasks",
+    description: "Every new task builds on what came before. Decisions are remembered. Constraints are enforced. No re-explanation needed.",
     color: "from-teal-600 to-teal-800",
     glow: "shadow-teal-500/30",
   },
   {
     step: "04",
     icon: Rocket,
-    title: "Take Your Memory Anywhere",
-    description: "Export, share, or plug your memory into any model through the Conch API. It goes wherever you need it.",
+    title: "Portable Across Models & Apps",
+    description: "Your context isn't locked to one AI. Use it with Anthropic, OpenAI, Google, or any model through the Conch Context API.",
     color: "from-emerald-600 to-emerald-800",
     glow: "shadow-emerald-500/30",
   },
@@ -54,11 +54,11 @@ export function HowItWorksSection() {
             How It Works
           </span>
           <h2 className="text-4xl sm:text-5xl font-display font-medium text-white tracking-tight mb-4">
-            Memory that{" "}
-            <span className="gradient-text">grows with every word</span>
+            Context that{" "}
+            <span className="gradient-text">survives every handoff</span>
           </h2>
           <p className="text-slate-400 text-lg max-w-xl mx-auto">
-            No setup, no configuration. Every conversation quietly becomes memory.
+            Intelligence tells an agent what it can do. Conch tells it what happened, why it matters, and what should happen next.
           </p>
         </motion.div>
 

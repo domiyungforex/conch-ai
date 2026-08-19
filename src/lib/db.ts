@@ -15,6 +15,15 @@ export const COLLECTIONS = {
   FEATURE_FLAGS: "feature_flags",
   WAITLIST: "waitlist",
   AUDIT_LOGS: "audit_logs",
+  // ── Conch 2.0 Context Engine ────────────────────────────────────────────
+  PROJECTS: "projects",
+  CONTEXT_OBJECTS: "context_objects",
+  DECISIONS: "decisions",
+  CONSTRAINTS: "constraints",
+  AGENT_STATE: "agent_state",
+  AGENT_HANDOFFS: "agent_handoffs",
+  CONTEXT_PERMISSIONS: "context_permissions",
+  CONTEXT_PROVENANCE: "context_provenance",
   // Future modules — schemas exist, routes are flag-gated dormant. See
   // src/lib/modules.ts for activation status.
   BUSINESSES: "businesses",
@@ -41,9 +50,18 @@ export const COLLECTIONS = {
 } as const;
 
 export type MemoryCategory = "EPISODIC" | "SEMANTIC" | "PREFERENCE" | "PROCEDURAL";
+export type MemoryLifecycle = "temporary" | "active" | "verified" | "stale" | "superseded" | "archived" | "deleted";
 export type AgentStatus = "ACTIVE" | "PAUSED" | "ARCHIVED";
-export type ApiKeyScope = "FULL" | "MEMORY_READ" | "MEMORY_WRITE" | "CHAT";
+export type ApiKeyScope = "FULL" | "MEMORY_READ" | "MEMORY_WRITE" | "CHAT" | "CONTEXT_READ" | "CONTEXT_WRITE";
 export type BillingCycle = "monthly" | "annual";
+
+// ── Conch 2.0: Context Engine Types ───────────────────────────────────────
+export type ContextObjectType = "memory" | "intent" | "goal" | "decision" | "constraint" | "assumption" | "instruction" | "preference" | "task_state" | "project_state" | "knowledge";
+export type ContextLifecycle = "draft" | "active" | "verified" | "stale" | "superseded" | "archived" | "deleted";
+export type ProvenanceSource = "user" | "conversation" | "document" | "agent" | "external_api" | "database" | "developer" | "system" | "verified_source";
+export type PermissionLevel = "PRIVATE" | "USER_ONLY" | "PROJECT" | "TEAM" | "AGENT" | "APPLICATION" | "PUBLIC";
+export type AgentHandoffStatus = "pending" | "accepted" | "rejected" | "completed";
+export type ProjectStatus = "active" | "paused" | "completed" | "archived";
 
 export interface UserDoc {
   email: string;
@@ -85,25 +103,22 @@ export interface MemoryDoc {
   source: string | null;
   agentId: string | null;
   isArchived: boolean;
-  // Project/tenant isolation for external API users — lets one caller keep
-  // distinct memory spaces (e.g. per app, per client, per project) without
-  // mixing them. Optional so memories created before this field existed stay
-  // valid; the API default is "default" (see validators.ts + the migration
-  // script that adds the attribute with that default).
   namespace?: string;
-  // Relationship layer: ids of other memories this one is directly linked to
-  // (same-user only). Links are set explicitly via the API or auto-created
-  // from semantic similarity on save; retrieval can expand matches through
-  // them so related context isn't treated as isolated chunks.
   relatedMemoryIds?: string[];
-  // API response augmentation (list/detail endpoints): resolved titles of
-  // linked memories. Never persisted to the DB — read-only, attached by the
-  // route handlers so the UI doesn't need one fetch per card.
   relatedSnippets?: { $id: string; content: string }[];
   verificationStatus?: MemoryVerificationStatus;
   attestationUid?: string | null;
   attestationTxHash?: string | null;
   contentHash?: string | null;
+  // ── Conch 2.0 additions ──────────────────────────────────────────────
+  lifecycle?: MemoryLifecycle;
+  projectId?: string | null;
+  supersededBy?: string | null;
+  supersededFrom?: string | null;
+  confidence?: number;
+  version?: number;
+  provenanceSource?: ProvenanceSource | null;
+  provenanceDetail?: string | null;
 }
 
 export interface ConversationDoc {
@@ -133,9 +148,15 @@ export interface AgentDoc {
   modelId: string;
   temperature: number;
   maxTokens: number;
-  // Optional so pre-existing agents (created before agent types existed)
-  // stay valid — treated as "personal" wherever a type is needed.
   agentType?: string;
+  // ── Conch 2.0 additions ──────────────────────────────────────────────
+  projectId?: string | null;
+  capabilities?: string[];
+  permissionLevel?: PermissionLevel;
+  trustLevel?: number;
+  contextAccess?: string[];
+  lastActiveAt?: string | null;
+  currentTask?: string | null;
 }
 
 export interface ReputationDoc {
@@ -425,6 +446,118 @@ export interface MarketplaceListingDoc {
   description: string;
   region: string;
   status: string;
+}
+
+// ── Conch 2.0: Context Engine Documents ───────────────────────────────────
+
+export interface ProjectDoc {
+  userId: string;
+  name: string;
+  description: string | null;
+  status: ProjectStatus;
+  tags: string[];
+  agentIds: string[];
+  memoryIds: string[];
+}
+
+export interface ContextObjectDoc {
+  userId: string;
+  projectId: string | null;
+  type: ContextObjectType;
+  content: string;
+  lifecycle: ContextLifecycle;
+  importance: number;
+  confidence: number;
+  source: ProvenanceSource;
+  sourceDetail: string | null;
+  agentId: string | null;
+  tags: string[];
+  relatedIds: string[];
+  supersededBy: string | null;
+  version: number;
+  embedding: number[];
+}
+
+export interface DecisionDoc {
+  userId: string;
+  projectId: string | null;
+  what: string;
+  why: string;
+  who: string;
+  alternatives: string;
+  constraints: string;
+  assumptions: string;
+  fallbackCondition: string | null;
+  status: "active" | "superseded" | "archived";
+  supersededBy: string | null;
+  agentId: string | null;
+  confidence: number;
+  tags: string[];
+}
+
+export interface ConstraintDoc {
+  userId: string;
+  projectId: string | null;
+  content: string;
+  category: string;
+  severity: "hard" | "soft";
+  source: ProvenanceSource;
+  sourceDetail: string | null;
+  status: "active" | "relaxed" | "removed";
+  agentId: string | null;
+  tags: string[];
+}
+
+export interface AgentStateDoc {
+  agentId: string;
+  userId: string;
+  projectId: string | null;
+  currentState: string;
+  currentTask: string | null;
+  lastActiveAt: string;
+  contextVersion: number;
+  memorySnapshot: string[];
+}
+
+export interface AgentHandoffDoc {
+  fromAgentId: string;
+  toAgentId: string;
+  userId: string;
+  projectId: string | null;
+  objective: string;
+  workCompleted: string;
+  findings: string;
+  decisions: string;
+  reasoning: string;
+  constraints: string;
+  unresolvedIssues: string;
+  assumptions: string;
+  requiredAction: string;
+  relevantMemoryIds: string[];
+  sources: string;
+  confidence: number;
+  status: AgentHandoffStatus;
+  contextVersion: number;
+}
+
+export interface ContextPermissionDoc {
+  userId: string;
+  contextId: string;
+  contextType: string;
+  granteeType: "agent" | "user" | "application";
+  granteeId: string;
+  level: PermissionLevel;
+  expiresAt: string | null;
+}
+
+export interface ContextProvenanceDoc {
+  contextId: string;
+  contextType: string;
+  source: ProvenanceSource;
+  sourceDetail: string | null;
+  agentId: string | null;
+  verifiedAt: string | null;
+  confidence: number;
 }
 
 // Appwrite documents include $id, $createdAt, $updatedAt from the platform.

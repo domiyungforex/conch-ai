@@ -68,7 +68,7 @@ function bucketFor(userId: string): number {
   return hash % 100;
 }
 
-const PLAN_RANK: Record<PlanId, number> = { free: 0, pro: 1, premium: 2 };
+const PLAN_RANK: Record<PlanId, number> = { free: 0, starter: 1, pro: 2, premium: 3, enterprise: 4 };
 
 export interface ModuleAccessResult {
   allowed: boolean;

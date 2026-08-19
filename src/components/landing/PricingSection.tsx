@@ -17,12 +17,31 @@ const plans = [
     description: "Your account, ready when you are",
     features: [
       "Free account & dashboard",
-      "Every feature unlocks with Pro or Premium",
+      "Every feature unlocks with a paid plan",
       "Your memories stay yours, always",
       "Upgrade anytime, no lock-in",
     ],
     cta: "Create Free Account",
     href: "/sign-up",
+    highlight: false,
+  },
+  {
+    name: PLANS.starter.label,
+    monthly: PLANS.starter.priceMonthlyUsd,
+    yearly: Math.round(PLANS.starter.priceAnnualUsd / 12),
+    annualTotal: PLANS.starter.priceAnnualUsd,
+    description: "Start building with persistent context",
+    features: [
+      "500 memories",
+      "3 AI agents",
+      "200 context objects",
+      "5 projects",
+      "Decision & constraint memory",
+      "Basic agent handoffs",
+      "API access",
+    ],
+    cta: "Start Starter",
+    href: "/settings/billing",
     highlight: false,
   },
   {
@@ -32,14 +51,17 @@ const plans = [
     annualTotal: PLANS.pro.priceAnnualUsd,
     description: "For serious AI power users",
     features: [
-      "1,000 memories",
+      "2,000 memories",
       "10 AI agents",
+      "1,000 context objects",
+      "20 projects",
       "Unlimited conversations",
       "Unlimited chat",
       "Advanced semantic search",
+      "Agent handoff protocol",
       "Memory anchored on-chain",
       "Memory export & import",
-      "API access",
+      "Full API access",
       "Priority support",
     ],
     cta: "Start Pro",
@@ -55,11 +77,11 @@ const plans = [
     features: [
       "Unlimited memories",
       "Unlimited AI agents",
-      "Unlimited conversations",
-      "Unlimited chat",
+      "Unlimited context objects",
+      "Unlimited projects",
       "Everything in Pro",
-      "Memory anchored on-chain",
-      "API access",
+      "Full context engine access",
+      "Agent interoperability",
       "Priority support",
     ],
     cta: "Start Premium",
@@ -110,7 +132,7 @@ export function PricingSection() {
         </div>
       </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 items-stretch">
         {plans.map((plan, i) => (
           <motion.div
             key={plan.name}

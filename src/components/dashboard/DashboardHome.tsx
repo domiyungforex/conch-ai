@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo } from "react";
 import { motion, useSpring, useTransform } from "framer-motion";
-import { Brain, MessageSquare, Bot, Star, ArrowRight, Plus } from "lucide-react";
+import { Brain, MessageSquare, Bot, ArrowRight, Plus } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { NautilusSpiral } from "@/components/shared/NautilusSpiral";
 import { TideChart } from "@/components/shared/TideChart";
@@ -14,7 +14,16 @@ import type { MemoryDoc, ConversationDoc, ReputationDoc, UserDoc, AppwriteDoc } 
 
 interface Props {
   user: AppwriteDoc<UserDoc>;
-  stats: { memoryCount: number; conversationCount: number; agentCount: number; reputation: AppwriteDoc<ReputationDoc> | null };
+  stats: {
+    memoryCount: number;
+    conversationCount: number;
+    agentCount: number;
+    contextCount: number;
+    projectCount: number;
+    decisionCount: number;
+    constraintCount: number;
+    reputation: AppwriteDoc<ReputationDoc> | null;
+  };
   recentMemories: AppwriteDoc<MemoryDoc>[];
   recentConversations: AppwriteDoc<ConversationDoc>[];
 }
@@ -46,10 +55,10 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
   const firstName = user.name?.split(" ")[0] ?? "there";
 
   const statCards = [
-    { label: "Memories",      value: stats.memoryCount,       icon: Brain,         accent: "#b06f1b" },
-    { label: "Conversations", value: stats.conversationCount, icon: MessageSquare, accent: "#2e7f61" },
-    { label: "Agents",        value: stats.agentCount,        icon: Bot,           accent: "#a94e24" },
-    { label: "Reputation",    value: Math.round(stats.reputation?.score ?? 0), icon: Star, accent: "#b06f1b" },
+    { label: "Context Objects", value: stats.contextCount,     icon: Brain,         accent: "#b06f1b" },
+    { label: "Memories",       value: stats.memoryCount,      icon: Brain,         accent: "#2e7f61" },
+    { label: "Agents",         value: stats.agentCount,       icon: Bot,           accent: "#a94e24" },
+    { label: "Projects",       value: stats.projectCount,     icon: MessageSquare, accent: "#b06f1b" },
   ];
 
   // Ambient activity texture — not wired to real per-hour telemetry (that would need a
@@ -62,8 +71,10 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
   );
 
   const suggestions = [
-    { prompt: "Ask your AI something. It remembers everything", href: "/chat",   icon: MessageSquare },
-    { prompt: "Browse what your memory holds",                    href: "/memory", icon: Brain },
+    { prompt: "Chat with your AI — it has full context",            href: "/chat",      icon: MessageSquare },
+    { prompt: "Browse your memory and context objects",              href: "/memory",    icon: Brain },
+    { prompt: "Manage your agents and their permissions",            href: "/agents",    icon: Bot },
+    { prompt: "Define decisions and constraints for your agents",    href: "/context",   icon: Brain },
   ];
 
   return (
@@ -79,12 +90,12 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
           size={280}
           className="absolute -top-14 -right-10 pointer-events-none hidden sm:block opacity-60"
         />
-        <p className="text-xs uppercase tracking-widest text-slate-500 font-semibold mb-2">Your Memory</p>
+        <p className="text-xs uppercase tracking-widest text-slate-500 font-semibold mb-2">Your Context</p>
         <h1 className="font-display text-3xl sm:text-4xl font-normal text-white leading-tight">
           Good {getTimeOfDay()},<br className="sm:hidden" />{" "}
           <em className="not-italic gradient-text">{firstName}</em>.
         </h1>
-        <p className="text-slate-400 mt-2">Here&apos;s everything your memory has been holding onto.</p>
+        <p className="text-slate-400 mt-2">Your context infrastructure. Decisions remembered, constraints enforced, meaning preserved.</p>
       </motion.div>
 
       {/* AI Status bar */}
@@ -100,7 +111,7 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
           <span className="absolute inset-0 rounded-full bg-teal-400/40 animate-ping" />
         </motion.div>
         <span className="text-sm text-slate-300">
-          <span className="text-teal-300 font-medium">Conch</span> is remembering. Every conversation becomes memory
+          <span className="text-teal-300 font-medium">Conch</span> is building your context layer. {stats.decisionCount} decisions · {stats.constraintCount} constraints · {stats.contextCount} context objects
         </span>
       </motion.div>
 

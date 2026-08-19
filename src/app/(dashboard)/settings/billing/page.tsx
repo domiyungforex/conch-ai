@@ -24,8 +24,10 @@ import type { BillingCycle } from "@/lib/db";
 const TREASURY = process.env.NEXT_PUBLIC_SUBSCRIPTION_TREASURY_ADDRESS_BASE as `0x${string}` | undefined;
 
 const PLAN_BLURB: Record<PaidPlanId, string> = {
-  pro: "1,000 memories, 10 agents, unlimited chat",
-  premium: "Unlimited memories, agents & chat. Everything",
+  starter: "500 memories, 3 agents, 200 contexts, 5 projects",
+  pro: "2,000 memories, 10 agents, 1,000 contexts, unlimited chat",
+  premium: "Unlimited memories, agents, contexts & chat. Everything",
+  enterprise: "Unlimited everything + priority support + custom integrations",
 };
 
 function formatDate(iso: string | null) {

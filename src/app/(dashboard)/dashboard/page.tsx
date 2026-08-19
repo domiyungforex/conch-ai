@@ -23,11 +23,15 @@ export default async function DashboardPage() {
     const user = await getOrCreateUser(databases, userId, country);
     if (!user) return <SetupRetry />;
 
-    const [repResult, memCount, convCount, agentCount, recentMemResult, recentConvResult] = await Promise.all([
+    const [repResult, memCount, convCount, agentCount, contextCount, projectCount, decisionCount, constraintCount, recentMemResult, recentConvResult] = await Promise.all([
       databases.listDocuments(DB_ID, COLLECTIONS.REPUTATIONS, [Query.equal("userId", userId), Query.limit(1)]),
       databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, [Query.equal("userId", userId), Query.equal("isArchived", false), Query.limit(1)]),
       databases.listDocuments(DB_ID, COLLECTIONS.CONVERSATIONS, [Query.equal("userId", userId), Query.limit(1)]),
       databases.listDocuments(DB_ID, COLLECTIONS.AGENTS, [Query.equal("userId", userId), Query.notEqual("status", "ARCHIVED"), Query.limit(1)]),
+      databases.listDocuments(DB_ID, COLLECTIONS.CONTEXT_OBJECTS, [Query.equal("userId", userId), Query.notEqual("lifecycle", "deleted"), Query.limit(1)]).catch(() => ({ total: 0 })),
+      databases.listDocuments(DB_ID, COLLECTIONS.PROJECTS, [Query.equal("userId", userId), Query.notEqual("status", "archived"), Query.limit(1)]).catch(() => ({ total: 0 })),
+      databases.listDocuments(DB_ID, COLLECTIONS.DECISIONS, [Query.equal("userId", userId), Query.equal("status", "active"), Query.limit(1)]).catch(() => ({ total: 0 })),
+      databases.listDocuments(DB_ID, COLLECTIONS.CONSTRAINTS, [Query.equal("userId", userId), Query.equal("status", "active"), Query.limit(1)]).catch(() => ({ total: 0 })),
       databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, [Query.equal("userId", userId), Query.equal("isArchived", false), Query.orderDesc("$createdAt"), Query.limit(5)]),
       databases.listDocuments(DB_ID, COLLECTIONS.CONVERSATIONS, [Query.equal("userId", userId), Query.orderDesc("$updatedAt"), Query.limit(3)]),
     ]);
@@ -55,6 +59,10 @@ export default async function DashboardPage() {
           memoryCount: memCount.total,
           conversationCount: convCount.total,
           agentCount: agentCount.total,
+          contextCount: contextCount.total,
+          projectCount: projectCount.total,
+          decisionCount: decisionCount.total,
+          constraintCount: constraintCount.total,
           reputation,
         })}
         recentMemories={toPlain(recentMemories)}

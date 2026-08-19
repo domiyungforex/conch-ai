@@ -54,3 +54,8 @@ export function getEffectivePlan(
   if (status === "expired-to-free") return "free";
   return user.plan as PaidPlanId;
 }
+
+// Helper to check if a plan has context engine access
+export function hasContextAccess(plan: PlanId): boolean {
+  return plan === "starter" || plan === "pro" || plan === "premium" || plan === "enterprise";
+}

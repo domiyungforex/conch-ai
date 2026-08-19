@@ -9,43 +9,43 @@ const benefits = [
     icon: Brain,
     color: "text-coral-400",
     bg: "bg-coral-500/10 border-coral-500/20",
-    title: "Persistent Memory",
-    description: "Everything you say becomes memory: preferences, goals, decisions, and context. Your AI never forgets, so you never repeat yourself.",
+    title: "Decision Memory",
+    description: "Store not just what was decided, but why, what alternatives existed, and what constraints applied. Future agents understand the reasoning.",
   },
   {
     icon: Globe,
     color: "text-teal-400",
     bg: "bg-teal-500/10 border-teal-500/20",
-    title: "Memory That Travels",
-    description: "Carry your memory across platforms, devices, and models. GPT today, Claude tomorrow. It all remembers the same you.",
+    title: "Agent Handoffs",
+    description: "When Agent A finishes and Agent B begins, Conch delivers structured context. No raw transcripts. Meaning survives every transition.",
   },
   {
     icon: Shield,
     color: "text-emerald-400",
     bg: "bg-emerald-500/10 border-emerald-500/20",
-    title: "You Own Every Memory",
-    description: "Cryptographically secured memory under your identity. Delete, export, or share any memory on your terms, at any time.",
+    title: "Constraint Enforcement",
+    description: "Define hard constraints that no agent can violate. Budget limits, security rules, brand guidelines. Agents must respect them.",
   },
   {
     icon: Zap,
     color: "text-yellow-400",
     bg: "bg-yellow-500/10 border-yellow-500/20",
-    title: "Instant Recall",
-    description: "Semantic search resurfaces the right memory in milliseconds, so every answer draws on everything you've told it.",
+    title: "Intelligent Retrieval",
+    description: "Not 'retrieve everything.' Retrieve the smallest amount of context necessary to preserve meaning. Ranked by relevance, importance, and confidence.",
   },
   {
     icon: Cpu,
     color: "text-gold-400",
     bg: "bg-gold-500/10 border-gold-500/20",
-    title: "Memory-Scoped Agents",
-    description: "Give each agent its own slice of memory. A coder, a writer, a strategist, each working from the context it needs."
+    title: "Portable Context",
+    description: "Your context isn't locked to one model. Use it with Anthropic, OpenAI, Google, or any model. The context layer is the durable asset."
   },
   {
     icon: Lock,
     color: "text-pink-400",
     bg: "bg-pink-500/10 border-pink-500/20",
-    title: "Private By Default",
-    description: "Encrypted storage and granular sharing permissions. Every memory stays yours until you decide otherwise.",
+    title: "User-Controlled Data",
+    description: "View, search, edit, delete, export, and control permissions on every piece of context. Your data belongs to you, always.",
   },
 ];
 
@@ -60,14 +60,14 @@ export function BenefitsSection() {
         className="text-center mb-16"
       >
         <span className="inline-flex items-center px-3 py-1 rounded-full glass border border-coral-500/25 eyebrow text-coral-300/90 mb-4">
-          Why Memory
+          Why Context
         </span>
         <h2 className="text-4xl sm:text-5xl font-display font-medium text-white tracking-tight mb-4">
           Not a chatbot.{" "}
-          <span className="gradient-text">A memory layer.</span>
+          <span className="gradient-text">Context infrastructure.</span>
         </h2>
         <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-          Models change. Apps change. Your memory shouldn&apos;t.
+          Intelligence tells an agent what it can do. Conch tells it what happened, why it matters, and what should happen next.
         </p>
       </motion.div>
 
