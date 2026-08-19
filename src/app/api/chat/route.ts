@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type AgentDoc, type ConversationDoc, type MessageDoc, type ReputationDoc, type MemoryDoc, type AppwriteDoc } from "@/lib/db";
 import { streamAnthropicChat, type AnthropicToolDef } from "@/lib/anthropicRaw";
 import { retrieveRelevantMemories, buildSystemPrompt } from "@/lib/memory";
+import { buildContextPackage, formatContextForPrompt } from "@/lib/contextEngine";
 import { generateEmbedding } from "@/lib/embeddings";
 import { calculate } from "@/lib/calculator";
 import { getMarketAnalysis } from "@/lib/marketData";
@@ -142,27 +143,42 @@ export async function POST(req: Request) {
   const isMemoryQuery = /\b(remember|recall|memories|memory|know about me|saved|stored)\b/i.test(message);
   const topK = isMemoryQuery ? 15 : 6;
 
+  // Parallel retrieval: memories + context engine (decisions, constraints, handoffs)
   let memories: MemoryWithScore[] = [];
-  try {
-    memories = await retrieveRelevantMemories(appwriteId, message, topK);
-  } catch (memErr) {
-    console.error("[chat] memory retrieval failed, continuing without context:", memErr);
-  }
-
-  // Fetch total memory count for context
   let totalMemories = 0;
+  let contextFragment = "";
+
   try {
-    const countResult = await databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, [
-      Query.equal("userId", appwriteId),
-      Query.equal("isArchived", false),
-      Query.limit(1),
+    const [memResult, countResult, contextPkg] = await Promise.allSettled([
+      retrieveRelevantMemories(appwriteId, message, topK),
+      databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, [
+        Query.equal("userId", appwriteId),
+        Query.equal("isArchived", false),
+        Query.limit(1),
+      ]),
+      buildContextPackage({
+        userId: appwriteId,
+        query: message,
+        agentId: agent?.$id ?? undefined,
+      }),
     ]);
-    totalMemories = countResult.total;
-  } catch {
-    // Non-critical
+
+    if (memResult.status === "fulfilled") memories = memResult.value;
+    else console.error("[chat] memory retrieval failed, continuing without context:", memResult.reason);
+
+    if (countResult.status === "fulfilled") totalMemories = countResult.value.total;
+
+    if (contextPkg.status === "fulfilled") {
+      contextFragment = formatContextForPrompt(contextPkg.value);
+    } else {
+      console.error("[chat] context package failed, continuing without:", contextPkg.reason);
+    }
+  } catch (ctxErr) {
+    console.error("[chat] parallel retrieval failed, continuing without context:", ctxErr);
   }
 
-  const systemPrompt = buildSystemPrompt(agent?.systemPrompt ?? null, memories, totalMemories);
+  const baseSystemPrompt = buildSystemPrompt(agent?.systemPrompt ?? null, memories, totalMemories);
+  const systemPrompt = baseSystemPrompt + contextFragment;
 
   const history = messageHistory
     .slice(-19)
