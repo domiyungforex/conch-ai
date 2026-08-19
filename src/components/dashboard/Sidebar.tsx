@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { UserMenu } from "./UserMenu";
 import {
   LayoutDashboard, MessageSquare, Brain, Bot, Share2, Star, Wallet, Settings, Code2,
-  Building2, Landmark, Lightbulb, TrendingUp, Store, Sparkles, Music2,
+  Building2, Landmark, Lightbulb, TrendingUp, Store, Sparkles, Music2, Layers,
   ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { Logo } from "@/components/shared/Logo";
@@ -41,6 +41,7 @@ const baseItems: NavItem[] = [
   { href: "/chat",      icon: MessageSquare,   label: "Chat",            section: "main" },
   { href: "/memory",    icon: Brain,           label: "Memory",          section: "main" },
   { href: "/agents",    icon: Bot,             label: "Agents",          section: "main" },
+  { href: "/context",   icon: Layers,          label: "Context",         section: "main" },
   { href: "/shared",    icon: Share2,          label: "Shared Contexts", section: "social" },
   { href: "/reputation",icon: Star,            label: "Reputation",      section: "social" },
 ];
