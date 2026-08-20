@@ -245,7 +245,7 @@ async function setupCollections() {
   console.log("\n=== Creating Conch 2.0 context engine collections ===\n");
 
   // Delete incomplete collections so they can be recreated with all attributes.
-  for (const col of ["context_objects", "agent_handoffs", "context_permissions"]) {
+  for (const col of ["context_objects", "decisions", "constraints", "agent_handoffs", "context_permissions"]) {
     await tryDeleteCollection(col, col);
   }
 
