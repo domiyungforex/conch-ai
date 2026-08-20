@@ -15,6 +15,7 @@ import * as dotenv from "dotenv";
 import * as path from "path";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 const ENDPOINT = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!;
 const PROJECT  = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!;
@@ -40,6 +41,15 @@ async function tryCreate(label: string, fn: () => Promise<unknown>) {
     } else {
       console.error(`  ✗ ${label}:`, (e as Error).message);
     }
+  }
+}
+
+async function tryDeleteCollection(label: string, collectionId: string) {
+  try {
+    await db.deleteCollection(DB_ID, collectionId);
+    console.log(`  ✗ ${label} (deleted for re-creation)`);
+  } catch {
+    // Collection may not exist — that's fine
   }
 }
 
@@ -234,6 +244,11 @@ async function setupCollections() {
   // ── Conch 2.0: Context Engine collections ─────────────────────────────────
   console.log("\n=== Creating Conch 2.0 context engine collections ===\n");
 
+  // Delete incomplete collections so they can be recreated with all attributes.
+  for (const col of ["context_objects", "agent_handoffs", "context_permissions"]) {
+    await tryDeleteCollection(col, col);
+  }
+
   // ── projects ──────────────────────────────────────────────────────────────
   await tryCreate("collection: projects", () =>
     db.createCollection(DB_ID, "projects", "projects")
@@ -242,7 +257,7 @@ async function setupCollections() {
     ["userId",      () => db.createStringAttribute(DB_ID, "projects", "userId",      36,   true)],
     ["name",        () => db.createStringAttribute(DB_ID, "projects", "name",        256,  true)],
     ["description", () => db.createStringAttribute(DB_ID, "projects", "description", 2000, false)],
-    ["status",      () => db.createEnumAttribute(DB_ID,   "projects", "status",      ["active","paused","completed","archived"], true, "active")],
+    ["status",      () => db.createEnumAttribute(DB_ID,   "projects", "status",      ["active","paused","completed","archived"], true)],
     ["tags",        () => db.createStringAttribute(DB_ID, "projects", "tags",        256,  false, undefined, true)],
     ["agentIds",    () => db.createStringAttribute(DB_ID, "projects", "agentIds",    36,   false, undefined, true)],
     ["memoryIds",   () => db.createStringAttribute(DB_ID, "projects", "memoryIds",   36,   false, undefined, true)],
@@ -260,12 +275,12 @@ async function setupCollections() {
   for (const [key, fn] of [
     ["userId",         () => db.createStringAttribute(DB_ID, "context_objects", "userId",         36,    true)],
     ["projectId",      () => db.createStringAttribute(DB_ID, "context_objects", "projectId",      36,    false)],
-    ["type",           () => db.createEnumAttribute(DB_ID,   "context_objects", "type",           ["memory","intent","goal","decision","constraint","assumption","instruction","preference","task_state","project_state","knowledge"], true, "memory")],
+    ["type",           () => db.createEnumAttribute(DB_ID,   "context_objects", "type",           ["memory","intent","goal","decision","constraint","assumption","instruction","preference","task_state","project_state","knowledge"], true)],
     ["content",        () => db.createStringAttribute(DB_ID, "context_objects", "content",        10000, true)],
-    ["lifecycle",      () => db.createEnumAttribute(DB_ID,   "context_objects", "lifecycle",      ["draft","active","verified","stale","superseded","archived","deleted"], true, "active")],
+    ["lifecycle",      () => db.createEnumAttribute(DB_ID,   "context_objects", "lifecycle",      ["draft","active","verified","stale","superseded","archived","deleted"], true)],
     ["importance",     () => db.createFloatAttribute(DB_ID,  "context_objects", "importance",     false, 0, 1, 0.5)],
     ["confidence",     () => db.createFloatAttribute(DB_ID,  "context_objects", "confidence",     false, 0, 1, 0.5)],
-    ["source",         () => db.createEnumAttribute(DB_ID,   "context_objects", "source",         ["user","conversation","document","agent","external_api","database","developer","system","verified_source"], true, "user")],
+    ["source",         () => db.createEnumAttribute(DB_ID,   "context_objects", "source",         ["user","conversation","document","agent","external_api","database","developer","system","verified_source"], true)],
     ["sourceDetail",   () => db.createStringAttribute(DB_ID, "context_objects", "sourceDetail",   500,   false)],
     ["agentId",        () => db.createStringAttribute(DB_ID, "context_objects", "agentId",        36,    false)],
     ["tags",           () => db.createStringAttribute(DB_ID, "context_objects", "tags",           256,   false, undefined, true)],
@@ -297,7 +312,7 @@ async function setupCollections() {
     ["constraints",        () => db.createStringAttribute(DB_ID, "decisions", "constraints",        2000,  false)],
     ["assumptions",        () => db.createStringAttribute(DB_ID, "decisions", "assumptions",        2000,  false)],
     ["fallbackCondition",  () => db.createStringAttribute(DB_ID, "decisions", "fallbackCondition",  1000,  false)],
-    ["status",             () => db.createEnumAttribute(DB_ID,   "decisions", "status",             ["active","superseded","archived"], true, "active")],
+    ["status",             () => db.createEnumAttribute(DB_ID,   "decisions", "status",             ["active","superseded","archived"], true)],
     ["supersededBy",       () => db.createStringAttribute(DB_ID, "decisions", "supersededBy",       36,    false)],
     ["agentId",            () => db.createStringAttribute(DB_ID, "decisions", "agentId",            36,    false)],
     ["confidence",         () => db.createFloatAttribute(DB_ID,  "decisions", "confidence",         false, 0, 1, 0.5)],
@@ -318,10 +333,10 @@ async function setupCollections() {
     ["projectId",    () => db.createStringAttribute(DB_ID, "constraints", "projectId",    36,   false)],
     ["content",      () => db.createStringAttribute(DB_ID, "constraints", "content",      2000, true)],
     ["category",     () => db.createStringAttribute(DB_ID, "constraints", "category",     100,  true)],
-    ["severity",     () => db.createEnumAttribute(DB_ID,   "constraints", "severity",     ["hard","soft"], true, "hard")],
-    ["source",       () => db.createEnumAttribute(DB_ID,   "constraints", "source",       ["user","conversation","document","agent","external_api","database","developer","system","verified_source"], true, "user")],
+    ["severity",     () => db.createEnumAttribute(DB_ID,   "constraints", "severity",     ["hard","soft"], true)],
+    ["source",       () => db.createEnumAttribute(DB_ID,   "constraints", "source",       ["user","conversation","document","agent","external_api","database","developer","system","verified_source"], true)],
     ["sourceDetail", () => db.createStringAttribute(DB_ID, "constraints", "sourceDetail", 500,  false)],
-    ["status",       () => db.createEnumAttribute(DB_ID,   "constraints", "status",       ["active","relaxed","removed"], true, "active")],
+    ["status",       () => db.createEnumAttribute(DB_ID,   "constraints", "status",       ["active","relaxed","removed"], true)],
     ["agentId",      () => db.createStringAttribute(DB_ID, "constraints", "agentId",      36,   false)],
     ["tags",         () => db.createStringAttribute(DB_ID, "constraints", "tags",         256,  false, undefined, true)],
   ] as [string, () => Promise<unknown>][]) {
@@ -372,7 +387,7 @@ async function setupCollections() {
     ["relevantMemoryIds", () => db.createStringAttribute(DB_ID, "agent_handoffs", "relevantMemoryIds", 36,    false, undefined, true)],
     ["sources",           () => db.createStringAttribute(DB_ID, "agent_handoffs", "sources",           2000,  false)],
     ["confidence",        () => db.createFloatAttribute(DB_ID,  "agent_handoffs", "confidence",        false, 0, 1, 0.5)],
-    ["status",            () => db.createEnumAttribute(DB_ID,   "agent_handoffs", "status",            ["pending","accepted","rejected","completed"], true, "pending")],
+    ["status",            () => db.createEnumAttribute(DB_ID,   "agent_handoffs", "status",            ["pending","accepted","rejected","completed"], true)],
     ["contextVersion",    () => db.createIntegerAttribute(DB_ID,"agent_handoffs", "contextVersion",    false, 1)],
   ] as [string, () => Promise<unknown>][]) {
     await tryCreate(`  attr agent_handoffs.${key}`, fn);
@@ -392,9 +407,9 @@ async function setupCollections() {
     ["userId",       () => db.createStringAttribute(DB_ID, "context_permissions", "userId",       36,   true)],
     ["contextId",    () => db.createStringAttribute(DB_ID, "context_permissions", "contextId",    36,   true)],
     ["contextType",  () => db.createStringAttribute(DB_ID, "context_permissions", "contextType",  64,   true)],
-    ["granteeType",  () => db.createEnumAttribute(DB_ID,   "context_permissions", "granteeType",  ["agent","user","application"], true, "agent")],
+    ["granteeType",  () => db.createEnumAttribute(DB_ID,   "context_permissions", "granteeType",  ["agent","user","application"], true)],
     ["granteeId",    () => db.createStringAttribute(DB_ID, "context_permissions", "granteeId",    36,   true)],
-    ["level",        () => db.createEnumAttribute(DB_ID,   "context_permissions", "level",        ["PRIVATE","USER_ONLY","PROJECT","TEAM","AGENT","APPLICATION","PUBLIC"], true, "PRIVATE")],
+    ["level",        () => db.createEnumAttribute(DB_ID,   "context_permissions", "level",        ["PRIVATE","USER_ONLY","PROJECT","TEAM","AGENT","APPLICATION","PUBLIC"], true)],
     ["expiresAt",    () => db.createStringAttribute(DB_ID, "context_permissions", "expiresAt",    64,   false)],
   ] as [string, () => Promise<unknown>][]) {
     await tryCreate(`  attr context_permissions.${key}`, fn);
@@ -410,7 +425,7 @@ async function setupCollections() {
   for (const [key, fn] of [
     ["contextId",     () => db.createStringAttribute(DB_ID, "context_provenance", "contextId",     36,   true)],
     ["contextType",   () => db.createStringAttribute(DB_ID, "context_provenance", "contextType",   64,   true)],
-    ["source",        () => db.createEnumAttribute(DB_ID,   "context_provenance", "source",        ["user","conversation","document","agent","external_api","database","developer","system","verified_source"], true, "user")],
+    ["source",        () => db.createEnumAttribute(DB_ID,   "context_provenance", "source",        ["user","conversation","document","agent","external_api","database","developer","system","verified_source"], true)],
     ["sourceDetail",  () => db.createStringAttribute(DB_ID, "context_provenance", "sourceDetail",  500,  false)],
     ["agentId",       () => db.createStringAttribute(DB_ID, "context_provenance", "agentId",       36,   false)],
     ["verifiedAt",    () => db.createStringAttribute(DB_ID, "context_provenance", "verifiedAt",    64,   false)],
