@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type AgentDoc, type ConversationDoc, type MessageDoc, type ReputationDoc, type MemoryDoc, type AppwriteDoc } from "@/lib/db";
 import { streamAnthropicChat, type AnthropicToolDef } from "@/lib/anthropicRaw";
+import { streamOpenAIChat } from "@/lib/openaiStream";
 import { retrieveRelevantMemories, buildSystemPrompt } from "@/lib/memory";
 import { buildContextPackage, formatContextForPrompt } from "@/lib/contextEngine";
 import { generateEmbedding } from "@/lib/embeddings";
@@ -23,7 +24,7 @@ export async function POST(req: Request) {
   if (!scopeAllows(resolved.scope, "chat")) return forbiddenScope();
   const { userId: appwriteId } = resolved;
 
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!process.env.ANTHROPIC_API_KEY && !(process.env.AGENT_ROUTER_BASE_URL && process.env.OPENAI_API_KEY)) {
     return new Response(
       JSON.stringify({ error: "AI service is not configured. Please contact support." }),
       { status: 503 }
@@ -458,50 +459,65 @@ export async function POST(req: Request) {
 
   let stream: ReadableStream<Uint8Array>;
   try {
-    // Use Agent Router when configured, otherwise direct Anthropic API
-    const apiKeyForChat = process.env.AGENT_ROUTER_BASE_URL && process.env.OPENAI_API_KEY
-      ? process.env.OPENAI_API_KEY!   // Agent Router uses Bearer auth with OPENAI_API_KEY
-      : process.env.ANTHROPIC_API_KEY!;
+    const useAgentRouter = !!(process.env.AGENT_ROUTER_BASE_URL && process.env.OPENAI_API_KEY);
+    const chatMessages = [...history, { role: "user", content: finalUserContent }];
+    const chatTools = [saveMemory, searchMemory, calculateTool, listMemories, forgetMemory, marketDataTool];
+    const onFinish = async ({ text, totalTokens }: { text: string; totalTokens: number }) => {
+      try {
+        await databases.createDocument(DB_ID, COLLECTIONS.MESSAGES, ID.unique(), {
+          conversationId: convId,
+          userId: appwriteId,
+          role: "assistant",
+          content: text,
+          tokensUsed: totalTokens ?? null,
+          memoryIds: memories.map((m) => m.$id),
+        });
 
-    stream = streamAnthropicChat({
-      apiKey: apiKeyForChat,
-      model: agent?.modelId ?? "claude-haiku-4-5-20251001",
-      system: systemPrompt,
-      messages: [...history, { role: "user", content: finalUserContent }],
-      maxTokens: agent?.maxTokens ?? 2000,
-      temperature: agent?.temperature ?? 0.7,
-      maxSteps: 3,
-      tools: [saveMemory, searchMemory, calculateTool, listMemories, forgetMemory, marketDataTool],
-      onFinish: async ({ text, totalTokens }) => {
-        try {
-          await databases.createDocument(DB_ID, COLLECTIONS.MESSAGES, ID.unique(), {
-            conversationId: convId,
-            userId: appwriteId,
-            role: "assistant",
-            content: text,
-            tokensUsed: totalTokens ?? null,
-            memoryIds: memories.map((m) => m.$id),
+        const repResult = await databases.listDocuments(DB_ID, COLLECTIONS.REPUTATIONS, [
+          Query.equal("userId", appwriteId), Query.limit(1),
+        ]);
+        if (repResult.documents.length > 0) {
+          const rep = repResult.documents[0] as unknown as AppwriteDoc<ReputationDoc>;
+          await databases.updateDocument(DB_ID, COLLECTIONS.REPUTATIONS, rep.$id, {
+            chatCount: rep.chatCount + 1,
           });
-
-          const repResult = await databases.listDocuments(DB_ID, COLLECTIONS.REPUTATIONS, [
-            Query.equal("userId", appwriteId), Query.limit(1),
-          ]);
-          if (repResult.documents.length > 0) {
-            const rep = repResult.documents[0] as unknown as AppwriteDoc<ReputationDoc>;
-            await databases.updateDocument(DB_ID, COLLECTIONS.REPUTATIONS, rep.$id, {
-              chatCount: rep.chatCount + 1,
-            });
-          }
-        } catch (finishErr) {
-          console.error("[chat] onFinish DB write failed:", finishErr);
         }
-      },
-    });
+      } catch (finishErr) {
+        console.error("[chat] onFinish DB write failed:", finishErr);
+      }
+    };
+
+    if (useAgentRouter) {
+      stream = streamOpenAIChat({
+        baseUrl: process.env.AGENT_ROUTER_BASE_URL!,
+        apiKey: process.env.OPENAI_API_KEY!,
+        model: agent?.modelId ?? "claude-haiku-4-5-20251001",
+        system: systemPrompt,
+        messages: chatMessages,
+        maxTokens: agent?.maxTokens ?? 2000,
+        temperature: agent?.temperature ?? 0.7,
+        maxSteps: 3,
+        tools: chatTools,
+        onFinish,
+      });
+    } else {
+      stream = streamAnthropicChat({
+        apiKey: process.env.ANTHROPIC_API_KEY!,
+        model: agent?.modelId ?? "claude-haiku-4-5-20251001",
+        system: systemPrompt,
+        messages: chatMessages as { role: "user" | "assistant"; content: string }[],
+        maxTokens: agent?.maxTokens ?? 2000,
+        temperature: agent?.temperature ?? 0.7,
+        maxSteps: 3,
+        tools: chatTools,
+        onFinish,
+      });
+    }
   } catch (err) {
-    console.error("[chat] streamAnthropicChat init failed:", err);
+    console.error("[chat] stream init failed:", err);
     const isKeyMissing = String(err).includes("API key") || String(err).includes("401");
     return new Response(
-      JSON.stringify({ error: isKeyMissing ? "AI service not configured. Check ANTHROPIC_API_KEY." : "AI service unavailable. Please try again." }),
+      JSON.stringify({ error: isKeyMissing ? "AI service not configured. Check your API keys." : "AI service unavailable. Please try again." }),
       { status: 503 }
     );
   }

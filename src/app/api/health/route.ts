@@ -21,37 +21,50 @@ export async function GET() {
     errors.db = String(err).slice(0, 150);
   }
 
-  // ── Anthropic / Agent Router (raw API, matches what /api/chat actually uses) ─
+  // ── Anthropic / Agent Router (matches what /api/chat actually uses) ──────────
   const useAgentRouter = !!(process.env.AGENT_ROUTER_BASE_URL && process.env.OPENAI_API_KEY);
   const apiKeyForHealth = useAgentRouter ? process.env.OPENAI_API_KEY : process.env.ANTHROPIC_API_KEY;
   const baseUrlForHealth = useAgentRouter
     ? (process.env.AGENT_ROUTER_BASE_URL || "https://api.router.tetrate.ai/v1")
     : "https://api.anthropic.com/v1";
-  const healthHeaders: Record<string, string> = {
-    "anthropic-version": "2023-06-01",
-    "content-type": "application/json",
-  };
-  if (useAgentRouter) {
-    healthHeaders["Authorization"] = `Bearer ${process.env.OPENAI_API_KEY}`;
-  } else {
-    healthHeaders["x-api-key"] = process.env.ANTHROPIC_API_KEY!;
-  }
 
   if (!apiKeyForHealth) {
     results.anthropic = "missing_key";
   } else {
     try {
-      const res = await fetch(`${baseUrlForHealth}/messages`, {
-        method: "POST",
-        headers: healthHeaders,
-        body: JSON.stringify({
-          model: "claude-sonnet-5",
-          max_tokens: 1,
-          thinking: { type: "adaptive" },
-          output_config: { effort: "low" },
-          messages: [{ role: "user", content: "hi" }],
-        }),
-      });
+      let res: Response;
+      if (useAgentRouter) {
+        // Agent Router is OpenAI-compatible: use /chat/completions
+        res = await fetch(`${baseUrlForHealth}/chat/completions`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "claude-haiku-4-5-20251001",
+            max_tokens: 1,
+            messages: [{ role: "user", content: "hi" }],
+          }),
+        });
+      } else {
+        // Direct Anthropic API: use /messages
+        res = await fetch(`${baseUrlForHealth}/messages`, {
+          method: "POST",
+          headers: {
+            "x-api-key": process.env.ANTHROPIC_API_KEY!,
+            "anthropic-version": "2023-06-01",
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "claude-sonnet-5",
+            max_tokens: 1,
+            thinking: { type: "adaptive" },
+            output_config: { effort: "low" },
+            messages: [{ role: "user", content: "hi" }],
+          }),
+        });
+      }
       if (!res.ok) throw new Error(`${res.status}: ${(await res.text()).slice(0, 200)}`);
       results.anthropic = "ok";
     } catch (err) {
