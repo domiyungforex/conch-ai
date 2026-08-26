@@ -458,8 +458,13 @@ export async function POST(req: Request) {
 
   let stream: ReadableStream<Uint8Array>;
   try {
+    // Use Agent Router when configured, otherwise direct Anthropic API
+    const apiKeyForChat = process.env.AGENT_ROUTER_BASE_URL && process.env.OPENAI_API_KEY
+      ? process.env.OPENAI_API_KEY!   // Agent Router uses Bearer auth with OPENAI_API_KEY
+      : process.env.ANTHROPIC_API_KEY!;
+
     stream = streamAnthropicChat({
-      apiKey: process.env.ANTHROPIC_API_KEY!,
+      apiKey: apiKeyForChat,
       model: agent?.modelId ?? "claude-haiku-4-5-20251001",
       system: systemPrompt,
       messages: [...history, { role: "user", content: finalUserContent }],

@@ -108,19 +108,34 @@ async function runOneTurn(params: {
     body.temperature = temperature;
   }
 
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  // Route through Agent Router when configured, otherwise use direct Anthropic API
+  const useAgentRouter = !!(process.env.AGENT_ROUTER_BASE_URL && process.env.OPENAI_API_KEY);
+  const baseUrl = useAgentRouter
+    ? (process.env.AGENT_ROUTER_BASE_URL || "https://api.router.tetrate.ai/v1")
+    : "https://api.anthropic.com/v1";
+  const authHeader = useAgentRouter
+    ? `Bearer ${process.env.OPENAI_API_KEY}`
+    : apiKey;  // x-api-key for direct Anthropic
+
+  const headers: Record<string, string> = {
+    "content-type": "application/json",
+  };
+  if (useAgentRouter) {
+    headers["Authorization"] = authHeader;
+  } else {
+    headers["x-api-key"] = authHeader;
+  }
+  headers["anthropic-version"] = "2023-06-01";
+
+  const res = await fetch(`${baseUrl}/messages`, {
     method: "POST",
-    headers: {
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-      "content-type": "application/json",
-    },
+    headers,
     body: JSON.stringify(body),
   });
 
   if (!res.ok || !res.body) {
     const errBody = await res.text().catch(() => "");
-    throw new Error(`Anthropic API error ${res.status}: ${errBody.slice(0, 300)}`);
+    throw new Error(`${useAgentRouter ? "Agent Router" : "Anthropic"} API error ${res.status}: ${errBody.slice(0, 300)}`);
   }
 
   // Enabling web search means the stream can carry block types beyond plain

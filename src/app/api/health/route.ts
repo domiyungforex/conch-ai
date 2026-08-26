@@ -21,18 +21,29 @@ export async function GET() {
     errors.db = String(err).slice(0, 150);
   }
 
-  // ── Anthropic (raw API, matches what /api/chat actually uses) ─────────────
-  if (!process.env.ANTHROPIC_API_KEY) {
+  // ── Anthropic / Agent Router (raw API, matches what /api/chat actually uses) ─
+  const useAgentRouter = !!(process.env.AGENT_ROUTER_BASE_URL && process.env.OPENAI_API_KEY);
+  const apiKeyForHealth = useAgentRouter ? process.env.OPENAI_API_KEY : process.env.ANTHROPIC_API_KEY;
+  const baseUrlForHealth = useAgentRouter
+    ? (process.env.AGENT_ROUTER_BASE_URL || "https://api.router.tetrate.ai/v1")
+    : "https://api.anthropic.com/v1";
+  const healthHeaders: Record<string, string> = {
+    "anthropic-version": "2023-06-01",
+    "content-type": "application/json",
+  };
+  if (useAgentRouter) {
+    healthHeaders["Authorization"] = `Bearer ${process.env.OPENAI_API_KEY}`;
+  } else {
+    healthHeaders["x-api-key"] = process.env.ANTHROPIC_API_KEY!;
+  }
+
+  if (!apiKeyForHealth) {
     results.anthropic = "missing_key";
   } else {
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const res = await fetch(`${baseUrlForHealth}/messages`, {
         method: "POST",
-        headers: {
-          "x-api-key": process.env.ANTHROPIC_API_KEY,
-          "anthropic-version": "2023-06-01",
-          "content-type": "application/json",
-        },
+        headers: healthHeaders,
         body: JSON.stringify({
           model: "claude-sonnet-5",
           max_tokens: 1,

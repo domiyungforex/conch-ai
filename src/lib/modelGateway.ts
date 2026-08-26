@@ -50,11 +50,62 @@ const ANTHROPIC_FLAGSHIP_MODELS = new Set(["claude-sonnet-5", "claude-opus-4-8"]
 class AnthropicProvider implements ModelGatewayProvider {
   id = "anthropic";
 
+  // When AGENT_ROUTER_BASE_URL is set and OPENAI_API_KEY is available,
+  // route Claude models through Agent Router instead of direct Anthropic API.
+  private get useAgentRouter(): boolean {
+    return !!(process.env.AGENT_ROUTER_BASE_URL && process.env.OPENAI_API_KEY);
+  }
+
+  private get baseUrl(): string {
+    return this.useAgentRouter
+      ? (process.env.AGENT_ROUTER_BASE_URL || "https://api.router.tetrate.ai/v1")
+      : "https://api.anthropic.com/v1";
+  }
+
   supportsModel(model: string): boolean {
     return model.startsWith("claude-");
   }
 
   async complete(req: ModelGatewayRequest): Promise<ModelGatewayResult> {
+    // When routing through Agent Router, use OpenAI-compatible format
+    if (this.useAgentRouter) {
+      const apiKey = process.env.OPENAI_API_KEY!;
+      const body: Record<string, unknown> = {
+        model: req.model,
+        messages: [
+          ...(req.system ? [{ role: "system", content: req.system }] : []),
+          ...req.messages,
+        ],
+        max_tokens: req.maxTokens ?? 1024,
+        temperature: req.temperature ?? 0.7,
+      };
+
+      const res = await fetch(`${this.baseUrl}/chat/completions`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        const errBody = await res.text().catch(() => "");
+        throw new Error(`Agent Router API error ${res.status}: ${errBody.slice(0, 300)}`);
+      }
+
+      const data = await res.json();
+      return {
+        text: data.choices?.[0]?.message?.content ?? "",
+        usage: {
+          inputTokens: data.usage?.prompt_tokens ?? 0,
+          outputTokens: data.usage?.completion_tokens ?? 0,
+        },
+        provider: "agent-router",
+      };
+    }
+
+    // Direct Anthropic API path
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not configured");
 
@@ -66,7 +117,6 @@ class AnthropicProvider implements ModelGatewayProvider {
       messages: req.messages,
     };
     if (flagship) {
-      // Flagship models use adaptive thinking and reject explicit temperature.
       body.thinking = { type: "adaptive" };
       body.output_config = { effort: "low" };
     } else {
@@ -105,14 +155,22 @@ class AnthropicProvider implements ModelGatewayProvider {
   }
 }
 
-// OpenAI-compatible provider (OpenAI itself plus any compatible gateway).
+// OpenAI-compatible provider (OpenAI itself, Agent Router, or any compatible gateway).
 // Enabled whenever OPENAI_API_KEY is set; the key is read at call time so
 // registration never depends on env timing.
+//
+// AGENT_ROUTER_BASE_URL (default: https://api.router.tetrate.ai/v1) lets
+// operators point at Tetrate Agent Router or any OpenAI-compatible proxy.
 class OpenAIProvider implements ModelGatewayProvider {
   id = "openai";
 
+  private get baseUrl(): string {
+    return process.env.AGENT_ROUTER_BASE_URL || "https://api.router.tetrate.ai/v1";
+  }
+
   supportsModel(model: string): boolean {
-    return model.startsWith("gpt-") || model.startsWith("o");
+    // Agent Router can proxy any model (gpt-*, claude-*, gemini-*, etc.)
+    return true;
   }
 
   async complete(req: ModelGatewayRequest): Promise<ModelGatewayResult> {
@@ -130,7 +188,7 @@ class OpenAIProvider implements ModelGatewayProvider {
     };
     if (!reasoningModel) body.temperature = req.temperature ?? 0.7;
 
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    const res = await fetch(`${this.baseUrl}/chat/completions`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
