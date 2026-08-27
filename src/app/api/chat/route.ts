@@ -16,18 +16,17 @@ import { isFeatureEnabled } from "@/lib/featureFlags";
 import { Query, ID, Permission, Role } from "node-appwrite";
 
 // Map internal model IDs to OpenRouter model names
-// Free models end with :free — no credits needed, 50 req/day
 function mapToOpenRouterModel(modelId?: string | null): string {
-  if (!modelId) return "google/gemini-2.0-flash-001:free";
+  if (!modelId) return "anthropic/claude-sonnet-5";
   // Already an OpenRouter model name
   if (modelId.includes("/")) return modelId;
-  // Map Anthropic model IDs to OpenRouter free models
+  // Map Anthropic model IDs to OpenRouter format
   const modelMap: Record<string, string> = {
-    "claude-haiku-4-5-20251001": "google/gemini-2.0-flash-001:free",
-    "claude-sonnet-5": "google/gemini-2.0-flash-001:free",
-    "claude-opus-4-8": "google/gemini-2.0-flash-001:free",
+    "claude-haiku-4-5-20251001": "anthropic/claude-sonnet-5",
+    "claude-sonnet-5": "anthropic/claude-sonnet-5",
+    "claude-opus-4-8": "anthropic/claude-opus-4.8",
   };
-  return modelMap[modelId] || "google/gemini-2.0-flash-001:free";
+  return modelMap[modelId] || "anthropic/claude-sonnet-5";
 }
 
 export const runtime = "nodejs";

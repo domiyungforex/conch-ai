@@ -39,7 +39,7 @@ export async function GET() {
             "content-type": "application/json",
           },
           body: JSON.stringify({
-            model: "google/gemini-2.0-flash-001:free",
+            model: "anthropic/claude-sonnet-5",
             max_tokens: 1,
             messages: [{ role: "user", content: "hi" }],
           }),
