@@ -25,7 +25,7 @@ export async function GET() {
   const useAgentRouter = !!(process.env.AGENT_ROUTER_BASE_URL && process.env.OPENAI_API_KEY);
   const apiKeyForHealth = useAgentRouter ? process.env.OPENAI_API_KEY : process.env.ANTHROPIC_API_KEY;
   const baseUrlForHealth = useAgentRouter
-    ? (process.env.AGENT_ROUTER_BASE_URL || "https://api.router.tetrate.ai/v1")
+    ? `${process.env.AGENT_ROUTER_BASE_URL}/v1`
     : "https://api.anthropic.com/v1";
 
   if (!apiKeyForHealth) {
@@ -34,11 +34,12 @@ export async function GET() {
     try {
       let res: Response;
       if (useAgentRouter) {
-        // Agent Router is OpenAI-compatible: use /chat/completions
-        res = await fetch(`${baseUrlForHealth}/chat/completions`, {
+        // Agent Router uses Anthropic Messages format with Bearer auth
+        res = await fetch(`${baseUrlForHealth}/messages`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+            "anthropic-version": "2023-06-01",
             "content-type": "application/json",
           },
           body: JSON.stringify({
@@ -48,7 +49,7 @@ export async function GET() {
           }),
         });
       } else {
-        // Direct Anthropic API: use /messages
+        // Direct Anthropic API: use /messages with x-api-key
         res = await fetch(`${baseUrlForHealth}/messages`, {
           method: "POST",
           headers: {

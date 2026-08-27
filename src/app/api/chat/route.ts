@@ -1,7 +1,6 @@
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type AgentDoc, type ConversationDoc, type MessageDoc, type ReputationDoc, type MemoryDoc, type AppwriteDoc } from "@/lib/db";
 import { streamAnthropicChat, type AnthropicToolDef } from "@/lib/anthropicRaw";
-import { streamOpenAIChat } from "@/lib/openaiStream";
 import { retrieveRelevantMemories, buildSystemPrompt } from "@/lib/memory";
 import { buildContextPackage, formatContextForPrompt } from "@/lib/contextEngine";
 import { generateEmbedding } from "@/lib/embeddings";
@@ -487,22 +486,10 @@ export async function POST(req: Request) {
       }
     };
 
-    if (useAgentRouter) {
-      stream = streamOpenAIChat({
-        baseUrl: process.env.AGENT_ROUTER_BASE_URL!,
-        apiKey: process.env.OPENAI_API_KEY!,
-        model: agent?.modelId ?? "claude-haiku-4-5-20251001",
-        system: systemPrompt,
-        messages: chatMessages,
-        maxTokens: agent?.maxTokens ?? 2000,
-        temperature: agent?.temperature ?? 0.7,
-        maxSteps: 3,
-        tools: chatTools,
-        onFinish,
-      });
-    } else {
-      stream = streamAnthropicChat({
-        apiKey: process.env.ANTHROPIC_API_KEY!,
+    // Agent Router uses Anthropic Messages format with Bearer auth;
+    // anthropicRaw handles the routing when AGENT_ROUTER_BASE_URL is set.
+    stream = streamAnthropicChat({
+        apiKey: useAgentRouter ? process.env.OPENAI_API_KEY! : process.env.ANTHROPIC_API_KEY!,
         model: agent?.modelId ?? "claude-haiku-4-5-20251001",
         system: systemPrompt,
         messages: chatMessages as { role: "user" | "assistant"; content: string }[],
@@ -512,7 +499,6 @@ export async function POST(req: Request) {
         tools: chatTools,
         onFinish,
       });
-    }
   } catch (err) {
     console.error("[chat] stream init failed:", err);
     const isKeyMissing = String(err).includes("API key") || String(err).includes("401");

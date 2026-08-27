@@ -58,7 +58,7 @@ class AnthropicProvider implements ModelGatewayProvider {
 
   private get baseUrl(): string {
     return this.useAgentRouter
-      ? (process.env.AGENT_ROUTER_BASE_URL || "https://api.router.tetrate.ai/v1")
+      ? `${process.env.AGENT_ROUTER_BASE_URL}/v1`
       : "https://api.anthropic.com/v1";
   }
 
@@ -67,23 +67,28 @@ class AnthropicProvider implements ModelGatewayProvider {
   }
 
   async complete(req: ModelGatewayRequest): Promise<ModelGatewayResult> {
-    // When routing through Agent Router, use OpenAI-compatible format
+    // When routing through Agent Router, use Anthropic Messages format with Bearer auth
     if (this.useAgentRouter) {
       const apiKey = process.env.OPENAI_API_KEY!;
+      const flagship = ANTHROPIC_FLAGSHIP_MODELS.has(req.model);
       const body: Record<string, unknown> = {
         model: req.model,
-        messages: [
-          ...(req.system ? [{ role: "system", content: req.system }] : []),
-          ...req.messages,
-        ],
         max_tokens: req.maxTokens ?? 1024,
-        temperature: req.temperature ?? 0.7,
+        system: req.system,
+        messages: req.messages,
       };
+      if (flagship) {
+        body.thinking = { type: "adaptive" };
+        body.output_config = { effort: "low" };
+      } else {
+        body.temperature = req.temperature ?? 0.7;
+      }
 
-      const res = await fetch(`${this.baseUrl}/chat/completions`, {
+      const res = await fetch(`${this.baseUrl}/messages`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${apiKey}`,
+          "anthropic-version": "2023-06-01",
           "content-type": "application/json",
         },
         body: JSON.stringify(body),
@@ -96,10 +101,10 @@ class AnthropicProvider implements ModelGatewayProvider {
 
       const data = await res.json();
       return {
-        text: data.choices?.[0]?.message?.content ?? "",
+        text: data.content?.[0]?.text ?? "",
         usage: {
-          inputTokens: data.usage?.prompt_tokens ?? 0,
-          outputTokens: data.usage?.completion_tokens ?? 0,
+          inputTokens: data.usage?.input_tokens ?? 0,
+          outputTokens: data.usage?.output_tokens ?? 0,
         },
         provider: "agent-router",
       };
@@ -165,7 +170,7 @@ class OpenAIProvider implements ModelGatewayProvider {
   id = "openai";
 
   private get baseUrl(): string {
-    return process.env.AGENT_ROUTER_BASE_URL || "https://api.router.tetrate.ai/v1";
+    return "https://api.openai.com/v1";
   }
 
   supportsModel(model: string): boolean {
