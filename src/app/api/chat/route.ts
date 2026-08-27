@@ -597,32 +597,69 @@ export async function POST(req: Request) {
       }
     };
 
-    // OpenRouter uses OpenAI-compatible format; direct Anthropic uses Messages format.
-    if (useOpenRouter) {
-      stream = streamOpenAIChat({
-        baseUrl: "https://openrouter.ai/api/v1",
-        apiKey: process.env.OPENROUTER_API_KEY!,
-        model: mapToOpenRouterModel(agent?.modelId),
-        system: systemPrompt,
-        messages: chatMessages,
-        maxTokens: agent?.maxTokens ?? 2000,
-        temperature: agent?.temperature ?? 0.7,
-        maxSteps: 3,
-        tools: chatTools,
-        onFinish,
-      });
+    // Helper to create an OpenRouter stream
+    const createOpenRouterStream = () => streamOpenAIChat({
+      baseUrl: "https://openrouter.ai/api/v1",
+      apiKey: process.env.OPENROUTER_API_KEY!,
+      model: mapToOpenRouterModel(agent?.modelId),
+      system: systemPrompt,
+      messages: chatMessages,
+      maxTokens: agent?.maxTokens ?? 2000,
+      temperature: agent?.temperature ?? 0.7,
+      maxSteps: 3,
+      tools: chatTools,
+      onFinish,
+    });
+
+    // Helper to create an Anthropic stream
+    const createAnthropicStream = () => streamAnthropicChat({
+      apiKey: process.env.ANTHROPIC_API_KEY!,
+      model: agent?.modelId ?? "claude-haiku-4-5-20251001",
+      system: systemPrompt,
+      messages: chatMessages as { role: "user" | "assistant"; content: string }[],
+      maxTokens: agent?.maxTokens ?? 2000,
+      temperature: agent?.temperature ?? 0.7,
+      maxSteps: 3,
+      tools: chatTools,
+      onFinish,
+    });
+
+    // Quick health check to decide which provider to use.
+    // Anthropic errors (credit exhaustion etc.) are lazy — they only surface
+    // when the client reads the stream — so we do a cheap preflight ping.
+    let useAnthropic = !!process.env.ANTHROPIC_API_KEY;
+    if (useAnthropic) {
+      try {
+        const pingRes = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: {
+            "x-api-key": process.env.ANTHROPIC_API_KEY!,
+            "anthropic-version": "2023-06-01",
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "claude-haiku-4-5-20251001",
+            max_tokens: 1,
+            messages: [{ role: "user", content: "ping" }],
+          }),
+        });
+        if (!pingRes.ok) {
+          const errBody = await pingRes.text().catch(() => "");
+          console.error(`[chat] Anthropic preflight failed (${pingRes.status}):`, errBody.slice(0, 200));
+          useAnthropic = false;
+        }
+      } catch {
+        useAnthropic = false;
+      }
+    }
+
+    if (useAnthropic) {
+      stream = createAnthropicStream();
+    } else if (useOpenRouter) {
+      console.log("[chat] Falling back to OpenRouter");
+      stream = createOpenRouterStream();
     } else {
-      stream = streamAnthropicChat({
-        apiKey: process.env.ANTHROPIC_API_KEY!,
-        model: agent?.modelId ?? "claude-haiku-4-5-20251001",
-        system: systemPrompt,
-        messages: chatMessages as { role: "user" | "assistant"; content: string }[],
-        maxTokens: agent?.maxTokens ?? 2000,
-        temperature: agent?.temperature ?? 0.7,
-        maxSteps: 3,
-        tools: chatTools,
-        onFinish,
-      });
+      throw new Error("No AI provider available. Anthropic credits may be exhausted and no OpenRouter fallback is configured.");
     }
   } catch (err) {
     console.error("[chat] stream init failed:", err);
