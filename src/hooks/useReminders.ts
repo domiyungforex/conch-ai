@@ -135,6 +135,27 @@ export function useReminders() {
     []
   );
 
+  // Send push notification to ALL devices via server
+  const sendPushToAllDevices = useCallback(
+    async (title: string, message: string, reminderId: string) => {
+      try {
+        await fetch("/api/push/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title,
+            body: message,
+            tag: `reminder-${reminderId}`,
+            url: "/",
+          }),
+        });
+      } catch {
+        // Non-critical - local notification still fires
+      }
+    },
+    []
+  );
+
   // Check for due reminders and trigger notifications
   useEffect(() => {
     const checkDueReminders = async () => {
@@ -145,7 +166,7 @@ export function useReminders() {
       );
 
       for (const reminder of dueReminders) {
-        // Try to show a local notification if permission is granted
+        // Show local notification if permission is granted
         if ("Notification" in window && Notification.permission === "granted") {
           new Notification(reminder.title, {
             body: reminder.message,
@@ -153,6 +174,9 @@ export function useReminders() {
             tag: `reminder-${reminder.$id}`,
           });
         }
+
+        // Send push notification to ALL devices via server
+        sendPushToAllDevices(reminder.title, reminder.message, reminder.$id);
 
         // Handle recurring reminders - create next occurrence
         if (reminder.recurrence && reminder.recurrence !== "none") {
@@ -209,7 +233,7 @@ export function useReminders() {
     checkDueReminders();
 
     return () => clearInterval(interval);
-  }, [reminders, fetchReminders, getNextOccurrence]);
+  }, [reminders, fetchReminders, getNextOccurrence, sendPushToAllDevices]);
 
   // Initial fetch
   useEffect(() => {
