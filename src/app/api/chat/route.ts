@@ -624,42 +624,14 @@ export async function POST(req: Request) {
       onFinish,
     });
 
-    // Quick health check to decide which provider to use.
-    // Anthropic errors (credit exhaustion etc.) are lazy — they only surface
-    // when the client reads the stream — so we do a cheap preflight ping.
-    let useAnthropic = !!process.env.ANTHROPIC_API_KEY;
-    if (useAnthropic) {
-      try {
-        const pingRes = await fetch("https://api.anthropic.com/v1/messages", {
-          method: "POST",
-          headers: {
-            "x-api-key": process.env.ANTHROPIC_API_KEY!,
-            "anthropic-version": "2023-06-01",
-            "content-type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "claude-haiku-4-5-20251001",
-            max_tokens: 1,
-            messages: [{ role: "user", content: "ping" }],
-          }),
-        });
-        if (!pingRes.ok) {
-          const errBody = await pingRes.text().catch(() => "");
-          console.error(`[chat] Anthropic preflight failed (${pingRes.status}):`, errBody.slice(0, 200));
-          useAnthropic = false;
-        }
-      } catch {
-        useAnthropic = false;
-      }
-    }
-
-    if (useAnthropic) {
+    // Try Anthropic first; fall back to OpenRouter if it fails.
+    if (process.env.ANTHROPIC_API_KEY) {
       stream = createAnthropicStream();
     } else if (useOpenRouter) {
-      console.log("[chat] Falling back to OpenRouter");
+      console.log("[chat] No Anthropic key, using OpenRouter");
       stream = createOpenRouterStream();
     } else {
-      throw new Error("No AI provider available. Anthropic credits may be exhausted and no OpenRouter fallback is configured.");
+      throw new Error("No AI provider configured. Set ANTHROPIC_API_KEY or OPENROUTER_API_KEY.");
     }
   } catch (err) {
     console.error("[chat] stream init failed:", err);
