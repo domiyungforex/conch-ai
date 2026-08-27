@@ -460,6 +460,102 @@ export async function POST(req: Request) {
     },
   };
 
+  // Tool: set a reminder that will send a push notification at the scheduled time
+  const setReminderTool: AnthropicToolDef = {
+    name: "setReminder",
+    description:
+      "Create a reminder that will notify the user at a specific time. Use this when the user asks to be reminded about something, or asks you to set a reminder. Parse the time from their message (e.g. \"at 8pm\", \"in 2 hours\", \"tomorrow at 10am\"). Supports recurring reminders (daily, weekly, monthly).",
+    input_schema: {
+      type: "object",
+      properties: {
+        title: {
+          type: "string",
+          description:
+            "Short title for the reminder (e.g. \"Meeting with Trevin\", \"Call the dentist\")",
+        },
+        message: {
+          type: "string",
+          description:
+            "Detailed message to show in the notification (e.g. \"Presentation with Trevin and Big Seven at 8:00 PM\")",
+        },
+        scheduledAt: {
+          type: "string",
+          description:
+            "ISO 8601 datetime string for when to send the notification (e.g. \"2026-08-27T20:00:00Z\")",
+        },
+        recurrence: {
+          type: "string",
+          enum: ["none", "daily", "weekly", "monthly"],
+          description:
+            "How often to repeat. Use \"daily\" for every day, \"weekly\" for every week, \"monthly\" for every month. Default is \"none\" for a one-time reminder.",
+        },
+        recurrenceEndDate: {
+          type: "string",
+          description:
+            "Optional ISO 8601 datetime string for when to stop repeating (e.g. \"2026-12-31T23:59:59Z\"). If not set, the reminder repeats indefinitely.",
+        },
+      },
+      required: ["title", "message", "scheduledAt"],
+    },
+    execute: async (input) => {
+      const { title, message: msg, scheduledAt, recurrence, recurrenceEndDate } = input as {
+        title: string;
+        message: string;
+        scheduledAt: string;
+        recurrence?: string;
+        recurrenceEndDate?: string;
+      };
+      try {
+        const date = new Date(scheduledAt);
+        if (date <= new Date()) {
+          return {
+            success: false,
+            error: "The scheduled time must be in the future. Please try again with a later time.",
+          };
+        }
+
+        // Validate recurrence end date if provided
+        if (recurrenceEndDate) {
+          const endDate = new Date(recurrenceEndDate);
+          if (endDate <= date) {
+            return {
+              success: false,
+              error: "The recurrence end date must be after the scheduled time.",
+            };
+          }
+        }
+
+        const { databases } = createAdminClient();
+
+        await databases.createDocument(DB_ID, COLLECTIONS.REMINDERS, ID.unique(), {
+          userId: appwriteId,
+          title,
+          message: msg,
+          scheduledAt: date.toISOString(),
+          status: "pending",
+          source: "chat",
+          recurrence: recurrence || "none",
+          recurrenceEndDate: recurrenceEndDate || null,
+        });
+
+        const recurrenceText = recurrence && recurrence !== "none"
+          ? ` (repeats ${recurrence}${recurrenceEndDate ? ` until ${new Date(recurrenceEndDate).toLocaleDateString()}` : " indefinitely"})`
+          : "";
+
+        return {
+          success: true,
+          scheduledAt: date.toISOString(),
+          title,
+          recurrence: recurrence || "none",
+          message: `Reminder set for ${date.toLocaleString()}${recurrenceText}`,
+        };
+      } catch (err) {
+        console.error("[chat] setReminder tool failed:", err);
+        return { success: false, error: "Failed to create reminder" };
+      }
+    },
+  };
+
   // Images (if any) precede the text block, matching Anthropic's documented convention.
   const finalUserContent = images && images.length > 0
     ? [
@@ -475,7 +571,7 @@ export async function POST(req: Request) {
   try {
     const useOpenRouter = !!process.env.OPENROUTER_API_KEY;
     const chatMessages = [...history, { role: "user", content: finalUserContent }];
-    const chatTools = [saveMemory, searchMemory, calculateTool, listMemories, forgetMemory, marketDataTool];
+    const chatTools = [saveMemory, searchMemory, calculateTool, listMemories, forgetMemory, marketDataTool, setReminderTool];
     const onFinish = async ({ text, totalTokens }: { text: string; totalTokens: number }) => {
       try {
         await databases.createDocument(DB_ID, COLLECTIONS.MESSAGES, ID.unique(), {

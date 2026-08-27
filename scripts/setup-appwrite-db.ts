@@ -437,6 +437,46 @@ async function setupCollections() {
     db.createIndex(DB_ID, "context_provenance", "idx_contextId", IndexType.Key, ["contextId"])
   );
 
+  // ── push_subscriptions ─────────────────────────────────────────────────────
+  await tryCreate("collection: push_subscriptions", () =>
+    db.createCollection(DB_ID, "push_subscriptions", "push_subscriptions")
+  );
+  for (const [key, fn] of [
+    ["userId",    () => db.createStringAttribute(DB_ID, "push_subscriptions", "userId",    36,    true)],
+    ["endpoint",  () => db.createStringAttribute(DB_ID, "push_subscriptions", "endpoint",  1024,  true)],
+    ["p256dh",    () => db.createStringAttribute(DB_ID, "push_subscriptions", "p256dh",    256,   true)],
+    ["auth",      () => db.createStringAttribute(DB_ID, "push_subscriptions", "auth",      256,   true)],
+    ["userAgent", () => db.createStringAttribute(DB_ID, "push_subscriptions", "userAgent", 1024,  false)],
+  ] as [string, () => Promise<unknown>][]) {
+    await tryCreate(`  attr push_subscriptions.${key}`, fn);
+  }
+  await tryCreate("index: push_subscriptions.userId", () =>
+    db.createIndex(DB_ID, "push_subscriptions", "idx_userId", IndexType.Key, ["userId"])
+  );
+
+  // ── reminders ──────────────────────────────────────────────────────────────
+  await tryCreate("collection: reminders", () =>
+    db.createCollection(DB_ID, "reminders", "reminders")
+  );
+  for (const [key, fn] of [
+    ["userId",             () => db.createStringAttribute(DB_ID, "reminders", "userId",             36,    true)],
+    ["title",              () => db.createStringAttribute(DB_ID, "reminders", "title",              200,   true)],
+    ["message",            () => db.createStringAttribute(DB_ID, "reminders", "message",            1000,  true)],
+    ["scheduledAt",        () => db.createStringAttribute(DB_ID, "reminders", "scheduledAt",        64,    true)],
+    ["status",             () => db.createStringAttribute(DB_ID, "reminders", "status",             32,    true, "pending")],
+    ["source",             () => db.createStringAttribute(DB_ID, "reminders", "source",             100,   false)],
+    ["recurrence",         () => db.createStringAttribute(DB_ID, "reminders", "recurrence",         32,    true, "none")],
+    ["recurrenceEndDate",  () => db.createStringAttribute(DB_ID, "reminders", "recurrenceEndDate",  64,    false)],
+  ] as [string, () => Promise<unknown>][]) {
+    await tryCreate(`  attr reminders.${key}`, fn);
+  }
+  await tryCreate("index: reminders.userId", () =>
+    db.createIndex(DB_ID, "reminders", "idx_userId", IndexType.Key, ["userId"])
+  );
+  await tryCreate("index: reminders.status_scheduledAt", () =>
+    db.createIndex(DB_ID, "reminders", "idx_status_scheduledAt", IndexType.Key, ["status", "scheduledAt"])
+  );
+
   console.log("\n✅ All collections and attributes created.\n");
   console.log("Next: add APPWRITE_DATABASE_ID to your .env and run npm run dev\n");
 }

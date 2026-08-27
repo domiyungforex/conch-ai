@@ -409,6 +409,17 @@ export const CreditProfileConsentSchema = z.object({
   consentGiven: z.literal(true),
 });
 
+// ── Push Notifications + Reminders ───────────────────────────────────────
+
+export const ReminderCreateSchema = z.object({
+  title: z.string().min(1).max(200),
+  message: z.string().min(1).max(1000),
+  scheduledAt: z.string().datetime(),
+  source: z.string().max(100).optional(),
+  recurrence: z.enum(["none", "daily", "weekly", "monthly"]).default("none"),
+  recurrenceEndDate: z.string().datetime().optional(),
+});
+
 // ── Marketplace (future) ──────────────────────────────────────────────────
 
 export const MarketplaceListingCreateSchema = z.object({

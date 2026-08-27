@@ -47,6 +47,9 @@ export const COLLECTIONS = {
   FINANCIAL_TRANSACTIONS: "financial_transactions",
   MARKETPLACE_LISTINGS: "marketplace_listings",
   CREDIT_PROFILES: "credit_profiles",
+  // Push Notifications + Reminders
+  PUSH_SUBSCRIPTIONS: "push_subscriptions",
+  REMINDERS: "reminders",
 } as const;
 
 export type MemoryCategory = "EPISODIC" | "SEMANTIC" | "PREFERENCE" | "PROCEDURAL";
@@ -563,6 +566,30 @@ export interface ContextProvenanceDoc {
   agentId: string | null;
   verifiedAt: string | null;
   confidence: number;
+}
+
+// ── Push Notifications + Reminders ───────────────────────────────────────────
+
+export type ReminderStatus = "pending" | "sent" | "cancelled";
+export type ReminderRecurrence = "none" | "daily" | "weekly" | "monthly";
+
+export interface PushSubscriptionDoc {
+  userId: string;
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+  userAgent: string | null;
+}
+
+export interface ReminderDoc {
+  userId: string;
+  title: string;
+  message: string;
+  scheduledAt: string;
+  status: ReminderStatus;
+  source: string | null;
+  recurrence: ReminderRecurrence;
+  recurrenceEndDate: string | null;
 }
 
 // Appwrite documents include $id, $createdAt, $updatedAt from the platform.
