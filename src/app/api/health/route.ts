@@ -23,6 +23,8 @@ export async function GET() {
 
   // ── Anthropic / Agent Router (matches what /api/chat actually uses) ──────────
   const useAgentRouter = !!(process.env.AGENT_ROUTER_BASE_URL && process.env.OPENAI_API_KEY);
+  // Debug: expose which path is taken
+  results._debug = JSON.stringify({ useAgentRouter, baseUrl: process.env.AGENT_ROUTER_BASE_URL || null, hasOpenAIKey: !!process.env.OPENAI_API_KEY, hasAnthropicKey: !!process.env.ANTHROPIC_API_KEY });
   const apiKeyForHealth = useAgentRouter ? process.env.OPENAI_API_KEY : process.env.ANTHROPIC_API_KEY;
   const baseUrlForHealth = useAgentRouter
     ? `${process.env.AGENT_ROUTER_BASE_URL}/v1`
