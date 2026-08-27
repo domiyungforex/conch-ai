@@ -21,38 +21,32 @@ export async function GET() {
     errors.db = String(err).slice(0, 150);
   }
 
-  // ── Anthropic / Agent Router (matches what /api/chat actually uses) ──────────
-  const useAgentRouter = !!(process.env.AGENT_ROUTER_BASE_URL && process.env.OPENAI_API_KEY);
-  // Debug: expose which path is taken
-  results._debug = JSON.stringify({ useAgentRouter, baseUrl: process.env.AGENT_ROUTER_BASE_URL || null, hasOpenAIKey: !!process.env.OPENAI_API_KEY, hasAnthropicKey: !!process.env.ANTHROPIC_API_KEY });
-  const apiKeyForHealth = useAgentRouter ? process.env.OPENAI_API_KEY : process.env.ANTHROPIC_API_KEY;
-  const baseUrlForHealth = useAgentRouter
-    ? `${process.env.AGENT_ROUTER_BASE_URL}/v1`
-    : "https://api.anthropic.com/v1";
+  // ── AI provider (OpenRouter or direct Anthropic) ───────────────────────────
+  const useOpenRouter = !!process.env.OPENROUTER_API_KEY;
+  const apiKeyForHealth = useOpenRouter ? process.env.OPENROUTER_API_KEY : process.env.ANTHROPIC_API_KEY;
 
   if (!apiKeyForHealth) {
     results.anthropic = "missing_key";
   } else {
     try {
       let res: Response;
-      if (useAgentRouter) {
-        // Agent Router uses Anthropic Messages format with Bearer auth
-        res = await fetch(`${baseUrlForHealth}/messages`, {
+      if (useOpenRouter) {
+        // OpenRouter uses OpenAI-compatible /chat/completions format
+        res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-            "anthropic-version": "2023-06-01",
+            Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
             "content-type": "application/json",
           },
           body: JSON.stringify({
-            model: "claude-haiku-4-5-20251001",
+            model: "anthropic/claude-sonnet-5",
             max_tokens: 1,
             messages: [{ role: "user", content: "hi" }],
           }),
         });
       } else {
         // Direct Anthropic API: use /messages with x-api-key
-        res = await fetch(`${baseUrlForHealth}/messages`, {
+        res = await fetch("https://api.anthropic.com/v1/messages", {
           method: "POST",
           headers: {
             "x-api-key": process.env.ANTHROPIC_API_KEY!,
@@ -68,9 +62,7 @@ export async function GET() {
           }),
         });
       }
-      const body = await res.text();
-      results._debugAnthropic = JSON.stringify({ status: res.status, ok: res.ok, body: body.slice(0, 200) });
-      if (!res.ok) throw new Error(`${res.status}: ${body.slice(0, 200)}`);
+      if (!res.ok) throw new Error(`${res.status}: ${(await res.text()).slice(0, 200)}`);
       results.anthropic = "ok";
     } catch (err) {
       const msg = String(err);

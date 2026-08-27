@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type AgentDoc, type ConversationDoc, type MessageDoc, type ReputationDoc, type MemoryDoc, type AppwriteDoc } from "@/lib/db";
 import { streamAnthropicChat, type AnthropicToolDef } from "@/lib/anthropicRaw";
+import { streamOpenAIChat } from "@/lib/openaiStream";
 import { retrieveRelevantMemories, buildSystemPrompt } from "@/lib/memory";
 import { buildContextPackage, formatContextForPrompt } from "@/lib/contextEngine";
 import { generateEmbedding } from "@/lib/embeddings";
@@ -14,6 +15,20 @@ import { checkConversationQuota, checkMemoryQuota, checkChatMessageQuota, upgrad
 import { isFeatureEnabled } from "@/lib/featureFlags";
 import { Query, ID, Permission, Role } from "node-appwrite";
 
+// Map internal model IDs to OpenRouter model names
+function mapToOpenRouterModel(modelId?: string | null): string {
+  if (!modelId) return "anthropic/claude-sonnet-5";
+  // Already an OpenRouter model name
+  if (modelId.includes("/")) return modelId;
+  // Map Anthropic model IDs to OpenRouter format
+  const modelMap: Record<string, string> = {
+    "claude-haiku-4-5-20251001": "anthropic/claude-sonnet-5",
+    "claude-sonnet-5": "anthropic/claude-sonnet-5",
+    "claude-opus-4-8": "anthropic/claude-opus-4.8",
+  };
+  return modelMap[modelId] || "anthropic/claude-sonnet-5";
+}
+
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
@@ -23,7 +38,7 @@ export async function POST(req: Request) {
   if (!scopeAllows(resolved.scope, "chat")) return forbiddenScope();
   const { userId: appwriteId } = resolved;
 
-  if (!process.env.ANTHROPIC_API_KEY && !(process.env.AGENT_ROUTER_BASE_URL && process.env.OPENAI_API_KEY)) {
+  if (!process.env.ANTHROPIC_API_KEY && !process.env.OPENROUTER_API_KEY) {
     return new Response(
       JSON.stringify({ error: "AI service is not configured. Please contact support." }),
       { status: 503 }
@@ -458,7 +473,7 @@ export async function POST(req: Request) {
 
   let stream: ReadableStream<Uint8Array>;
   try {
-    const useAgentRouter = !!(process.env.AGENT_ROUTER_BASE_URL && process.env.OPENAI_API_KEY);
+    const useOpenRouter = !!process.env.OPENROUTER_API_KEY;
     const chatMessages = [...history, { role: "user", content: finalUserContent }];
     const chatTools = [saveMemory, searchMemory, calculateTool, listMemories, forgetMemory, marketDataTool];
     const onFinish = async ({ text, totalTokens }: { text: string; totalTokens: number }) => {
@@ -486,10 +501,23 @@ export async function POST(req: Request) {
       }
     };
 
-    // Agent Router uses Anthropic Messages format with Bearer auth;
-    // anthropicRaw handles the routing when AGENT_ROUTER_BASE_URL is set.
-    stream = streamAnthropicChat({
-        apiKey: useAgentRouter ? process.env.OPENAI_API_KEY! : process.env.ANTHROPIC_API_KEY!,
+    // OpenRouter uses OpenAI-compatible format; direct Anthropic uses Messages format.
+    if (useOpenRouter) {
+      stream = streamOpenAIChat({
+        baseUrl: "https://openrouter.ai/api/v1",
+        apiKey: process.env.OPENROUTER_API_KEY!,
+        model: mapToOpenRouterModel(agent?.modelId),
+        system: systemPrompt,
+        messages: chatMessages,
+        maxTokens: agent?.maxTokens ?? 2000,
+        temperature: agent?.temperature ?? 0.7,
+        maxSteps: 3,
+        tools: chatTools,
+        onFinish,
+      });
+    } else {
+      stream = streamAnthropicChat({
+        apiKey: process.env.ANTHROPIC_API_KEY!,
         model: agent?.modelId ?? "claude-haiku-4-5-20251001",
         system: systemPrompt,
         messages: chatMessages as { role: "user" | "assistant"; content: string }[],
@@ -499,6 +527,7 @@ export async function POST(req: Request) {
         tools: chatTools,
         onFinish,
       });
+    }
   } catch (err) {
     console.error("[chat] stream init failed:", err);
     const isKeyMissing = String(err).includes("API key") || String(err).includes("401");

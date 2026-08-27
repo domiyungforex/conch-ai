@@ -160,27 +160,27 @@ class AnthropicProvider implements ModelGatewayProvider {
   }
 }
 
-// OpenAI-compatible provider (OpenAI itself, Agent Router, or any compatible gateway).
-// Enabled whenever OPENAI_API_KEY is set; the key is read at call time so
-// registration never depends on env timing.
-//
-// AGENT_ROUTER_BASE_URL (default: https://api.router.tetrate.ai/v1) lets
-// operators point at Tetrate Agent Router or any OpenAI-compatible proxy.
+// OpenAI-compatible provider (OpenRouter, OpenAI, or any compatible gateway).
+// Enabled whenever OPENROUTER_API_KEY or OPENAI_API_KEY is set.
 class OpenAIProvider implements ModelGatewayProvider {
   id = "openai";
 
   private get baseUrl(): string {
+    if (process.env.OPENROUTER_API_KEY) return "https://openrouter.ai/api/v1";
     return "https://api.openai.com/v1";
   }
 
+  private get apiKey(): string | undefined {
+    return process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY;
+  }
+
   supportsModel(model: string): boolean {
-    // Agent Router can proxy any model (gpt-*, claude-*, gemini-*, etc.)
     return true;
   }
 
   async complete(req: ModelGatewayRequest): Promise<ModelGatewayResult> {
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) throw new Error("OPENAI_API_KEY is not configured");
+    const apiKey = this.apiKey;
+    if (!apiKey) throw new Error("No API key configured (OPENROUTER_API_KEY or OPENAI_API_KEY)");
 
     const reasoningModel = req.model.startsWith("o");
     const body: Record<string, unknown> = {
