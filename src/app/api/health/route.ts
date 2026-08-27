@@ -68,7 +68,9 @@ export async function GET() {
           }),
         });
       }
-      if (!res.ok) throw new Error(`${res.status}: ${(await res.text()).slice(0, 200)}`);
+      const body = await res.text();
+      results._debugAnthropic = JSON.stringify({ status: res.status, ok: res.ok, body: body.slice(0, 200) });
+      if (!res.ok) throw new Error(`${res.status}: ${body.slice(0, 200)}`);
       results.anthropic = "ok";
     } catch (err) {
       const msg = String(err);
