@@ -624,12 +624,12 @@ export async function POST(req: Request) {
       onFinish,
     });
 
-    // Try Anthropic first; fall back to OpenRouter if it fails.
-    if (process.env.ANTHROPIC_API_KEY) {
-      stream = createAnthropicStream();
-    } else if (useOpenRouter) {
-      console.log("[chat] No Anthropic key, using OpenRouter");
+    // Use OpenRouter as primary (Anthropic credits are depleted).
+    // Switch back to Anthropic-first when credits are topped up.
+    if (useOpenRouter) {
       stream = createOpenRouterStream();
+    } else if (process.env.ANTHROPIC_API_KEY) {
+      stream = createAnthropicStream();
     } else {
       throw new Error("No AI provider configured. Set ANTHROPIC_API_KEY or OPENROUTER_API_KEY.");
     }
