@@ -45,14 +45,14 @@ const sdkLines = [
 
 export function DeveloperSection() {
   return (
-    <section id="for-ai" className="py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden scroll-mt-20">
+    <section id="for-ai" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden scroll-mt-20">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 right-0 w-96 h-96 bg-coral-500/8 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-1/4 w-80 h-80 bg-teal-500/6 rounded-full blur-3xl" />
       </div>
 
       <div className="relative max-w-6xl mx-auto">
-        <div className="grid lg:grid-cols-2 gap-14 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-14 items-center">
           {/* Copy */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
@@ -63,20 +63,20 @@ export function DeveloperSection() {
             <span className="inline-flex items-center px-3 py-1 rounded-full glass border border-coral-500/25 eyebrow text-coral-600 mb-5">
               For Developers
             </span>
-            <h2 className="font-display text-4xl sm:text-5xl font-medium text-slate-900 tracking-tight mb-5">
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-medium text-slate-900 tracking-tight mb-4 sm:mb-5">
               The context API{" "}
               <span className="gradient-text">for any agent</span>
             </h2>
-            <p className="text-lg text-slate-500 leading-relaxed mb-8">
+            <p className="text-base sm:text-lg text-slate-500 leading-relaxed mb-6 sm:mb-8">
               Conch is a structured context layer behind one API. Any agent, app, or model can store
               decisions, retrieve constraints, and hand off structured context in minutes, not months.
               Intelligence tells an agent what to do. Conch tells it what came before.
             </p>
 
             {/* Endpoint chips */}
-            <div className="flex flex-col gap-2.5 mb-8">
+            <div className="flex flex-col gap-2 mb-6 sm:gap-2.5 sm:mb-8">
               {endpoints.map((e) => (
-                <div key={e.path} className="flex items-center gap-3 glass border border-white/60 rounded-xl px-4 py-2.5">
+                <div key={e.path} className="flex items-center gap-2 sm:gap-3 glass border border-white/60 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5">
                   <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded-md bg-coral-600 text-white">
                     {e.method}
                   </span>
@@ -86,7 +86,7 @@ export function DeveloperSection() {
               ))}
             </div>
 
-            <Button size="lg" asChild className="group">
+            <Button size="lg" asChild className="group w-full sm:w-auto">
               <Link href="/developers">
                 <KeyRound className="w-4 h-4" />
                 Get Your API Key
@@ -104,13 +104,13 @@ export function DeveloperSection() {
           >
             <GlassCard className="p-2 border border-white/60">
               <div className="rounded-2xl bg-[#181209] overflow-hidden shadow-2xl">
-                <div className="flex items-center gap-2 px-4 py-3 border-b border-white/10">
-                  <div className="w-3 h-3 rounded-full bg-[#e08a5e]" />
-                  <div className="w-3 h-3 rounded-full bg-[#e0b353]" />
-                  <div className="w-3 h-3 rounded-full bg-[#9ecf7f]" />
-                  <span className="ml-2 font-mono text-xs text-[#a8997c]">memory.ts</span>
+                <div className="flex items-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 border-b border-white/10">
+                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#e08a5e]" />
+                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#e0b353]" />
+                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#9ecf7f]" />
+                  <span className="ml-2 font-mono text-[10px] sm:text-xs text-[#a8997c]">memory.ts</span>
                 </div>
-                <pre className="p-5 font-mono text-[13px] leading-relaxed overflow-x-auto">
+                <pre className="p-3 sm:p-5 font-mono text-[11px] sm:text-[13px] leading-relaxed overflow-x-auto">
                   {sdkLines.map((line, i) =>
                     line ? (
                       <div key={i}>

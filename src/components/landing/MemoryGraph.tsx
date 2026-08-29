@@ -120,27 +120,27 @@ export function MemoryGraph() {
       whileInView={{ opacity: 1 }}
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 0.7 }}
-      className="py-24 px-4 sm:px-6 lg:px-8"
+      className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8"
     >
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass border border-coral-500/25 eyebrow text-coral-300/90 font-medium mb-4">
+        <div className="text-center mb-8 sm:mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass border border-coral-500/25 eyebrow text-coral-300/90 font-medium mb-3 sm:mb-4">
             Memory Graph
           </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-medium text-white mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-display font-medium text-white mb-3 sm:mb-4">
             Your knowledge,{" "}
             <span className="gradient-text">visualized</span>
           </h2>
-          <p className="text-slate-400 max-w-xl mx-auto">
+          <p className="text-sm sm:text-base text-slate-400 max-w-xl mx-auto">
             Conch maps your memories into a living knowledge graph. Connected, searchable, and always growing.
             Click any node to explore its connections.
           </p>
         </div>
 
         {/* Graph container */}
-        <div className="glass rounded-3xl border border-white/8 overflow-hidden" style={{ minHeight: 500 }}>
-          <div ref={containerRef} className="relative" style={{ minHeight: 500 }}>
+        <div className="glass rounded-2xl sm:rounded-3xl border border-white/8 overflow-hidden">
+          <div ref={containerRef} className="relative min-h-[320px] sm:min-h-[420px] lg:min-h-[500px]">
             {/* SVG connection layer */}
             <svg
               className="absolute inset-0 pointer-events-none"
@@ -230,7 +230,7 @@ export function MemoryGraph() {
         </div>
 
         {/* Legend */}
-        <div className="flex flex-wrap items-center justify-center gap-5 mt-6">
+        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5 mt-4 sm:mt-6">
           {legendItems.map(({ category, label }) => {
             const style = categoryStyle[category];
             return (
