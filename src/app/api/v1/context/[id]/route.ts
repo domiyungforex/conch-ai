@@ -6,13 +6,14 @@ import {
   type ContextObjectDoc,
   type AppwriteDoc,
 } from "@/lib/db";
+import { withApiTracking } from "@/lib/apiUsage";
 import { ContextUpdateSchema } from "@/lib/validators";
 
 // GET /api/v1/context/:id — Get a context object
-export async function GET(
+export const GET = withApiTracking(async (
   req: Request,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   const auth = await resolveAuth(req);
   if (!auth) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
@@ -37,13 +38,13 @@ export async function GET(
   } catch {
     return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
   }
-}
+});
 
 // PATCH /api/v1/context/:id — Update a context object
-export async function PATCH(
+export const PATCH = withApiTracking(async (
   req: Request,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   const auth = await resolveAuth(req);
   if (!auth) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
@@ -98,13 +99,13 @@ export async function PATCH(
   } catch {
     return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
   }
-}
+});
 
 // DELETE /api/v1/context/:id — Soft-delete a context object
-export async function DELETE(
+export const DELETE = withApiTracking(async (
   req: Request,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   const auth = await resolveAuth(req);
   if (!auth) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
@@ -137,4 +138,4 @@ export async function DELETE(
   } catch {
     return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
   }
-}
+});

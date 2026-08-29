@@ -6,11 +6,12 @@ import {
   type ContextObjectDoc,
   type AppwriteDoc,
 } from "@/lib/db";
+import { withApiTracking } from "@/lib/apiUsage";
 import { generateEmbedding } from "@/lib/embeddings";
 import { Query } from "node-appwrite";
 
 // POST /api/v1/context/search — Semantic search across context objects
-export async function POST(req: Request) {
+export const POST = withApiTracking(async (req: Request) => {
   const auth = await resolveAuth(req);
   if (!auth) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
@@ -78,7 +79,7 @@ export async function POST(req: Request) {
       score,
     })),
   });
-}
+});
 
 function cosineSimilarity(a: number[], b: number[]): number {
   if (a.length === 0 || b.length === 0 || a.length !== b.length) return 0;

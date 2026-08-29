@@ -1,11 +1,12 @@
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS } from "@/lib/db";
+import { withApiTracking } from "@/lib/apiUsage";
 import { Query, ID } from "node-appwrite";
 import { ContextCreateSchema } from "@/lib/validators";
 
 // POST /api/v1/context — Create a context object
-export async function POST(req: Request) {
+export const POST = withApiTracking(async (req: Request) => {
   const auth = await resolveAuth(req);
   if (!auth) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
@@ -46,10 +47,10 @@ export async function POST(req: Request) {
   );
 
   return Response.json({ context: doc }, { status: 201 });
-}
+});
 
 // GET /api/v1/context — List context objects
-export async function GET(req: Request) {
+export const GET = withApiTracking(async (req: Request) => {
   const auth = await resolveAuth(req);
   if (!auth) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
@@ -88,4 +89,4 @@ export async function GET(req: Request) {
     page,
     limit,
   });
-}
+});

@@ -4,8 +4,9 @@ import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS, type UserDoc, type PaymentDoc, type AppwriteDoc } from "@/lib/db";
 import { getSubscriptionStatus, isTesterUserId } from "@/lib/subscription";
 import { resolveUserEmail } from "@/lib/planLimits";
+import { withApiTracking } from "@/lib/apiUsage";
 
-export async function GET() {
+export const GET = withApiTracking(async () => {
   const { userId } = await auth();
   if (!userId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
 
@@ -35,4 +36,4 @@ export async function GET() {
     planExpiresAt: user.planExpiresAt,
     payments,
   });
-}
+});

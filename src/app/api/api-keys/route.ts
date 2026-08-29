@@ -5,10 +5,11 @@ import { ApiKeyCreateSchema } from "@/lib/validators";
 import { logAudit } from "@/lib/audit";
 import { generateRandomBytes } from "@/lib/utils";
 import { checkFeatureAccess, upgradeRequiredResponse } from "@/lib/planLimits";
+import { withApiTracking } from "@/lib/apiUsage";
 import bcrypt from "bcryptjs";
 import { Query, ID } from "node-appwrite";
 
-export async function GET() {
+export const GET = withApiTracking(async () => {
   const { userId } = await auth();
   if (!userId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   const appwriteId = userId;
@@ -27,9 +28,9 @@ export async function GET() {
 
   const apiKeys = result.documents as unknown as AppwriteDoc<ApiKeyDoc>[];
   return Response.json({ apiKeys });
-}
+});
 
-export async function POST(req: Request) {
+export const POST = withApiTracking(async (req: Request) => {
   const { userId } = await auth();
   if (!userId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   const appwriteId = userId;
@@ -63,4 +64,4 @@ export async function POST(req: Request) {
   await logAudit(appwriteId, "api_key.created", apiKey.$id, { name: parsed.data.name, scope: parsed.data.scope });
 
   return Response.json({ apiKey, fullKey }, { status: 201 });
-}
+});

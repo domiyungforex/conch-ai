@@ -6,11 +6,12 @@ import {
   type AgentDoc,
   type AppwriteDoc,
 } from "@/lib/db";
+import { withApiTracking } from "@/lib/apiUsage";
 import { HandoffCreateSchema } from "@/lib/validators";
 import { Query, ID } from "node-appwrite";
 
 // POST /api/v1/agents/handoff — Create an agent handoff
-export async function POST(req: Request) {
+export const POST = withApiTracking(async (req: Request) => {
   const auth = await resolveAuth(req);
   if (!auth) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
@@ -63,10 +64,10 @@ export async function POST(req: Request) {
   );
 
   return Response.json({ handoff: doc }, { status: 201 });
-}
+});
 
 // GET /api/v1/agents/handoff — List handoffs
-export async function GET(req: Request) {
+export const GET = withApiTracking(async (req: Request) => {
   const auth = await resolveAuth(req);
   if (!auth) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
@@ -86,4 +87,4 @@ export async function GET(req: Request) {
   );
 
   return Response.json({ handoffs: result.documents });
-}
+});

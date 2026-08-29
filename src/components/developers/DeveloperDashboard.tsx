@@ -355,15 +355,57 @@ function ApiKeysSection() {
 // ── Usage Stats ────────────────────────────────────────────────────────────
 
 function UsageStats() {
+  const [stats, setStats] = useState<{
+    totalRequests: number;
+    byMethod: Record<string, number>;
+    byPath: Record<string, number>;
+    byStatus: Record<string, number>;
+  } | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/usage")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) setStats(data);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const getRequests = (method?: string) => {
+    if (!stats) return 0;
+    if (method) return stats.byMethod[method] ?? 0;
+    return stats.totalRequests;
+  };
+
+  const getContextOps = () => {
+    if (!stats) return 0;
+    let count = 0;
+    for (const [path, n] of Object.entries(stats.byPath)) {
+      if (path.includes("context")) count += n;
+    }
+    return count;
+  };
+
+  const getAgentOps = () => {
+    if (!stats) return 0;
+    let count = 0;
+    for (const [path, n] of Object.entries(stats.byPath)) {
+      if (path.includes("agents")) count += n;
+    }
+    return count;
+  };
+
   return (
     <GlassCard className="p-5 md:p-6">
       <h2 className="text-base font-semibold text-white mb-4">API Usage</h2>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "API Requests", value: "—", icon: BarChart3 },
-          { label: "Context Reads", value: "—", icon: Layers },
-          { label: "Context Writes", value: "—", icon: Zap },
-          { label: "Agent Ops", value: "—", icon: Bot },
+          { label: "API Requests", value: loading ? "—" : String(getRequests()), icon: BarChart3 },
+          { label: "Context Ops", value: loading ? "—" : String(getContextOps()), icon: Layers },
+          { label: "Agent Ops", value: loading ? "—" : String(getAgentOps()), icon: Bot },
+          { label: "POST Requests", value: loading ? "—" : String(getRequests("POST")), icon: Zap },
         ].map((stat) => (
           <div
             key={stat.label}
@@ -375,9 +417,11 @@ function UsageStats() {
           </div>
         ))}
       </div>
-      <p className="text-xs text-slate-500 mt-3 text-center">
-        No API activity yet. Make your first API call to see usage data.
-      </p>
+      {!loading && stats && stats.totalRequests === 0 && (
+        <p className="text-xs text-slate-500 mt-3 text-center">
+          No API activity yet. Make your first API call to see usage data.
+        </p>
+      )}
     </GlassCard>
   );
 }

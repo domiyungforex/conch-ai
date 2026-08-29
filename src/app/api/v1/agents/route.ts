@@ -1,11 +1,12 @@
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
 import { createAdminClient } from "@/lib/appwrite";
 import { DB_ID, COLLECTIONS } from "@/lib/db";
+import { withApiTracking } from "@/lib/apiUsage";
 import { AgentCreateSchema } from "@/lib/validators";
 import { Query, ID } from "node-appwrite";
 
 // GET /api/v1/agents — List agents
-export async function GET(req: Request) {
+export const GET = withApiTracking(async (req: Request) => {
   const auth = await resolveAuth(req);
   if (!auth) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
@@ -26,10 +27,10 @@ export async function GET(req: Request) {
   );
 
   return Response.json({ agents: result.documents });
-}
+});
 
 // POST /api/v1/agents — Create an agent
-export async function POST(req: Request) {
+export const POST = withApiTracking(async (req: Request) => {
   const auth = await resolveAuth(req);
   if (!auth) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
@@ -61,4 +62,4 @@ export async function POST(req: Request) {
   );
 
   return Response.json({ agent: doc }, { status: 201 });
-}
+});

@@ -5,10 +5,11 @@ import { WalletLinkSchema } from "@/lib/validators";
 import { verifyMessage } from "viem";
 import { Query, ID } from "node-appwrite";
 import { ACTIVE_CHAIN_ID } from "@/lib/chainConfig";
+import { withApiTracking } from "@/lib/apiUsage";
 
 // ── GET: Fetch linked wallet ───────────────────────────────────────────────
 
-export async function GET() {
+export const GET = withApiTracking(async () => {
   const { userId } = await auth();
   if (!userId)
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -39,11 +40,11 @@ export async function GET() {
   }
 
   return Response.json({ wallet, wallets });
-}
+});
 
 // ── POST: Link/verify wallet ───────────────────────────────────────────────
 
-export async function POST(req: Request) {
+export const POST = withApiTracking(async (req: Request) => {
   const { userId } = await auth();
   if (!userId)
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -161,11 +162,11 @@ export async function POST(req: Request) {
   }
 
   return Response.json({ wallet }, { status: 201 });
-}
+});
 
 // ── DELETE: Disconnect/unlink wallet ───────────────────────────────────────
 
-export async function DELETE() {
+export const DELETE = withApiTracking(async () => {
   const { userId } = await auth();
   if (!userId)
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -193,4 +194,4 @@ export async function DELETE() {
   );
 
   return new Response(null, { status: 204 });
-}
+});

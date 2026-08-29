@@ -8,9 +8,10 @@ import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 import { resolveAuth, scopeAllows, forbiddenScope } from "@/lib/apiAuth";
 import { logAudit } from "@/lib/audit";
 import { checkMemoryQuota, upgradeHint, checkFeatureAccess, upgradeRequiredResponse } from "@/lib/planLimits";
+import { withApiTracking } from "@/lib/apiUsage";
 import { Query, ID, Permission, Role } from "node-appwrite";
 
-export async function GET(req: Request) {
+export const GET = withApiTracking(async (req: Request) => {
   const resolved = await resolveAuth(req);
   if (!resolved) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   if (!scopeAllows(resolved.scope, "read")) return forbiddenScope();
@@ -50,7 +51,7 @@ export async function GET(req: Request) {
   const memoriesWithRelated = await attachRelatedSnippets(databases, appwriteId, memories);
 
   return Response.json({ memories: memoriesWithRelated, total: result.total, page, limit });
-}
+});
 
 async function attachRelatedSnippets(
   databases: ReturnType<typeof createAdminClient>["databases"],
@@ -79,7 +80,7 @@ async function attachRelatedSnippets(
   }
 }
 
-export async function POST(req: Request) {
+export const POST = withApiTracking(async (req: Request) => {
   const resolved = await resolveAuth(req);
   if (!resolved) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   if (!scopeAllows(resolved.scope, "write")) return forbiddenScope();
@@ -176,4 +177,4 @@ export async function POST(req: Request) {
   }
 
   return Response.json({ memory }, { status: 201 });
-}
+});
