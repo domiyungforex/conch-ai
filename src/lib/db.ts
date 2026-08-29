@@ -55,8 +55,42 @@ export const COLLECTIONS = {
 export type MemoryCategory = "EPISODIC" | "SEMANTIC" | "PREFERENCE" | "PROCEDURAL";
 export type MemoryLifecycle = "temporary" | "active" | "verified" | "stale" | "superseded" | "archived" | "deleted";
 export type AgentStatus = "ACTIVE" | "PAUSED" | "ARCHIVED";
-export type ApiKeyScope = "FULL" | "MEMORY_READ" | "MEMORY_WRITE" | "CHAT" | "CONTEXT_READ" | "CONTEXT_WRITE";
+export type ApiKeyScope =
+  | "FULL"
+  | "MEMORY_READ"
+  | "MEMORY_WRITE"
+  | "CHAT"
+  | "CONTEXT_READ"
+  | "CONTEXT_WRITE"
+  | "AGENTS_READ"
+  | "AGENTS_WRITE"
+  | "PROJECTS_READ"
+  | "PROJECTS_WRITE"
+  | "HANDOFF_READ"
+  | "HANDOFF_WRITE";
 export type BillingCycle = "monthly" | "annual";
+
+// ── Payment States ────────────────────────────────────────────────────────
+// Explicit states for financial transaction tracking.
+export type PaymentState =
+  | "INITIATED"     // User started the payment flow
+  | "PENDING"       // Transaction submitted to wallet, waiting for confirmation
+  | "CONFIRMING"    // Transaction mined, backend verifying
+  | "CONFIRMED"     // Backend verified, subscription activated
+  | "FAILED"        // Transaction failed or reverted
+  | "EXPIRED"       // Payment window expired without completion
+  | "REFUNDED"      // Payment was refunded
+  | "REJECTED";     // Backend rejected the payment (wrong amount, etc.)
+
+// ── Subscription Payment States ───────────────────────────────────────────
+export type SubscriptionPaymentStatus =
+  | "PAYMENT_REQUIRED"  // No active subscription, payment needed
+  | "PAYMENT_PENDING"   // Payment in progress
+  | "ACTIVE"            // Subscription is active
+  | "PENDING"           // Subscription pending (e.g. awaiting first block)
+  | "EXPIRED"           // Subscription expired
+  | "CANCELLED"         // User cancelled
+  | "PAYMENT_FAILED";   // Last payment attempt failed
 
 // ── Conch 2.0: Context Engine Types ───────────────────────────────────────
 export type ContextObjectType = "memory" | "intent" | "goal" | "decision" | "constraint" | "assumption" | "instruction" | "preference" | "task_state" | "project_state" | "knowledge";
@@ -185,6 +219,11 @@ export interface WalletDoc {
   badgeMinted: boolean;
   badgeTokenId: string | null;
   verifiedAt: string | null;
+  // ── Enhanced wallet linking ────────────────────────────────────────────
+  isPrimary: boolean;           // Whether this is the primary wallet
+  lastConnectedAt: string | null; // Last time wallet was connected
+  disconnectedAt: string | null;  // When wallet was disconnected
+  walletType: string | null;    // e.g. "metamask", "coinbase", "walletconnect"
 }
 
 export interface PaymentDoc {
@@ -199,6 +238,16 @@ export interface PaymentDoc {
   periodEnd: string;
   blockNumber: number;
   confirmedAt: string;
+  // ── Enhanced payment tracking ──────────────────────────────────────────
+  paymentState: PaymentState;
+  paymentId: string;           // Unique idempotency key (uuid)
+  tokenAddress: string | null; // Token contract address used for payment
+  tokenSymbol: string | null;  // e.g. "USDC"
+  recipientAddress: string | null; // Treasury address payment was sent to
+  initiatedAt: string | null;  // When the user started the flow
+  failedAt: string | null;     // When the payment failed
+  failureReason: string | null; // Why it failed
+  networkConfirmations: number | null; // Block confirmations received
 }
 
 export interface SharedContextDoc {

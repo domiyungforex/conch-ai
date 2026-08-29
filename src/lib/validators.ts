@@ -61,6 +61,10 @@ export const SubscriptionConfirmSchema = z.object({
   plan: z.enum(PAID_PLAN_IDS),
 });
 
+export const BasePaymentVerifySchema = z.object({
+  txHash: z.string().regex(/^0x[0-9a-fA-F]{64}$/),
+});
+
 // ── Conch 2.0: Context Engine Validators ───────────────────────────────────
 
 export const ContextCreateSchema = z.object({
@@ -178,7 +182,13 @@ export const WalletLinkSchema = z.object({
 
 export const ApiKeyCreateSchema = z.object({
   name: z.string().min(1).max(100),
-  scope: z.enum(["FULL", "MEMORY_READ", "MEMORY_WRITE", "CHAT"]).default("FULL"),
+  scope: z.enum([
+    "FULL", "MEMORY_READ", "MEMORY_WRITE", "CHAT",
+    "CONTEXT_READ", "CONTEXT_WRITE",
+    "AGENTS_READ", "AGENTS_WRITE",
+    "PROJECTS_READ", "PROJECTS_WRITE",
+    "HANDOFF_READ", "HANDOFF_WRITE",
+  ]).default("FULL"),
   expiresAt: z.string().datetime().optional(),
 });
 

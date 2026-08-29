@@ -61,11 +61,22 @@ async function resolveApiKey(fullKey: string): Promise<ResolvedAuth | null> {
 
 // FULL always passes. Session logins resolve to FULL, so this only actually
 // restricts anything for requests authenticated via a scoped API key.
-export function scopeAllows(scope: ApiKeyScope, need: "read" | "write" | "chat"): boolean {
+export function scopeAllows(
+  scope: ApiKeyScope,
+  need: "read" | "write" | "chat" | "context:read" | "context:write" | "agents:read" | "agents:write" | "projects:read" | "projects:write" | "handoff:read" | "handoff:write"
+): boolean {
   if (scope === "FULL") return true;
   if (need === "chat") return scope === "CHAT";
   if (need === "read") return scope === "MEMORY_READ" || scope === "MEMORY_WRITE";
   if (need === "write") return scope === "MEMORY_WRITE";
+  if (need === "context:read") return scope === "CONTEXT_READ" || scope === "CONTEXT_WRITE";
+  if (need === "context:write") return scope === "CONTEXT_WRITE";
+  if (need === "agents:read") return scope === "AGENTS_READ" || scope === "AGENTS_WRITE";
+  if (need === "agents:write") return scope === "AGENTS_WRITE";
+  if (need === "projects:read") return scope === "PROJECTS_READ" || scope === "PROJECTS_WRITE";
+  if (need === "projects:write") return scope === "PROJECTS_WRITE";
+  if (need === "handoff:read") return scope === "HANDOFF_READ" || scope === "HANDOFF_WRITE";
+  if (need === "handoff:write") return scope === "HANDOFF_WRITE";
   return false;
 }
 

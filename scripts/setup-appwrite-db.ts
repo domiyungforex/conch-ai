@@ -178,13 +178,17 @@ async function setupCollections() {
     db.createCollection(DB_ID, "wallets", "wallets")
   );
   for (const [key, fn] of [
-    ["userId",      () => db.createStringAttribute(DB_ID, "wallets", "userId",      36,   true)],
-    ["address",     () => db.createStringAttribute(DB_ID, "wallets", "address",     64,   true)],
-    ["chainId",     () => db.createIntegerAttribute(DB_ID,"wallets", "chainId",     true, 8453)],
-    ["ensName",     () => db.createStringAttribute(DB_ID, "wallets", "ensName",     256,  false)],
-    ["badgeMinted", () => db.createBooleanAttribute(DB_ID,"wallets", "badgeMinted", true, false)],
-    ["badgeTokenId",() => db.createStringAttribute(DB_ID, "wallets", "badgeTokenId",64,   false)],
-    ["verifiedAt",  () => db.createStringAttribute(DB_ID, "wallets", "verifiedAt",  64,   false)],
+    ["userId",          () => db.createStringAttribute(DB_ID, "wallets", "userId",          36,   true)],
+    ["address",         () => db.createStringAttribute(DB_ID, "wallets", "address",         64,   true)],
+    ["chainId",         () => db.createIntegerAttribute(DB_ID,"wallets", "chainId",         true, 8453)],
+    ["ensName",         () => db.createStringAttribute(DB_ID, "wallets", "ensName",         256,  false)],
+    ["badgeMinted",     () => db.createBooleanAttribute(DB_ID,"wallets", "badgeMinted",     true, false)],
+    ["badgeTokenId",    () => db.createStringAttribute(DB_ID, "wallets", "badgeTokenId",    64,   false)],
+    ["verifiedAt",      () => db.createStringAttribute(DB_ID, "wallets", "verifiedAt",      64,   false)],
+    ["isPrimary",       () => db.createBooleanAttribute(DB_ID,"wallets", "isPrimary",       true, true)],
+    ["lastConnectedAt", () => db.createStringAttribute(DB_ID, "wallets", "lastConnectedAt", 64,   false)],
+    ["disconnectedAt",  () => db.createStringAttribute(DB_ID, "wallets", "disconnectedAt",  64,   false)],
+    ["walletType",      () => db.createStringAttribute(DB_ID, "wallets", "walletType",      64,   false)],
   ] as [string, () => Promise<unknown>][]) {
     await tryCreate(`  attr wallets.${key}`, fn);
   }

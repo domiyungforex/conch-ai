@@ -14,6 +14,9 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { useActivatedModules } from "@/hooks/useActivatedModules";
 import { MODULE_NAV_ITEMS, type ModuleKey } from "@/lib/modules";
+import { useWalletState } from "@/providers/WalletStateProvider";
+import { PLANS, type PlanId } from "@/lib/plans";
+import { hasProAccess } from "@/lib/subscription";
 
 interface NavItem {
   href: string;
@@ -49,7 +52,7 @@ const baseItems: NavItem[] = [
 
 const utilityItems: NavItem[] = [
   { href: "/wallet",    icon: Wallet,          label: "Wallet",          section: "utility" },
-  { href: "/developers",icon: Code2,           label: "API Docs",        section: "utility" },
+  { href: "/developers",icon: Code2,           label: "Developers",      section: "utility" },
   { href: "/settings",  icon: Settings,        label: "Settings",        section: "utility" },
 ];
 
@@ -60,10 +63,15 @@ const sectionLabels: Record<NavItem["section"], string> = {
   utility: "ACCOUNT",
 };
 
+function truncateAddress(addr: string) {
+  return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
+}
+
 export function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const { isActivated, hydrated } = useActivatedModules();
+  const { wallet, subscriptionStatus, plan } = useWalletState();
 
   // Hidden until the user opts in via /features — see useActivatedModules
   // for why this is a per-browser nav preference, not an access control.
@@ -202,6 +210,29 @@ export function Sidebar() {
           );
         })}
       </nav>
+
+      {/* Wallet + Plan status */}
+      {!collapsed && (wallet || plan) && (
+        <div className="px-3 py-2 border-t border-white/8">
+          <div className="flex items-center gap-2 flex-wrap">
+            {wallet?.address && (
+              <Link
+                href="/wallet"
+                className="flex items-center gap-1.5 text-[11px] font-mono text-slate-500 hover:text-slate-300 transition-colors"
+                title="View wallet"
+              >
+                <Wallet className="w-3 h-3 shrink-0" />
+                <span className="truncate">{truncateAddress(wallet.address)}</span>
+              </Link>
+            )}
+            {plan && plan !== "free" && subscriptionStatus && hasProAccess(subscriptionStatus) && (
+              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-coral-500/15 text-coral-300 border border-coral-500/30">
+                {PLANS[plan as PlanId]?.label ?? plan.toUpperCase()}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Bottom: user + collapse */}
       <div className={cn("px-2 py-3 border-t border-white/8 flex items-center gap-2", collapsed && "justify-center")}>

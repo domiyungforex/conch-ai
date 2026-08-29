@@ -7,9 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MemoryCard } from "@/components/memory/MemoryCard";
+import { MemoryGraph } from "@/components/memory/MemoryGraph";
 import { MemoryCreateDialog } from "@/components/memory/MemoryCreateDialog";
 import { MemoryEditDialog } from "@/components/memory/MemoryEditDialog";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { cn } from "@/lib/utils";
 import { UpgradeGate } from "@/components/shared/UpgradeGate";
 import { MemoryErrorBoundary } from "@/components/memory/MemoryErrorBoundary";
 import { useMemory } from "@/hooks/useMemory";
@@ -29,6 +31,7 @@ export default function MemoryPage() {
   const [searchError, setSearchError] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Memory | null>(null);
+  const [view, setView] = useState<"list" | "graph">("list");
 
   const { data: memories, isLoading, isError, error, refetch, archive, remove } = useMemory(
     category !== "ALL" ? category : undefined
@@ -104,8 +107,31 @@ onError: () => toast({ title: "Delete failed", description: "Could not delete th
           </Button>
         </div>
 
-        {/* Filters + Search */}
+        {/* View toggle + Filters */}
         <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex items-center gap-1 rounded-xl bg-white/5 border border-white/10 p-1">
+            <button
+              type="button"
+              onClick={() => setView("list")}
+              className={cn(
+                "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
+                view === "list" ? "bg-coral-600/20 text-coral-300" : "text-slate-400 hover:text-white"
+              )}
+            >
+              List
+            </button>
+            <button
+              type="button"
+              onClick={() => setView("graph")}
+              className={cn(
+                "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
+                view === "graph" ? "bg-coral-600/20 text-coral-300" : "text-slate-400 hover:text-white"
+              )}
+            >
+              Graph
+            </button>
+          </div>
+
           <Tabs
             value={category}
             onValueChange={(v) => {
@@ -180,8 +206,13 @@ onError: () => toast({ title: "Delete failed", description: "Could not delete th
           </div>
         )}
 
+        {/* Graph View */}
+        {view === "graph" && !isError && (
+          <MemoryGraph />
+        )}
+
         {/* Grid */}
-        {!isError && (
+        {view === "list" && !isError && (
           <>
             {isLoading ? (
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
