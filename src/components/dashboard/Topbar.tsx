@@ -28,6 +28,7 @@ const breadcrumbMap: Record<string, string> = {
   "/wallet":                "Wallet",
   "/developers":            "Developers",
   "/developers/api":        "API Reference",
+  "/developers/install":    "Install Conch",
   "/settings":              "Settings",
   "/settings/profile":      "Profile",
   "/settings/billing":      "Billing",

@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   Key,
   Code2,
-  BookOpen,
   BarChart3,
   Zap,
   Shield,
@@ -20,6 +19,8 @@ import {
   Bot,
   Layers,
   RefreshCw,
+  Download,
+  Terminal,
 } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { Button } from "@/components/ui/button";
@@ -80,13 +81,18 @@ function DeveloperHero() {
         {/* CTAs */}
         <div className="flex flex-wrap gap-3">
           <Button asChild className="gap-2">
+            <Link href="/developers/install">
+              <Download className="w-4 h-4" /> Install Conch
+            </Link>
+          </Button>
+          <Button asChild className="gap-2">
             <Link href="/settings/api-keys">
               <Key className="w-4 h-4" /> Get Your API Key
             </Link>
           </Button>
           <Button variant="secondary" asChild className="gap-2">
-            <Link href="#documentation">
-              <BookOpen className="w-4 h-4" /> Read Documentation
+            <Link href="/developers/api">
+              <Terminal className="w-4 h-4" /> Explore API
             </Link>
           </Button>
         </div>
@@ -127,6 +133,15 @@ const FEATURES = [
 function FeatureCards() {
   return (
     <div className="grid sm:grid-cols-2 gap-4">
+      <Link href="/developers/install" className="block">
+        <GlassCard className="p-5 hover:bg-white/[0.07] transition-colors cursor-pointer">
+          <Download className="w-5 h-5 text-coral-400 mb-3" />
+          <h3 className="text-sm font-semibold text-white mb-1">Install Conch</h3>
+          <p className="text-xs text-slate-400">
+            Add Conch to your app in any language — JavaScript, Python, Go, Ruby, Rust, Java, PHP, and more.
+          </p>
+        </GlassCard>
+      </Link>
       {FEATURES.map((f) => (
         <GlassCard key={f.title} className="p-5">
           <f.icon className={`w-5 h-5 ${f.color} mb-3`} />
