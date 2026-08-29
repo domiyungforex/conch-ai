@@ -12,6 +12,10 @@ import {
   Globe,
   Smartphone,
   Play,
+  Boxes,
+  Zap,
+  Shield,
+  FileCode,
 } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { Button } from "@/components/ui/button";
@@ -663,6 +667,142 @@ export function InstallConch() {
               <span>{lang.label}</span>
             </button>
           ))}
+        </div>
+      </GlassCard>
+
+      {/* SDK Packages Overview */}
+      <GlassCard className="p-5 md:p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Boxes className="w-4 h-4 text-coral-400" />
+          <h2 className="text-sm font-semibold text-white">SDK Packages</h2>
+          <Badge className="bg-emerald-500/15 text-emerald-300 border-emerald-500/30 text-[10px]">
+            Auto-generated
+          </Badge>
+        </div>
+        <p className="text-xs text-slate-400 mb-4">
+          Official SDK packages generated from the API spec. Each package includes type definitions,
+          error handling, and authentication — ready for production use.
+        </p>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {[
+            {
+              name: "@conch/sdk",
+              registry: "npm",
+              lang: "TypeScript / JavaScript",
+              icon: "📦",
+              color: "text-yellow-400",
+              install: "npm install @conch/sdk",
+              features: ["Full types", "Streaming", "Auto-retry"],
+              url: "https://www.npmjs.com/package/@conch/sdk",
+            },
+            {
+              name: "conch-sdk",
+              registry: "PyPI",
+              lang: "Python",
+              icon: "🐍",
+              color: "text-green-400",
+              install: "pip install conch-sdk",
+              features: ["Sync + async", "Type hints", "Pydantic"],
+              url: "https://pypi.org/project/conch-sdk/",
+            },
+            {
+              name: "github.com/conch-ai/conch-go",
+              registry: "Go modules",
+              lang: "Go",
+              icon: "🔵",
+              color: "text-cyan-400",
+              install: "go get github.com/conch-ai/conch-go",
+              features: ["Context-aware", "Idiomatic", "Error handling"],
+              url: "https://pkg.go.dev/github.com/conch-ai/conch-go",
+            },
+            {
+              name: "conch-sdk",
+              registry: "RubyGems",
+              lang: "Ruby",
+              icon: "💎",
+              color: "text-red-400",
+              install: "gem install conch-sdk",
+              features: ["Rails ready", "Block syntax", "PSR"],
+              url: "https://rubygems.org/gems/conch-sdk",
+            },
+            {
+              name: "conch-sdk",
+              registry: "crates.io",
+              lang: "Rust",
+              icon: "🦀",
+              color: "text-orange-400",
+              install: "cargo add conch-sdk",
+              features: ["Async/await", "Type-safe", "Zero-cost"],
+              url: "https://crates.io/crates/conch-sdk",
+            },
+            {
+              name: "com.conch:sdk",
+              registry: "Maven Central",
+              lang: "Java / Kotlin",
+              icon: "☕",
+              color: "text-amber-400",
+              install: "implementation 'com.conch:sdk:1.0.0'",
+              features: ["Builder pattern", "Spring Boot", "Kotlin"],
+              url: "https://central.sonatype.com/namespace/com.conch",
+            },
+            {
+              name: "conch/sdk",
+              registry: "Packagist",
+              lang: "PHP",
+              icon: "🐘",
+              color: "text-indigo-400",
+              install: "composer require conch/sdk",
+              features: ["Laravel", "PSR-4", "PHP 8.1+"],
+              url: "https://packagist.org/packages/conch/sdk",
+            },
+          ].map((sdk) => (
+            <div
+              key={sdk.name}
+              className="p-4 bg-white/5 rounded-xl border border-white/8 hover:bg-white/[0.07] transition-colors group"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-lg">{sdk.icon}</span>
+                <div>
+                  <p className="text-xs font-semibold text-white">{sdk.lang}</p>
+                  <p className="text-[10px] text-slate-500">{sdk.registry}</p>
+                </div>
+              </div>
+              <code className="text-[11px] font-mono text-coral-300 bg-black/30 px-2 py-1 rounded-lg block mb-2 overflow-x-auto">
+                {sdk.name}
+              </code>
+              <div className="flex flex-wrap gap-1 mb-3">
+                {sdk.features.map((f) => (
+                  <span key={f} className="text-[9px] px-1.5 py-0.5 rounded bg-white/5 text-slate-400 border border-white/5">
+                    {f}
+                  </span>
+                ))}
+              </div>
+              <a
+                href={sdk.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[10px] text-coral-300 hover:text-coral-200 flex items-center gap-1 transition-colors"
+              >
+                View on {sdk.registry} <ExternalLink className="w-2.5 h-2.5" />
+              </a>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-4 p-3 bg-white/[0.03] border border-white/8 rounded-xl">
+          <div className="flex items-start gap-2">
+            <Zap className="w-4 h-4 text-gold-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-xs font-semibold text-white">All SDKs include</p>
+              <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-[10px] text-slate-400">
+                <span className="flex items-center gap-1"><Shield className="w-3 h-3 text-teal-400" /> Bearer token auth</span>
+                <span className="flex items-center gap-1"><FileCode className="w-3 h-3 text-purple-400" /> Error handling</span>
+                <span className="flex items-center gap-1"><Zap className="w-3 h-3 text-gold-400" /> All 28 endpoints</span>
+                <span className="flex items-center gap-1"><Boxes className="w-3 h-3 text-coral-400" /> Auto-generated from spec</span>
+              </div>
+            </div>
+          </div>
         </div>
       </GlassCard>
 

@@ -91,13 +91,13 @@ export function Sidebar() {
   return (
     <motion.aside
       animate={{ width: collapsed ? 72 : 240 }}
-      transition={{ duration: 0.22, ease: "easeInOut" }}
+      transition={{ duration: 0.2, ease: "easeInOut" }}
       className="relative flex flex-col h-full glass border-r border-white/8 overflow-hidden"
     >
-      {/* Logo + AI pulse */}
-      <div className={cn("flex items-center px-4 py-5 border-b border-white/8 gap-2", collapsed && "justify-center px-2")}>
+      {/* Logo */}
+      <div className={cn("flex items-center px-4 py-4 border-b border-white/8 gap-2", collapsed && "justify-center px-2")}>
         {collapsed ? (
-          <div className="w-8 h-8 rounded-xl bg-linear-to-br from-coral-600 to-gold-600 flex items-center justify-center shadow-lg shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-linear-to-br from-coral-600 to-coral-500 flex items-center justify-center shrink-0">
             <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5">
               <path
                 d="M13.2 20c-4.6 0-7.7-3.4-7.7-7.3 0-3.2 2.3-5.6 5.2-5.6 2.4 0 4.1 1.7 4.1 3.9 0 1.8-1.2 3.1-2.8 3.1-1.3 0-2.2-.9-2.2-2.1 0-.9.6-1.6 1.5-1.6"
@@ -109,14 +109,7 @@ export function Sidebar() {
             </svg>
           </div>
         ) : (
-          <>
-            <Logo size="sm" />
-            <motion.div
-              animate={{ scale: [1, 1.5, 1], opacity: [0.6, 1, 0.6] }}
-              transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-              className="ml-auto w-2 h-2 rounded-full bg-coral-400 shrink-0"
-            />
-          </>
+          <Logo size="sm" />
         )}
       </div>
 
@@ -159,51 +152,27 @@ export function Sidebar() {
               <Link
                 href={href}
                 className={cn(
-                  "relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors overflow-hidden group",
+                  "relative flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-all overflow-hidden",
                   active
-                    ? "text-coral-300"
-                    : "text-slate-400 hover:text-white hover:bg-white/5",
+                    ? "text-coral-400 bg-coral-500/10"
+                    : "text-slate-500 hover:text-foreground hover:bg-white/5",
                   collapsed && "justify-center px-2"
                 )}
                 title={collapsed ? label : undefined}
               >
-                {/* Sliding active background */}
-                {active && (
-                  <motion.div
-                    layoutId="sidebar-active-bg"
-                    className="absolute inset-0 rounded-xl bg-coral-600/15"
-                    transition={{ type: "spring", stiffness: 350, damping: 30 }}
-                  />
-                )}
-
                 <Icon
                   className={cn(
-                    "relative shrink-0 h-5 w-5 z-10",
-                    active ? "text-coral-400" : "text-slate-500 group-hover:text-slate-300"
+                    "relative shrink-0 h-4 w-4",
+                    active ? "text-coral-400" : "text-slate-500"
                   )}
                 />
 
-                <AnimatePresence mode="wait">
-                  {!collapsed && (
-                    <motion.span
-                      key="label"
-                      initial={{ opacity: 0, x: -6 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -6 }}
-                      transition={{ duration: 0.14 }}
-                      className="relative z-10 truncate"
-                    >
-                      {label}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
+                {!collapsed && (
+                  <span className="truncate">{label}</span>
+                )}
 
-                {/* Active dot */}
                 {!collapsed && active && (
-                  <motion.div
-                    layoutId="sidebar-active-dot"
-                    className="relative z-10 ml-auto w-1.5 h-1.5 rounded-full bg-coral-400"
-                  />
+                  <div className="relative ml-auto w-1 h-1 rounded-full bg-coral-400" />
                 )}
               </Link>
             </div>
@@ -238,23 +207,11 @@ export function Sidebar() {
       <div className={cn("px-2 py-3 border-t border-white/8 flex items-center gap-2", collapsed && "justify-center")}>
         <div className="relative shrink-0">
           <UserMenu size="sm" />
-          <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-background pointer-events-none" />
         </div>
 
-        <AnimatePresence mode="wait">
-          {!collapsed && (
-            <motion.span
-              key="account-label"
-              initial={{ opacity: 0, x: -6 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -6 }}
-              transition={{ duration: 0.14 }}
-              className="text-sm text-slate-400 truncate"
-            >
-              Account
-            </motion.span>
-          )}
-        </AnimatePresence>
+        {!collapsed && (
+          <span className="text-[13px] text-slate-500 truncate">Account</span>
+        )}
       </div>
 
       {/* Collapse toggle */}

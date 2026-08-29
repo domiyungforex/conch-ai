@@ -85,60 +85,37 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
       className="max-w-6xl mx-auto space-y-8"
     >
       {/* Greeting */}
-      <motion.div variants={sectionVariants} className="relative">
-        <NautilusSpiral
-          size={280}
-          className="absolute -top-14 -right-10 pointer-events-none hidden sm:block opacity-60"
-        />
-        <p className="text-xs uppercase tracking-widest text-slate-500 font-semibold mb-2">Your Context</p>
-        <h1 className="font-display text-3xl sm:text-4xl font-normal text-white leading-tight">
-          Good {getTimeOfDay()},<br className="sm:hidden" />{" "}
-          <em className="not-italic gradient-text">{firstName}</em>.
+      <motion.div variants={sectionVariants}>
+        <p className="eyebrow text-slate-500 mb-2">Your Context</p>
+        <h1 className="font-display text-3xl sm:text-4xl font-normal text-foreground leading-tight">
+          Good {getTimeOfDay()}, {firstName}.
         </h1>
-        <p className="text-slate-400 mt-2">Your context infrastructure. Decisions remembered, constraints enforced, meaning preserved.</p>
+        <p className="text-slate-500 mt-2 text-sm">Decisions remembered, constraints enforced, meaning preserved.</p>
       </motion.div>
 
-      {/* AI Status bar */}
+      {/* Status */}
       <motion.div
         variants={sectionVariants}
-        className="flex items-center gap-3 rounded-full px-4 py-2.5 border border-teal-500/25 bg-teal-500/5 w-fit max-w-full"
+        className="flex items-center gap-2 text-[13px] text-slate-500"
       >
-        <motion.div
-          animate={{ scale: [1, 1.4, 1] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          className="w-2 h-2 rounded-full bg-teal-400 shrink-0 relative"
-        >
-          <span className="absolute inset-0 rounded-full bg-teal-400/40 animate-ping" />
-        </motion.div>
-        <span className="text-sm text-slate-300">
-          <span className="text-teal-300 font-medium">Conch</span> is building your context layer. {stats.decisionCount} decisions · {stats.constraintCount} constraints · {stats.contextCount} context objects
+        <span className="w-1.5 h-1.5 rounded-full bg-teal-400" />
+        <span>
+          {stats.decisionCount} decisions · {stats.constraintCount} constraints · {stats.contextCount} context objects
         </span>
       </motion.div>
 
       {/* Stats */}
-      <motion.div variants={sectionVariants} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <motion.div variants={sectionVariants} className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {statCards.map(({ label, value, icon: Icon, accent }) => (
-          <GlassCard key={label} hover className="p-5 relative overflow-hidden">
-            <div
-              aria-hidden="true"
-              className="absolute -top-10 -right-10 w-28 h-28 rounded-full pointer-events-none"
-              style={{ background: `radial-gradient(circle, ${accent}30, transparent 70%)` }}
-            />
-            <div className="flex items-start justify-between relative">
-              <div>
-                <p className="text-sm text-slate-400 mb-1">{label}</p>
-                <p className="font-display text-2xl text-white">
-                  <AnimatedCounter to={value} />
-                </p>
-              </div>
-              <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center"
-                style={{ background: `${accent}1a` }}
-              >
-                <Icon className="w-4 h-4" style={{ color: accent }} />
-              </div>
+          <div key={label} className="p-4 rounded-xl bg-white/[0.03] border border-white/5">
+            <div className="flex items-center gap-2 mb-2">
+              <Icon className="w-3.5 h-3.5" style={{ color: accent }} />
+              <p className="text-[11px] text-slate-500 font-medium">{label}</p>
             </div>
-          </GlassCard>
+            <p className="font-display text-xl text-foreground">
+              <AnimatedCounter to={value} />
+            </p>
+          </div>
         ))}
       </motion.div>
 
@@ -154,19 +131,16 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
       </motion.div>
 
       {/* Quick actions */}
-      <motion.div variants={sectionVariants}>
-        <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">Quick Actions</h2>
-        <div className="flex flex-wrap gap-3">
-          <Button asChild>
-            <Link href="/chat"><MessageSquare className="w-4 h-4" />Remember Together</Link>
-          </Button>
-          <Button variant="secondary" asChild>
-            <Link href="/memory"><Plus className="w-4 h-4" />Add a Memory</Link>
-          </Button>
-          <Button variant="secondary" asChild>
-            <Link href="/agents"><Bot className="w-4 h-4" />Create Agent</Link>
-          </Button>
-        </div>
+      <motion.div variants={sectionVariants} className="flex flex-wrap gap-2">
+        <Button asChild size="sm">
+          <Link href="/chat"><MessageSquare className="w-3.5 h-3.5" />Chat</Link>
+        </Button>
+        <Button variant="secondary" asChild size="sm">
+          <Link href="/memory"><Plus className="w-3.5 h-3.5" />Memory</Link>
+        </Button>
+        <Button variant="secondary" asChild size="sm">
+          <Link href="/agents"><Bot className="w-3.5 h-3.5" />Agents</Link>
+        </Button>
       </motion.div>
 
       {/* Recent memories & conversations */}

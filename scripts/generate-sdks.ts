@@ -453,7 +453,10 @@ const ENDPOINTS: EndpointSpec[] = [
 ];
 
 const BASE_URL = "https://conchportal.com";
-const SDK_VERSION = "1.0.0";
+
+// Parse --version flag from CLI args
+const versionArg = process.argv.find((a) => a.startsWith("--version="));
+const SDK_VERSION = versionArg ? versionArg.split("=")[1] : "1.0.0";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
