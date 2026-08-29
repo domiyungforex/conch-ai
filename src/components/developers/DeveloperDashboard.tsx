@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Key,
@@ -172,9 +172,10 @@ function ApiKeysSection() {
   };
 
   // Initial load
-  if (keys === null && loading) {
+  useEffect(() => {
     fetchKeys();
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleCreate = async () => {
     if (!newKeyName.trim()) return;
