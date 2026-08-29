@@ -31,7 +31,7 @@ export interface EndpointSpec {
   streaming?: boolean;
 }
 
-export const GROUPS = ["Memory", "Search", "Chat", "Agents", "Conversations", "API Keys"] as const;
+export const GROUPS = ["Memory", "Search", "Chat", "Agents", "Conversations", "API Keys", "Billing", "Subscription", "Wallet"] as const;
 
 const MEMORY_CATEGORY_VALUES = ["EPISODIC", "SEMANTIC", "PREFERENCE", "PROCEDURAL"];
 
@@ -420,6 +420,176 @@ Header: X-Conversation-Id — the conversation this message belongs to (new or e
       { name: "id", kind: "string", in: "path", required: true, placeholder: "68f2c1a9000b1e...", description: "The key's $id (not the raw key)." },
     ],
     responseShape: `{ "success": true }`,
+  },
+
+  // ── Billing ────────────────────────────────────────────────────────
+  {
+    id: "billing-overview",
+    group: "Billing",
+    method: "GET",
+    path: "/api/billing/overview",
+    title: "Billing overview (admin)",
+    description: "Admin-only endpoint returning revenue metrics, plan distribution, payment history, wallet stats, MRR, and pending/failed payments.",
+    auth: "session",
+    fields: [],
+    responseShape: `{
+  "overview": {
+    "totalUsers": 0, "paidUsers": 0, "freeUsers": 0,
+    "activeWallets": 0, "totalWallets": 0
+  },
+  "revenue": {
+    "total": 0.0, "thisMonth": 0.0, "last30Days": 0.0,
+    "mrr": 0, "paymentCount": 0
+  },
+  "planDistribution": { "free": 0, "starter": 0, "pro": 0, ... },
+  "recentPayments": [{
+    "id": "string", "userId": "string", "plan": "string",
+    "amount": 0.0, "state": "CONFIRMED" | "PENDING" | ...,
+    "txHash": "0x...", "confirmedAt": "ISO 8601", "createdAt": "ISO 8601"
+  }],
+  "pendingPayments": [{ ... }],
+  "failedPayments": [{ "failureReason": "string | null", ... }],
+  "wallets": [{
+    "id": "string", "userId": "string", "address": "0x...",
+    "chainId": 8453, "isPrimary": true,
+    "verifiedAt": "ISO 8601 | null", "disconnectedAt": "ISO 8601 | null",
+    "lastConnectedAt": "ISO 8601 | null"
+  }]
+}`,
+  },
+  {
+    id: "billing-verify-base",
+    group: "Billing",
+    method: "POST",
+    path: "/api/billing/base/verify",
+    title: "Verify Base transaction",
+    description: "Verify a Base blockchain transaction exists and is valid. Returns transaction details including sender, recipient, amount, and whether the sender matches the user's linked wallet. Does NOT activate a subscription — use POST /api/subscription/confirm for that.",
+    auth: "session",
+    rateLimit: "10 requests / 60s per caller",
+    fields: [
+      { name: "txHash", kind: "string", in: "body", required: true, placeholder: "0xabc123...", description: "The Base transaction hash to verify (0x + 64 hex chars)." },
+    ],
+    responseShape: `{
+  "verified": true | false,
+  "from": "0x...",          // sender address
+  "to": "0x...",            // recipient address
+  "value": "1000000",       // raw token value (USDC has 6 decimals)
+  "blockNumber": "12345",   // block number
+  "tokenSymbol": "USDC",
+  "tokenDecimals": 6,
+  "amountUsdc": 5.0,        // human-readable amount
+  "isFromLinkedWallet": true // whether sender matches the user's linked wallet
+}`,
+  },
+
+  // ── Subscription ───────────────────────────────────────────────────
+  {
+    id: "subscription-get",
+    group: "Subscription",
+    method: "GET",
+    path: "/api/subscription",
+    title: "Get subscription status",
+    description: "Returns the caller's current subscription status, active plan, expiry date, and recent payment history.",
+    auth: "session",
+    fields: [],
+    responseShape: `{
+  "status": "active" | "grace" | "expired-to-free",
+  "plan": "free" | "starter" | "pro" | "premium" | "enterprise",
+  "planExpiresAt": "ISO 8601 | null",
+  "payments": [{
+    "$id": "string", "userId": "string", "txHash": "0x...",
+    "walletAddress": "0x...", "chainId": 8453,
+    "plan": "string", "billingCycle": "monthly" | "annual",
+    "amountUsdcBaseUnits": 0, "periodStart": "ISO 8601",
+    "periodEnd": "ISO 8601", "blockNumber": 0,
+    "confirmedAt": "ISO 8601", "paymentState": "CONFIRMED"
+  }]
+}`,
+  },
+  {
+    id: "subscription-confirm",
+    group: "Subscription",
+    method: "POST",
+    path: "/api/subscription/confirm",
+    title: "Confirm a payment",
+    description: "Submit a Base USDC transaction hash for server-side verification. The backend independently reads the transaction from the blockchain, verifies recipient/sender/amount, and only then activates the subscription. Idempotent — the same txHash returns the existing payment if already confirmed.",
+    auth: "session",
+    rateLimit: "5 requests / 10 min per caller",
+    fields: [
+      { name: "txHash", kind: "string", in: "body", required: true, placeholder: "0xabc123...", description: "The on-chain USDC transfer transaction hash." },
+      { name: "billingCycle", kind: "enum", in: "body", required: true, enumValues: ["monthly", "annual"], description: "The billing cycle you paid for." },
+      { name: "plan", kind: "enum", in: "body", required: true, enumValues: ["starter", "pro", "premium", "enterprise"], description: "The plan you subscribed to." },
+    ],
+    responseShape: `// 201 Created:
+{
+  "user": { "$id": "string", "plan": "pro", "planExpiresAt": "ISO 8601", ... },
+  "payment": {
+    "$id": "string", "txHash": "0x...", "paymentState": "CONFIRMED",
+    "plan": "pro", "billingCycle": "monthly",
+    "amountUsdcBaseUnits": 19000000, "periodStart": "ISO 8601",
+    "periodEnd": "ISO 8601"
+  }
+}
+
+// 200 OK (idempotent — already confirmed):
+{ "message": "Payment already confirmed", "payment": { ... } }
+
+// 409 Conflict (tx used by another user):
+{ "error": "This transaction has already been used to confirm a payment" }`,
+  },
+
+  // ── Wallet ─────────────────────────────────────────────────────────
+  {
+    id: "wallet-get",
+    group: "Wallet",
+    method: "GET",
+    path: "/api/wallet",
+    title: "Get linked wallet",
+    description: "Returns the caller's primary linked wallet and all wallets. Updates lastConnectedAt on each call.",
+    auth: "session",
+    fields: [],
+    responseShape: `{
+  "wallet": {
+    "$id": "string", "userId": "string", "address": "0x...",
+    "chainId": 8453, "ensName": "string | null",
+    "isPrimary": true, "verifiedAt": "ISO 8601",
+    "lastConnectedAt": "ISO 8601", "disconnectedAt": null,
+    "walletType": "string | null"
+  },
+  "wallets": [{ /* all wallets for this user */ }]
+}`,
+  },
+  {
+    id: "wallet-link",
+    group: "Wallet",
+    method: "POST",
+    path: "/api/wallet",
+    title: "Link / verify wallet",
+    description: "Link a wallet to the caller's Conch account. Requires a signed message to prove ownership. Prevents linking a wallet already owned by another user. Messages expire after 5 minutes (replay protection).",
+    auth: "session",
+    fields: [
+      { name: "address", kind: "string", in: "body", required: true, placeholder: "0x1234...abcd", description: "The wallet address to link (0x + 40 hex chars)." },
+      { name: "signature", kind: "string", in: "body", required: true, placeholder: "0x...", description: "The EIP-191 personal_sign signature of the message." },
+      { name: "message", kind: "string", in: "body", required: true, placeholder: "Sign in to Conch: 1724000000000", description: "The exact message that was signed (must contain a recent timestamp)." },
+    ],
+    responseShape: `{
+  "wallet": {
+    "$id": "string", "userId": "string", "address": "0x...",
+    "chainId": 8453, "verifiedAt": "ISO 8601",
+    "isPrimary": true, ...
+  }
+}  — 201 Created`,
+  },
+  {
+    id: "wallet-unlink",
+    group: "Wallet",
+    method: "DELETE",
+    path: "/api/wallet",
+    title: "Disconnect wallet",
+    description: "Soft-disconnects all wallets from the caller's account. Sets disconnectedAt rather than deleting records, preserving billing history. The wallet can be re-linked later.",
+    auth: "session",
+    fields: [],
+    responseShape: `204 No Content (success)`,
   },
 ];
 

@@ -505,6 +505,13 @@ function DocumentationSection() {
           <ExternalLink className="w-3 h-3" />
         </Link>
       </div>
+
+      {/* Billing + Wallet API docs callout */}
+      <div className="mt-4 p-3 bg-white/[0.03] border border-white/8 rounded-xl">
+        <p className="text-xs text-slate-400">
+          The API reference includes documentation for <span className="text-slate-300">Billing</span> (payment verification, subscription management) and <span className="text-slate-300">Wallet</span> (link, verify, disconnect) endpoints.
+        </p>
+      </div>
     </GlassCard>
   );
 }
