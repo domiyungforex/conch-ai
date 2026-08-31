@@ -32,10 +32,10 @@ export default async function ProfilePage() {
   const planLabel = isTesterUserId(userId) ? PLANS.premium.label : PLANS[getEffectivePlan(effectiveUser)].label;
 
   return (
-    <div className="space-y-6">
-      <GlassCard className="p-6">
-        <h2 className="text-base font-semibold text-white mb-6">Profile Information</h2>
-        <div className="flex items-start gap-6">
+    <div className="space-y-6 px-4 sm:px-6">
+      <GlassCard className="p-4 sm:p-6">
+        <h2 className="text-base font-semibold text-white mb-4 sm:mb-6">Profile Information</h2>
+        <div className="flex items-start gap-4 sm:gap-6">
           <Avatar className="w-16 h-16">
             {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt={user.name ?? email} />}
             <AvatarFallback className="bg-linear-to-br from-coral-600 to-gold-600 text-white text-xl font-bold">

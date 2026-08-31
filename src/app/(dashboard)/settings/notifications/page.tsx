@@ -20,8 +20,8 @@ export default function NotificationsPage() {
   const { data: settings, isLoading, isError, update } = useUserSettings();
 
   return (
-    <div className="space-y-4">
-      <GlassCard className="p-6">
+    <div className="space-y-4 px-4 sm:px-6">
+      <GlassCard className="p-4 sm:p-6">
         <h2 className="text-base font-semibold text-white mb-6">Email Notifications</h2>
 
         {isLoading ? (

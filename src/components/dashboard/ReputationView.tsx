@@ -105,7 +105,7 @@ export function ReputationView({ reputation, counts }: Props) {
   const levelLabel = getLevelInfo(score).label;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-8">
       {/* Page header */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
         <h1 className="font-display text-2xl sm:text-3xl font-medium text-white">

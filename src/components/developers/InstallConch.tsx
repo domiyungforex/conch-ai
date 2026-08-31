@@ -625,7 +625,7 @@ export function InstallConch() {
   const currentLang = LANGUAGES.find((l) => l.id === activeLang)!;
 
   return (
-    <div className="max-w-4xl space-y-6">
+    <div className="max-w-4xl px-4 sm:px-6 space-y-6">
       {/* Hero */}
       <GlassCard className="p-6 md:p-8 relative overflow-hidden">
         <div className="absolute inset-0 bg-linear-to-br from-coral-600/10 via-transparent to-gold-600/5 pointer-events-none" />

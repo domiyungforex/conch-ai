@@ -180,15 +180,15 @@ export default function ProjectsPage() {
 
   return (
     <UpgradeGate>
-      <div className="max-w-6xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-start sm:items-center justify-between gap-3">
           <div>
-            <h1 className="font-display text-2xl font-normal text-white">Projects</h1>
-            <p className="text-sm text-slate-400 mt-0.5">Organize context, agents, and decisions by project</p>
+            <h1 className="font-display text-xl sm:text-2xl font-normal text-white">Projects</h1>
+            <p className="text-xs sm:text-sm text-slate-400 mt-0.5">Organize context, agents, and decisions by project</p>
           </div>
-          <Button onClick={() => setCreateOpen(true)} className="gap-2">
-            <Plus className="w-4 h-4" /> New Project
+          <Button onClick={() => setCreateOpen(true)} className="gap-2 shrink-0">
+            <Plus className="w-4 h-4" /> <span className="hidden sm:inline">New Project</span><span className="sm:hidden">New</span>
           </Button>
         </div>
 

@@ -478,15 +478,15 @@ export default function ContextPage() {
 
   return (
     <UpgradeGate>
-      <div className="max-w-6xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-start sm:items-center justify-between gap-3">
           <div>
-            <h1 className="font-display text-2xl font-normal text-white">Context</h1>
-            <p className="text-sm text-slate-400 mt-0.5">Decisions, constraints, and structured context for your agents</p>
+            <h1 className="font-display text-xl sm:text-2xl font-normal text-white">Context</h1>
+            <p className="text-xs sm:text-sm text-slate-400 mt-0.5">Decisions, constraints, and structured context for your agents</p>
           </div>
-          <Button onClick={openCreate} className="gap-2">
-            <Plus className="w-4 h-4" /> {createLabel}
+          <Button onClick={openCreate} className="gap-2 shrink-0">
+            <Plus className="w-4 h-4" /> <span className="hidden sm:inline">{createLabel}</span><span className="sm:hidden">Add</span>
           </Button>
         </div>
 
@@ -514,7 +514,7 @@ export default function ContextPage() {
                   <TabsTrigger
                     key={t}
                     value={t}
-                    className="text-xs px-2.5 data-[state=active]:bg-coral-600/30 data-[state=active]:text-coral-200"
+                    className="text-xs px-2.5 whitespace-nowrap data-[state=active]:bg-coral-600/30 data-[state=active]:text-coral-200"
                   >
                     {t === "ALL" ? "All" : t.charAt(0).toUpperCase() + t.slice(1).replace("_", " ")}
                   </TabsTrigger>

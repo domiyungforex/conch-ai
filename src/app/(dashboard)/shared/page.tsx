@@ -100,16 +100,16 @@ export default function SharedContextsPage() {
 
   return (
     <UpgradeGate>
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-6">
+      <div className="flex items-start sm:items-center justify-between gap-3">
         <div>
-          <h1 className="font-display text-2xl font-normal text-white">Shared Memories</h1>
-          <p className="text-sm text-slate-400 mt-0.5">
+          <h1 className="font-display text-xl sm:text-2xl font-normal text-white">Shared Memories</h1>
+          <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
             Share collections of memories with other users or applications.
           </p>
         </div>
-        <Button className="gap-2" disabled>
-          <Plus className="w-4 h-4" /> Share Context
+        <Button className="gap-2 shrink-0" disabled>
+          <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Share Context</span><span className="sm:hidden">Share</span>
         </Button>
       </div>
 

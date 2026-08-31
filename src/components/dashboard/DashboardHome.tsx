@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo } from "react";
 import { motion, useSpring, useTransform } from "framer-motion";
-import { Brain, MessageSquare, Bot, ArrowRight, Plus } from "lucide-react";
+import { Brain, MessageSquare, Bot, ArrowRight, Plus, Zap, Database, Users, ArrowUpRight, Sparkles, FolderOpen } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { NautilusSpiral } from "@/components/shared/NautilusSpiral";
 import { TideChart } from "@/components/shared/TideChart";
@@ -36,12 +36,12 @@ const categoryColors: Record<string, string> = {
 };
 
 const sectionVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" as const } },
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
 };
 const containerVariants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.08 } },
+  visible: { transition: { staggerChildren: 0.06 } },
 };
 
 function AnimatedCounter({ to }: { to: number }) {
@@ -55,14 +55,12 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
   const firstName = user.name?.split(" ")[0] ?? "there";
 
   const statCards = [
-    { label: "Context Objects", value: stats.contextCount,     icon: Brain,         accent: "#b06f1b" },
-    { label: "Memories",       value: stats.memoryCount,      icon: Brain,         accent: "#2e7f61" },
-    { label: "Agents",         value: stats.agentCount,       icon: Bot,           accent: "#a94e24" },
-    { label: "Projects",       value: stats.projectCount,     icon: MessageSquare, accent: "#b06f1b" },
+    { label: "Memories", value: stats.memoryCount, icon: Brain, color: "from-violet-500 to-violet-600", glow: "shadow-violet-500/20" },
+    { label: "Agents", value: stats.agentCount, icon: Bot, color: "from-cyan-500 to-cyan-600", glow: "shadow-cyan-500/20" },
+    { label: "Context", value: stats.contextCount, icon: Database, color: "from-amber-500 to-amber-600", glow: "shadow-amber-500/20" },
+    { label: "Projects", value: stats.projectCount, icon: FolderOpen, color: "from-rose-500 to-rose-600", glow: "shadow-rose-500/20" },
   ];
 
-  // Ambient activity texture — not wired to real per-hour telemetry (that would need a
-  // dedicated aggregation query), same as the equalizer bars this replaced.
   const tideValues = useMemo(
     () => Array.from({ length: 32 }, (_, i) =>
       Math.max(0.08, Math.min(0.95, 0.4 + 0.3 * Math.sin(i * 0.4 + 1.2) + 0.12 * Math.sin(i * 1.3)))
@@ -70,153 +68,143 @@ export function DashboardHome({ user, stats, recentMemories, recentConversations
     []
   );
 
-  const suggestions = [
-    { prompt: "Chat with your AI — it has full context",            href: "/chat",      icon: MessageSquare },
-    { prompt: "Browse your memory and context objects",              href: "/memory",    icon: Brain },
-    { prompt: "Manage your agents and their permissions",            href: "/agents",    icon: Bot },
-    { prompt: "Define decisions and constraints for your agents",    href: "/context",   icon: Brain },
-  ];
-
   return (
     <motion.div
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="max-w-6xl mx-auto space-y-8"
+      className="max-w-6xl mx-auto px-4 sm:p-6 md:p-8 py-6 space-y-8"
     >
       {/* Greeting */}
       <motion.div variants={sectionVariants}>
-        <p className="eyebrow text-slate-500 mb-2">Your Context</p>
-        <h1 className="font-display text-3xl sm:text-4xl font-normal text-foreground leading-tight">
-          Good {getTimeOfDay()}, {firstName}.
-        </h1>
-        <p className="text-slate-500 mt-2 text-sm">Decisions remembered, constraints enforced, meaning preserved.</p>
-      </motion.div>
-
-      {/* Status */}
-      <motion.div
-        variants={sectionVariants}
-        className="flex items-center gap-2 text-[13px] text-slate-500"
-      >
-        <span className="w-1.5 h-1.5 rounded-full bg-teal-400" />
-        <span>
-          {stats.decisionCount} decisions · {stats.constraintCount} constraints · {stats.contextCount} context objects
-        </span>
+        <div className="flex items-center gap-3 mb-1">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center shadow-lg shadow-violet-500/25">
+            <Sparkles className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">Good {getTimeOfDay()}</p>
+            <h1 className="text-2xl font-semibold text-white">
+              {firstName}
+            </h1>
+          </div>
+        </div>
       </motion.div>
 
       {/* Stats */}
       <motion.div variants={sectionVariants} className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {statCards.map(({ label, value, icon: Icon, accent }) => (
-          <div key={label} className="p-4 rounded-xl bg-white/[0.03] border border-white/5">
-            <div className="flex items-center gap-2 mb-2">
-              <Icon className="w-3.5 h-3.5" style={{ color: accent }} />
-              <p className="text-[11px] text-slate-500 font-medium">{label}</p>
+        {statCards.map(({ label, value, icon: Icon, color, glow }) => (
+          <Link key={label} href={label === "Memories" ? "/memory" : label === "Agents" ? "/agents" : label === "Projects" ? "/projects" : "/context"}>
+            <div className="group p-4 rounded-2xl bg-white/[0.02] border border-white/[0.04] hover:bg-white/[0.04] hover:border-white/[0.08] transition-all duration-300 cursor-pointer">
+              <div className="flex items-center justify-between mb-3">
+                <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center shadow-lg ${glow}`}>
+                  <Icon className="w-4 h-4 text-white" />
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
+              </div>
+              <p className="text-2xl font-semibold text-white mb-0.5">
+                <AnimatedCounter to={value} />
+              </p>
+              <p className="text-[12px] text-slate-500">{label}</p>
             </div>
-            <p className="font-display text-xl text-foreground">
-              <AnimatedCounter to={value} />
-            </p>
-          </div>
+          </Link>
         ))}
       </motion.div>
 
-      {/* Tide chart */}
+      {/* Activity chart */}
       <motion.div variants={sectionVariants}>
-        <div className="flex items-baseline justify-between mb-3">
-          <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Memory Activity</h2>
-          <span className="text-xs text-slate-600">last 24 hours</span>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-[13px] font-medium text-slate-400">Activity</h2>
+          <span className="text-[11px] text-slate-600">Last 24 hours</span>
         </div>
-        <GlassCard className="p-4">
-          <TideChart values={tideValues} color="#b06f1b" height={56} />
-        </GlassCard>
+        <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.04]">
+          <TideChart values={tideValues} color="#8b5cf6" height={48} />
+        </div>
       </motion.div>
 
       {/* Quick actions */}
-      <motion.div variants={sectionVariants} className="flex flex-wrap gap-2">
-        <Button asChild size="sm">
-          <Link href="/chat"><MessageSquare className="w-3.5 h-3.5" />Chat</Link>
-        </Button>
-        <Button variant="secondary" asChild size="sm">
-          <Link href="/memory"><Plus className="w-3.5 h-3.5" />Memory</Link>
-        </Button>
-        <Button variant="secondary" asChild size="sm">
-          <Link href="/agents"><Bot className="w-3.5 h-3.5" />Agents</Link>
-        </Button>
-      </motion.div>
-
-      {/* Recent memories & conversations */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <motion.div variants={sectionVariants}>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Recent Memories</h2>
-            <Link href="/memory" className="text-xs text-coral-400 hover:text-coral-300 flex items-center gap-1">
-              View all <ArrowRight className="w-3 h-3" />
-            </Link>
-          </div>
-          <GlassCard className="divide-y divide-white/5">
-            {recentMemories.length === 0 ? (
-              <div className="p-6 text-center text-slate-500 text-sm">Your memory is still forming. Start a conversation to build it.</div>
-            ) : (
-              recentMemories.map((m) => (
-                <div key={m.$id} className="p-4 flex items-start gap-3">
-                  <Badge variant={categoryColors[m.category] as "cyan" | "default" | "yellow" | "green"} className="mt-0.5 shrink-0 text-[10px]">
-                    {m.category.slice(0, 3)}
-                  </Badge>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm text-white leading-relaxed">{truncate(m.content, 90)}</p>
-                    <p className="text-xs text-slate-500 mt-1">Remembered {formatRelativeTime(m.$createdAt)}</p>
-                  </div>
-                </div>
-              ))
-            )}
-          </GlassCard>
-        </motion.div>
-
-        <motion.div variants={sectionVariants}>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Conversations That Built This</h2>
-            <Link href="/chat" className="text-xs text-coral-400 hover:text-coral-300 flex items-center gap-1">
-              View all <ArrowRight className="w-3 h-3" />
-            </Link>
-          </div>
-          <GlassCard className="divide-y divide-white/5">
-            {recentConversations.length === 0 ? (
-              <div className="p-6 text-center text-slate-500 text-sm">
-                No conversations yet.{" "}
-                <Link href="/chat" className="text-coral-400 hover:text-coral-300">Start one and it becomes memory</Link>
-              </div>
-            ) : (
-              recentConversations.map((c) => (
-                <Link key={c.$id} href={`/chat/${c.$id}`} className="flex items-center gap-3 p-4 hover:bg-white/5 transition-colors group">
-                  <div className="w-8 h-8 rounded-xl bg-teal-500/10 flex items-center justify-center shrink-0 text-teal-400 text-sm">✦</div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm text-white font-medium truncate group-hover:text-coral-300 transition-colors">{c.title}</p>
-                    <p className="text-xs text-slate-500">{formatRelativeTime(c.$updatedAt)}</p>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-slate-400 transition-colors shrink-0" />
-                </Link>
-              ))
-            )}
-          </GlassCard>
-        </motion.div>
-      </div>
-
-      {/* Contextual suggestions */}
       <motion.div variants={sectionVariants}>
-        <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">Suggested Next Steps</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {suggestions.map(({ prompt, href, icon: Icon }) => (
-            <GlassCard key={href} hover className="p-4">
-              <Link href={href} className="flex items-center gap-3 group">
-                <div className="w-8 h-8 rounded-xl bg-coral-500/10 flex items-center justify-center shrink-0">
-                  <Icon className="w-4 h-4 text-coral-400" />
+        <h2 className="text-[13px] font-medium text-slate-400 mb-3">Quick start</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {[
+            { href: "/chat", icon: MessageSquare, label: "Start a chat", desc: "AI with full context", color: "from-violet-500 to-violet-600" },
+            { href: "/memory", icon: Brain, label: "Add memory", desc: "Store something new", color: "from-cyan-500 to-cyan-600" },
+            { href: "/agents", icon: Bot, label: "Create agent", desc: "Build an AI assistant", color: "from-amber-500 to-amber-600" },
+          ].map(({ href, icon: Icon, label, desc, color }) => (
+            <Link key={href} href={href}>
+              <div className="group p-4 rounded-2xl bg-white/[0.02] border border-white/[0.04] hover:bg-white/[0.04] hover:border-white/[0.08] transition-all duration-300 cursor-pointer">
+                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center shadow-lg mb-3`}>
+                  <Icon className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-sm text-slate-300 group-hover:text-white transition-colors">{prompt}</span>
-                <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-slate-400 transition-colors ml-auto shrink-0" />
-              </Link>
-            </GlassCard>
+                <p className="text-[14px] font-medium text-white mb-0.5">{label}</p>
+                <p className="text-[12px] text-slate-500">{desc}</p>
+              </div>
+            </Link>
           ))}
         </div>
       </motion.div>
+
+      {/* Recent */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Recent memories */}
+        <motion.div variants={sectionVariants}>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-[13px] font-medium text-slate-400">Recent memories</h2>
+            <Link href="/memory" className="text-[12px] text-violet-400 hover:text-violet-300 flex items-center gap-1 transition-colors">
+              View all <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+          <div className="rounded-2xl bg-white/[0.02] border border-white/[0.04] divide-y divide-white/[0.04]">
+            {recentMemories.length === 0 ? (
+              <div className="p-8 text-center text-slate-500 text-[13px]">
+                No memories yet. Start a conversation to build context.
+              </div>
+            ) : (
+              recentMemories.slice(0, 5).map((m) => (
+                <div key={m.$id} className="px-4 py-3 flex items-start gap-3 hover:bg-white/[0.02] transition-colors">
+                  <div className="w-2 h-2 rounded-full bg-violet-500 mt-1.5 shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[13px] text-slate-300 leading-relaxed">{truncate(m.content, 100)}</p>
+                    <p className="text-[11px] text-slate-600 mt-1">{formatRelativeTime(m.$createdAt)}</p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </motion.div>
+
+        {/* Recent conversations */}
+        <motion.div variants={sectionVariants}>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-[13px] font-medium text-slate-400">Recent conversations</h2>
+            <Link href="/chat" className="text-[12px] text-violet-400 hover:text-violet-300 flex items-center gap-1 transition-colors">
+              View all <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+          <div className="rounded-2xl bg-white/[0.02] border border-white/[0.04] divide-y divide-white/[0.04]">
+            {recentConversations.length === 0 ? (
+              <div className="p-8 text-center text-slate-500 text-[13px]">
+                No conversations yet.{" "}
+                <Link href="/chat" className="text-violet-400 hover:text-violet-300 transition-colors">Start one</Link>
+              </div>
+            ) : (
+              recentConversations.slice(0, 5).map((c) => (
+                <Link key={c.$id} href={`/chat/${c.$id}`} className="flex items-center gap-3 px-4 py-3 hover:bg-white/[0.02] transition-colors group">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500/20 to-cyan-500/10 flex items-center justify-center shrink-0">
+                    <MessageSquare className="w-3.5 h-3.5 text-violet-400" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[13px] text-slate-300 font-medium truncate group-hover:text-white transition-colors">
+                      {c.title}
+                    </p>
+                    <p className="text-[11px] text-slate-600">{formatRelativeTime(c.$updatedAt)}</p>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-slate-400 transition-all duration-200 group-hover:translate-x-0.5 shrink-0" />
+                </Link>
+              ))
+            )}
+          </div>
+        </motion.div>
+      </div>
     </motion.div>
   );
 }
@@ -227,3 +215,5 @@ function getTimeOfDay() {
   if (h < 17) return "afternoon";
   return "evening";
 }
+
+

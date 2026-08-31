@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Fraunces } from "next/font/google";
 import { QueryProvider } from "@/providers/QueryProvider";
 import { Toaster } from "@/components/ui/toaster";
+import { UI_THEME_PRESETS } from "@/lib/uiThemePresets";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -67,6 +68,9 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#c8891f",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 const jsonLd = {
@@ -84,11 +88,26 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Apply the saved theme + accent before first paint so there is no
-            flash. Defaults to light / Smokey Amber when nothing is stored. */}
+        {/* Apply the saved UI theme + mode + CSS variables before first paint
+            so there is no flash of wrong colors. Defaults to dark-ai / dark. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem("conch-theme");if(t==="dark"){document.documentElement.classList.add("dark")}var a=localStorage.getItem("conch-accent");if(a){document.documentElement.classList.add("theme-"+a)}}catch(e){}})();`,
+            __html: `(function(){
+try{
+var el=document.documentElement;
+var uiMode=localStorage.getItem("conch-ui-mode");
+var uiTheme=localStorage.getItem("conch-ui-theme");
+var isDark=uiMode==="dark"||(uiMode!=="light"&&(!uiMode||window.matchMedia&&window.matchMedia("(prefers-color-scheme:dark)").matches));
+if(isDark){el.classList.add("dark")}else{el.classList.remove("dark")}
+if(uiTheme){el.classList.add("ui-theme-"+uiTheme)}
+var presets=${JSON.stringify(
+  Object.fromEntries(
+    UI_THEME_PRESETS.map((p) => [p.id, { dark: p.dark, light: p.light }])
+  )
+)};
+var p=presets[uiTheme||"dark-ai"];
+if(p){var vars=isDark?p.dark:p.light;for(var k in vars){el.style.setProperty(k,vars[k])}}
+}catch(e){})();`,
           }}
         />
         <script

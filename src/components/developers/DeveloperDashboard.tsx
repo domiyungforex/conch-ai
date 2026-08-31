@@ -21,6 +21,7 @@ import {
   RefreshCw,
   Download,
   Terminal,
+  BookOpen,
 } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { Button } from "@/components/ui/button";
@@ -133,6 +134,15 @@ const FEATURES = [
 function FeatureCards() {
   return (
     <div className="grid sm:grid-cols-2 gap-4">
+      <Link href="/developers/sdk" className="block">
+        <GlassCard className="p-5 hover:bg-white/[0.07] transition-colors cursor-pointer">
+          <BookOpen className="w-5 h-5 text-coral-400 mb-3" />
+          <h3 className="text-sm font-semibold text-white mb-1">SDK Documentation</h3>
+          <p className="text-xs text-slate-400">
+            Complete TypeScript SDK reference with types, methods, and examples.
+          </p>
+        </GlassCard>
+      </Link>
       <Link href="/developers/install" className="block">
         <GlassCard className="p-5 hover:bg-white/[0.07] transition-colors cursor-pointer">
           <Download className="w-5 h-5 text-coral-400 mb-3" />
@@ -614,7 +624,7 @@ function LimitsSection() {
 
 export function DeveloperDashboard() {
   return (
-    <div className="max-w-4xl space-y-6">
+    <div className="max-w-4xl px-4 sm:px-6 space-y-6">
       <DeveloperHero />
       <FeatureCards />
       <UsageStats />

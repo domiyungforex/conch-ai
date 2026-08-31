@@ -95,27 +95,27 @@ onError: () => toast({ title: "Delete failed", description: "Could not delete th
   return (
     <MemoryErrorBoundary>
       <UpgradeGate>
-      <div className="max-w-6xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-start sm:items-center justify-between gap-3">
           <div>
-            <h1 className="font-display text-2xl font-normal text-white">Memory</h1>
-            <p className="text-sm text-slate-400 mt-0.5">Everything you&apos;ve shared, recalled whenever you need it</p>
+            <h1 className="font-display text-xl sm:text-2xl font-normal text-foreground">Memory</h1>
+            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">Everything you&apos;ve shared, recalled when needed</p>
           </div>
-          <Button onClick={() => setCreateOpen(true)} className="gap-2">
-            <Plus className="w-4 h-4" /> Add Memory
+          <Button onClick={() => setCreateOpen(true)} size="sm" className="gap-1.5 shrink-0">
+            <Plus className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Add Memory</span><span className="sm:hidden">Add</span>
           </Button>
         </div>
 
-        {/* View toggle + Filters */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="flex items-center gap-1 rounded-xl bg-white/5 border border-white/10 p-1">
+        {/* Filters */}
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-1 bg-white/5 rounded-lg p-0.5">
             <button
               type="button"
               onClick={() => setView("list")}
               className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
-                view === "list" ? "bg-coral-600/20 text-coral-300" : "text-slate-400 hover:text-white"
+                "px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors",
+                view === "list" ? "bg-white/10 text-foreground" : "text-slate-500 hover:text-foreground"
               )}
             >
               List
@@ -124,37 +124,39 @@ onError: () => toast({ title: "Delete failed", description: "Could not delete th
               type="button"
               onClick={() => setView("graph")}
               className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
-                view === "graph" ? "bg-coral-600/20 text-coral-300" : "text-slate-400 hover:text-white"
+                "px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors",
+                view === "graph" ? "bg-white/10 text-foreground" : "text-slate-500 hover:text-foreground"
               )}
             >
               Graph
             </button>
           </div>
 
-          <Tabs
-            value={category}
-            onValueChange={(v) => {
-              setCategory(v);
-              clearSearch();
-            }}
-          >
-            <TabsList className="glass border border-white/10 h-9">
-              {CATEGORIES.map((c) => (
-                <TabsTrigger
-                  key={c}
-                  value={c}
-                  className="text-xs px-3 data-[state=active]:bg-coral-600/30 data-[state=active]:text-coral-200"
-                >
-                  {c === "ALL" ? "All" : c[0] + c.slice(1).toLowerCase()}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+          <div className="overflow-x-auto -mx-1 px-1">
+            <Tabs
+              value={category}
+              onValueChange={(v) => {
+                setCategory(v);
+                clearSearch();
+              }}
+            >
+              <TabsList className="bg-white/5 h-8">
+                {CATEGORIES.map((c) => (
+                  <TabsTrigger
+                    key={c}
+                    value={c}
+                    className="text-[11px] px-2.5 whitespace-nowrap data-[state=active]:bg-white/10 data-[state=active]:text-foreground"
+                  >
+                    {c === "ALL" ? "All" : c[0] + c.slice(1).toLowerCase()}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          </div>
 
           <div className="flex gap-2 flex-1">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
               <Input
                 value={search}
                 onChange={(e) => {
@@ -162,20 +164,21 @@ onError: () => toast({ title: "Delete failed", description: "Could not delete th
                   if (!e.target.value) clearSearch();
                 }}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                placeholder="Semantic search…"
-                className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-slate-500"
+                placeholder="Search memories…"
+                className="pl-8 h-8 text-[13px]"
               />
             </div>
             {searchResults !== null && (
-              <Button variant="ghost" size="icon" onClick={clearSearch}>
-                <X className="w-4 h-4" />
+              <Button variant="ghost" size="icon" onClick={clearSearch} className="h-8 w-8">
+                <X className="w-3.5 h-3.5" />
               </Button>
             )}
             <Button
               variant="secondary"
+              size="sm"
               onClick={handleSearch}
               disabled={!search.trim() || searching}
-              className="shrink-0"
+              className="shrink-0 h-8"
             >
               {searching ? "Searching…" : "Search"}
             </Button>
@@ -190,18 +193,16 @@ onError: () => toast({ title: "Delete failed", description: "Could not delete th
 
         {/* Error state */}
         {isError && !searchResults && (
-          <div className="flex flex-col items-center justify-center py-16 gap-4 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-              <AlertCircle className="w-6 h-6 text-red-400" />
-            </div>
+          <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
+            <AlertCircle className="w-8 h-8 text-red-400" />
             <div>
-              <p className="text-white font-medium">Failed to load memories</p>
-              <p className="text-sm text-slate-400 mt-1">
+              <p className="text-sm font-medium text-foreground">Failed to load memories</p>
+              <p className="text-xs text-slate-500 mt-1">
                 {(error as Error)?.message ?? "An unexpected error occurred."}
               </p>
             </div>
-            <Button variant="secondary" onClick={() => refetch()} className="gap-2">
-              <RefreshCw className="w-4 h-4" /> Retry
+            <Button variant="secondary" size="sm" onClick={() => refetch()} className="gap-1.5">
+              <RefreshCw className="w-3 h-3" /> Retry
             </Button>
           </div>
         )}
@@ -215,9 +216,9 @@ onError: () => toast({ title: "Delete failed", description: "Could not delete th
         {view === "list" && !isError && (
           <>
             {isLoading ? (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <Skeleton key={i} className="h-44 rounded-2xl bg-white/5" />
+                  <Skeleton key={i} className="h-40 rounded-xl bg-white/[0.03]" />
                 ))}
               </div>
             ) : displayed.length === 0 ? (
@@ -236,7 +237,7 @@ onError: () => toast({ title: "Delete failed", description: "Could not delete th
                 }
               />
             ) : (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {displayed.map((m) =>
                   m?.$id ? (
                     <MemoryCard

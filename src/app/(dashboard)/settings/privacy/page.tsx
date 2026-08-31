@@ -48,8 +48,8 @@ export default function PrivacyPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <GlassCard className="p-6">
+    <div className="space-y-6 px-4 sm:px-6">
+      <GlassCard className="p-4 sm:p-6">
         <h2 className="text-base font-semibold text-white mb-6">Privacy Controls</h2>
         {isLoading ? (
           <Skeleton className="h-10 rounded-lg bg-white/5" />
@@ -71,7 +71,7 @@ export default function PrivacyPage() {
         )}
       </GlassCard>
 
-      <GlassCard className="p-6">
+      <GlassCard className="p-4 sm:p-6">
         <h2 className="text-base font-semibold text-white mb-2">Export Your Memory</h2>
         <p className="text-sm text-slate-400 mb-4">Download every memory, conversation, and agent configuration. Your memory is yours to take anywhere.</p>
         <Button variant="secondary" onClick={handleExport} className="gap-2">
@@ -79,7 +79,7 @@ export default function PrivacyPage() {
         </Button>
       </GlassCard>
 
-      <GlassCard className="p-6 border-red-500/20">
+      <GlassCard className="p-4 sm:p-6 border-red-500/20">
         <div className="flex items-start gap-3 mb-4">
           <AlertTriangle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
           <div>

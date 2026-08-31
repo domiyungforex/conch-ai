@@ -86,8 +86,8 @@ export default function ApiKeysPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 px-4 sm:px-6">
+      <div className="flex items-start sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-base font-semibold text-white">API Keys</h2>
           <p className="text-xs text-slate-400 mt-0.5">Give your own apps access to this memory. Read, write, recall, and chat.</p>
