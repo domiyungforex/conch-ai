@@ -1,7 +1,27 @@
 {
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "installCommand": "npm install",
+  "regions": ["iad1"],
   "functions": {
     "src/app/api/chat/route.ts": {
       "maxDuration": 60
+    },
+    "src/app/api/challenge/waitlist/route.ts": {
+      "maxDuration": 30
+    },
+    "src/app/api/challenge/join/route.ts": {
+      "maxDuration": 30
+    },
+    "src/app/api/challenge/projects/route.ts": {
+      "maxDuration": 30
+    },
+    "src/app/api/challenge/submissions/route.ts": {
+      "maxDuration": 30
+    },
+    "src/app/api/challenge/admin/**/route.ts": {
+      "maxDuration": 30
     }
   }
 }
