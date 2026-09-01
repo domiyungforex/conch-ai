@@ -50,6 +50,14 @@ export const COLLECTIONS = {
   // Push Notifications + Reminders
   PUSH_SUBSCRIPTIONS: "push_subscriptions",
   REMINDERS: "reminders",
+  // ── Creator Challenge ──────────────────────────────────────────────
+  CHALLENGE_WAITLIST: "challenge_waitlist",
+  CHALLENGE: "challenge",
+  CHALLENGE_PARTICIPANTS: "challenge_participants",
+  CHALLENGE_PROJECTS: "challenge_projects",
+  CHALLENGE_SUBMISSIONS: "challenge_submissions",
+  CHALLENGE_WINNERS: "challenge_winners",
+  CHALLENGE_EVENTS: "challenge_events",
 } as const;
 
 export type MemoryCategory = "EPISODIC" | "SEMANTIC" | "PREFERENCE" | "PROCEDURAL";
@@ -639,6 +647,94 @@ export interface ReminderDoc {
   source: string | null;
   recurrence: ReminderRecurrence;
   recurrenceEndDate: string | null;
+}
+
+// ── Creator Challenge Documents ────────────────────────────────────────
+
+export type ChallengePhase = "upcoming" | "open" | "building" | "submission" | "judging" | "completed";
+export type SubmissionStatus = "draft" | "submitted" | "reviewing" | "approved" | "rejected" | "locked";
+
+export interface ChallengeWaitlistDoc {
+  fullName: string;
+  email: string;
+  twitterHandle: string | null;
+  discordUsername: string | null;
+  role: string;
+  buildIdea: string | null;
+  country: string | null;
+  referralCode: string | null;
+}
+
+export interface ChallengeDoc {
+  title: string;
+  description: string | null;
+  phase: ChallengePhase;
+  startDate: string | null;
+  endDate: string | null;
+  submissionDeadline: string | null;
+  judgingStart: string | null;
+  winnerAnnouncementDate: string | null;
+  totalPrizeFund: number;
+  firstPrize: number;
+  secondPrize: number;
+  thirdPrize: number;
+}
+
+export interface ChallengeParticipantDoc {
+  challengeId: string;
+  clerkUserId: string | null;
+  fullName: string;
+  email: string;
+  twitterHandle: string | null;
+  discordUsername: string | null;
+  role: string;
+  country: string | null;
+  bio: string | null;
+  avatarUrl: string | null;
+  referralCode: string | null;
+}
+
+export interface ChallengeProjectDoc {
+  challengeId: string;
+  participantId: string;
+  name: string;
+  slug: string;
+  oneLiner: string | null;
+  description: string | null;
+  problemSolved: string | null;
+  conchUsage: string | null;
+  memoryImplementation: string | null;
+  agentImplementation: string | null;
+  demoUrl: string | null;
+  videoUrl: string | null;
+  githubUrl: string | null;
+  coverImageUrl: string | null;
+  status: string;
+  featured: boolean;
+  teamMembers: string | null;
+  conchFeaturesUsed: string | null;
+}
+
+export interface ChallengeSubmissionDoc {
+  projectId: string;
+  status: SubmissionStatus;
+  submittedAt: string | null;
+}
+
+export interface ChallengeWinnerDoc {
+  challengeId: string;
+  projectId: string;
+  participantId: string;
+  placement: number;
+  prizeAmount: number;
+  publishedAt: string | null;
+}
+
+export interface ChallengeEventDoc {
+  type: string;
+  actorId: string | null;
+  actorEmail: string | null;
+  data: string | null;
 }
 
 // Appwrite documents include $id, $createdAt, $updatedAt from the platform.
