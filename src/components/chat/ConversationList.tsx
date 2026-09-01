@@ -61,9 +61,10 @@ export function ConversationList() {
   const conversations: ConversationWithCount[] = Array.isArray(data) ? data : [];
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="p-3 border-b border-white/8">
-        <Button asChild size="sm" className="w-full justify-start gap-2">
+    <div className="flex flex-col h-full bg-background">
+      {/* New chat button */}
+      <div className="p-3 border-b border-border">
+        <Button asChild size="sm" className="w-full justify-start gap-2 chat-btn-primary text-[13px] h-9">
           <Link href="/chat">
             <Plus className="w-4 h-4" />
             New Chat
@@ -71,25 +72,24 @@ export function ConversationList() {
         </Button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-2">
+      {/* Conversations */}
+      <div className="flex-1 overflow-y-auto chat-scroll p-2">
         {isLoading && (
-          <div className="space-y-2 p-1">
+          <div className="space-y-1.5 p-1">
             {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-14 rounded-xl bg-white/5" />
+              <Skeleton key={i} className="h-12 rounded-xl chat-skeleton" />
             ))}
           </div>
         )}
 
         {isError && !isLoading && (
-          <div className="flex flex-col items-center justify-center h-40 gap-3 text-center px-4">
-            <MessageSquare className="w-6 h-6 text-slate-600" />
-            <p className="text-xs text-slate-500">
-              {(error as Error)?.message ?? "Could not load conversations"}
-            </p>
+          <div className="flex flex-col items-center justify-center h-32 gap-2 text-center px-4">
+            <MessageSquare className="w-5 h-5 chat-text-muted" />
+            <p className="text-[12px] chat-text-muted">{(error as Error)?.message ?? "Could not load conversations"}</p>
             <button
               type="button"
               onClick={() => qc.invalidateQueries({ queryKey: ["conversations"] })}
-              className="text-xs text-coral-400 hover:text-coral-300 flex items-center gap-1"
+              className="text-[12px] text-primary hover:text-primary-hover flex items-center gap-1 transition-colors"
             >
               <RefreshCw className="w-3 h-3" /> Retry
             </button>
@@ -97,9 +97,9 @@ export function ConversationList() {
         )}
 
         {!isLoading && !isError && conversations.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-40 text-center px-4">
-            <MessageSquare className="w-8 h-8 text-slate-600 mb-2" />
-            <p className="text-xs text-slate-500">No conversations yet</p>
+          <div className="flex flex-col items-center justify-center h-32 text-center px-4">
+            <MessageSquare className="w-6 h-6 chat-text-muted mb-1.5" />
+            <p className="text-[12px] chat-text-muted">No conversations yet</p>
           </div>
         )}
 
@@ -114,20 +114,18 @@ export function ConversationList() {
             <div
               key={conv.$id}
               className={cn(
-                "group relative flex items-center rounded-xl mb-1 transition-all",
-                active
-                  ? "bg-coral-600/20 border border-coral-500/30"
-                  : "hover:bg-white/5 border border-transparent"
+                "group relative rounded-xl mb-0.5 transition-colors duration-100",
+                active ? "bg-primary/10" : "hover:bg-card"
               )}
             >
-              <Link href={`/chat/${conv.$id}`} className="flex-1 min-w-0 flex flex-col gap-0.5 px-3 py-2.5">
-                <span className={cn("text-sm font-medium truncate pr-6", active ? "text-coral-200" : "text-slate-300")}>
-                  {truncate(conv.title ?? "New conversation", 32)}
+              <Link href={`/chat/${conv.$id}`} className="flex-1 flex flex-col gap-0.5 px-3 py-2.5 block">
+                <span className={cn("text-[13px] font-medium truncate pr-6", active ? "text-primary" : "chat-text-primary")}>
+                  {truncate(conv.title ?? "New conversation", 30)}
                 </span>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-600">{formatRelativeTime(updatedAt)}</span>
-                  <span className="text-xs text-slate-700">·</span>
-                  <span className="text-xs text-slate-600">{msgCount} msgs</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[11px] chat-text-muted">{formatRelativeTime(updatedAt)}</span>
+                  <span className="text-[11px] chat-text-muted">·</span>
+                  <span className="text-[11px] chat-text-muted">{msgCount}</span>
                 </div>
               </Link>
 
@@ -139,10 +137,10 @@ export function ConversationList() {
                   if (!deleting) remove.mutate(conv.$id);
                 }}
                 disabled={deleting}
-                aria-label="Delete conversation"
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-lg flex items-center justify-center text-slate-500 hover:text-red-400 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                aria-label="Delete"
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-lg flex items-center justify-center chat-btn-ghost hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
               >
-                {deleting ? <LoadingSpinner size="sm" /> : <Trash2 className="w-3.5 h-3.5" />}
+                {deleting ? <LoadingSpinner size="sm" /> : <Trash2 className="w-3 h-3" />}
               </button>
             </div>
           );

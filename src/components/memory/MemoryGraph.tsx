@@ -7,16 +7,11 @@ import {
   Maximize2,
   Minimize2,
   RotateCcw,
-  Search,
-  Filter,
-  X,
   Brain,
   AlertCircle,
   MessageSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import {
@@ -48,7 +43,6 @@ async function fetchGraphData(): Promise<GraphData> {
   const edges: GraphEdge[] = [];
   const nodeSet = new Set<string>();
 
-  // Memories
   if (memoriesRes?.ok) {
     const data = await memoriesRes.json();
     const memories = data.memories ?? [];
@@ -63,29 +57,21 @@ async function fetchGraphData(): Promise<GraphData> {
         });
         nodeSet.add(m.$id);
       }
-      // Link related memories
       if (m.relatedMemoryIds) {
         for (const rid of m.relatedMemoryIds) {
-          if (nodeSet.has(rid)) {
-            edges.push({ source: m.$id, target: rid });
-          }
+          if (nodeSet.has(rid)) edges.push({ source: m.$id, target: rid });
         }
       }
     }
   }
 
-  // Context objects
   if (contextRes?.ok) {
     const data = await contextRes.json();
     const contexts = data.context ?? [];
     for (const c of contexts.slice(0, 25)) {
       const typeMap: Record<string, GraphNode["type"]> = {
-        memory: "memory",
-        decision: "decision",
-        constraint: "constraint",
-        intent: "task",
-        goal: "task",
-        task_state: "task",
+        memory: "memory", decision: "decision", constraint: "constraint",
+        intent: "task", goal: "task", task_state: "task",
       };
       const nodeType = typeMap[c.type] ?? "memory";
       if (!nodeSet.has(c.$id)) {
@@ -104,36 +90,26 @@ async function fetchGraphData(): Promise<GraphData> {
     }
   }
 
-  // Agents
   if (agentsRes?.ok) {
     const data = await agentsRes.json();
-    const agents = data.agents ?? [];
-    for (const a of agents) {
+    for (const a of data.agents ?? []) {
       if (!nodeSet.has(a.$id)) {
         nodes.push({
-          id: a.$id,
-          label: a.name ?? "Agent",
-          type: "agent",
-          importance: 0.8,
-          x: 0, y: 0, vx: 0, vy: 0,
+          id: a.$id, label: a.name ?? "Agent", type: "agent",
+          importance: 0.8, x: 0, y: 0, vx: 0, vy: 0,
         });
         nodeSet.add(a.$id);
       }
     }
   }
 
-  // Projects
   if (projectsRes?.ok) {
     const data = await projectsRes.json();
-    const projects = data.projects ?? [];
-    for (const p of projects) {
+    for (const p of data.projects ?? []) {
       if (!nodeSet.has(p.$id)) {
         nodes.push({
-          id: p.$id,
-          label: p.name ?? "Project",
-          type: "project",
-          importance: 0.9,
-          x: 0, y: 0, vx: 0, vy: 0,
+          id: p.$id, label: p.name ?? "Project", type: "project",
+          importance: 0.9, x: 0, y: 0, vx: 0, vy: 0,
         });
         nodeSet.add(p.$id);
       }
@@ -141,6 +117,19 @@ async function fetchGraphData(): Promise<GraphData> {
   }
 
   return { nodes, edges };
+}
+
+// ── Theme colors from CSS variables ────────────────────────────────────────
+function getThemeColors() {
+  const style = getComputedStyle(document.documentElement);
+  return {
+    foreground: style.getPropertyValue("--color-foreground").trim() || "#e8e6f0",
+    muted: style.getPropertyValue("--color-muted-foreground").trim() || "#8b87a0",
+    border: style.getPropertyValue("--color-border").trim() || "rgba(139, 92, 246, 0.12)",
+    background: style.getPropertyValue("--color-background").trim() || "#0a0a12",
+    surface: style.getPropertyValue("--color-surface").trim() || "#111119",
+    card: style.getPropertyValue("--color-card").trim() || "rgba(255, 255, 255, 0.04)",
+  };
 }
 
 // ── Main Component ─────────────────────────────────────────────────────────
@@ -155,24 +144,17 @@ export function MemoryGraph({ className }: MemoryGraphProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [filter, setFilter] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 
-  const dragRef = useRef<{
-    startX: number;
-    startY: number;
-    startPanX: number;
-    startPanY: number;
-    isDragging: boolean;
-    nodeId: string | null;
-  }>({ startX: 0, startY: 0, startPanX: 0, startPanY: 0, isDragging: false, nodeId: null });
+  const dragRef = useRef({
+    startX: 0, startY: 0, startPanX: 0, startPanY: 0,
+    isDragging: false, nodeId: null as string | null,
+  });
 
-  // ── ResizeObserver for responsive sizing ──
+  // ── ResizeObserver ──
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const { width, height } = entry.contentRect;
@@ -181,12 +163,11 @@ export function MemoryGraph({ className }: MemoryGraphProps) {
         }
       }
     });
-
     observer.observe(container);
     return () => observer.disconnect();
   }, [isFullscreen]);
 
-  // ── Fetch data ──
+  // ── Fetch + layout ──
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
@@ -201,15 +182,12 @@ export function MemoryGraph({ className }: MemoryGraphProps) {
           return;
         }
         const initialized = initializePositions(data, dimensions.width, dimensions.height);
-        const layout = simulate(initialized, dimensions.width, dimensions.height, 120);
+        const layout = simulate(initialized, dimensions.width, dimensions.height, 200);
         setGraphData(layout);
         setLoading(false);
       })
       .catch(() => {
-        if (!cancelled) {
-          setError(true);
-          setLoading(false);
-        }
+        if (!cancelled) { setError(true); setLoading(false); }
       });
 
     return () => { cancelled = true; };
@@ -220,7 +198,6 @@ export function MemoryGraph({ className }: MemoryGraphProps) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !graphData) return;
-
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -231,39 +208,32 @@ export function MemoryGraph({ className }: MemoryGraphProps) {
     canvas.style.height = `${dimensions.height}px`;
     ctx.scale(dpr, dpr);
 
+    const colors = getThemeColors();
     ctx.clearRect(0, 0, dimensions.width, dimensions.height);
     ctx.save();
     ctx.translate(pan.x, pan.y);
     ctx.scale(zoom, zoom);
 
-    const filteredNodes = filter
-      ? graphData.nodes.filter((n) => n.type === filter)
-      : graphData.nodes;
-
-    const searchLower = searchQuery.toLowerCase();
-    const searchFiltered = searchQuery
-      ? filteredNodes.filter((n) => n.label.toLowerCase().includes(searchLower))
-      : filteredNodes;
-
-    const visibleIds = new Set(searchFiltered.map((n) => n.id));
+    const visibleIds = new Set(graphData.nodes.map((n) => n.id));
 
     // Draw edges
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = colors.border;
+    ctx.lineWidth = 0.8;
+    ctx.globalAlpha = 0.5;
     for (const edge of graphData.edges) {
       if (!visibleIds.has(edge.source) || !visibleIds.has(edge.target)) continue;
       const source = graphData.nodes.find((n) => n.id === edge.source);
       const target = graphData.nodes.find((n) => n.id === edge.target);
       if (!source || !target) continue;
-
       ctx.beginPath();
       ctx.moveTo(source.x, source.y);
       ctx.lineTo(target.x, target.y);
       ctx.stroke();
     }
+    ctx.globalAlpha = 1;
 
     // Draw nodes
-    for (const node of searchFiltered) {
+    for (const node of graphData.nodes) {
       const r = getNodeRadius(node.type);
       const color = NODE_COLORS[node.type];
       const isSelected = selectedNode?.id === node.id;
@@ -271,8 +241,8 @@ export function MemoryGraph({ className }: MemoryGraphProps) {
       // Glow for selected
       if (isSelected) {
         ctx.beginPath();
-        ctx.arc(node.x, node.y, r + 6, 0, Math.PI * 2);
-        ctx.fillStyle = `${color}33`;
+        ctx.arc(node.x, node.y, r + 8, 0, Math.PI * 2);
+        ctx.fillStyle = `${color}30`;
         ctx.fill();
       }
 
@@ -283,26 +253,26 @@ export function MemoryGraph({ className }: MemoryGraphProps) {
       ctx.fill();
 
       if (isSelected) {
-        ctx.strokeStyle = "#fff";
+        ctx.strokeStyle = colors.foreground;
         ctx.lineWidth = 2;
         ctx.stroke();
       }
 
-      // Label (only show if zoomed in or node is important)
-      if (zoom > 0.7 || node.importance > 0.7) {
-        ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
-        ctx.font = `${Math.max(9, 10 / zoom)}px system-ui`;
+      // Labels — show based on zoom level and importance
+      if (zoom > 0.6 || node.importance > 0.7 || isSelected) {
+        ctx.fillStyle = colors.foreground;
+        ctx.globalAlpha = isSelected ? 0.95 : 0.65;
+        const fontSize = Math.max(8, Math.min(11, 10 / zoom));
+        ctx.font = `500 ${fontSize}px system-ui, sans-serif`;
         ctx.textAlign = "center";
-        ctx.fillText(
-          node.label.length > 20 ? node.label.slice(0, 20) + "…" : node.label,
-          node.x,
-          node.y + r + 12 / zoom
-        );
+        const label = node.label.length > 18 ? node.label.slice(0, 18) + "…" : node.label;
+        ctx.fillText(label, node.x, node.y + r + 14 / zoom);
+        ctx.globalAlpha = 1;
       }
     }
 
     ctx.restore();
-  }, [graphData, dimensions, zoom, pan, selectedNode, filter, searchQuery]);
+  }, [graphData, dimensions, zoom, pan, selectedNode]);
 
   // ── Mouse/touch handlers ──
   const screenToGraph = useCallback(
@@ -321,82 +291,72 @@ export function MemoryGraph({ className }: MemoryGraphProps) {
     (e: React.PointerEvent) => {
       const pos = screenToGraph(e.clientX, e.clientY);
       const node = graphData ? hitTest(graphData.nodes, pos.x, pos.y, 1) : null;
-
       dragRef.current = {
-        startX: e.clientX,
-        startY: e.clientY,
-        startPanX: pan.x,
-        startPanY: pan.y,
-        isDragging: false,
-        nodeId: node?.id ?? null,
+        startX: e.clientX, startY: e.clientY,
+        startPanX: pan.x, startPanY: pan.y,
+        isDragging: false, nodeId: node?.id ?? null,
       };
-
-      if (node) {
-        setSelectedNode(node);
-      } else {
-        setSelectedNode(null);
-      }
+      setSelectedNode(node);
     },
     [screenToGraph, graphData, pan]
   );
 
-  const handlePointerMove = useCallback(
-    (e: React.PointerEvent) => {
-      const drag = dragRef.current;
-      const dx = e.clientX - drag.startX;
-      const dy = e.clientY - drag.startY;
-
-      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
-        drag.isDragging = true;
-      }
-
-      if (drag.isDragging && !drag.nodeId) {
-        setPan({
-          x: drag.startPanX + dx,
-          y: drag.startPanY + dy,
-        });
-      }
-    },
-    []
-  );
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    const drag = dragRef.current;
+    const dx = e.clientX - drag.startX;
+    const dy = e.clientY - drag.startY;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) drag.isDragging = true;
+    if (drag.isDragging && !drag.nodeId) {
+      setPan({ x: drag.startPanX + dx, y: drag.startPanY + dy });
+    }
+  }, []);
 
   const handlePointerUp = useCallback(() => {
     dragRef.current.isDragging = false;
     dragRef.current.nodeId = null;
   }, []);
 
-  // ── Zoom with wheel ──
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
     const delta = e.deltaY > 0 ? 0.9 : 1.1;
     setZoom((z) => Math.max(0.2, Math.min(3, z * delta)));
   }, []);
 
-  // ── Controls ──
-  const resetView = () => {
+  const resetView = useCallback(() => {
     setZoom(1);
     setPan({ x: 0, y: 0 });
-  };
+  }, []);
 
-  // ── Mobile detection ──
-  const isMobile = dimensions.width < 768;
+  const isMobile = dimensions.width < 640;
 
-  // ── Filter options ──
-  const nodeTypes = useMemo(() => {
+  // ── Category type info ──
+  const categoryLabels: Record<string, string> = useMemo(() => ({
+    memory: "Memories", project: "Projects", decision: "Decisions",
+    constraint: "Constraints", agent: "Agents", task: "Tasks",
+  }), []);
+
+  // ── Compute category stats for the legend ──
+  const categoryStats = useMemo(() => {
     if (!graphData) return [];
-    const types = new Set(graphData.nodes.map((n) => n.type));
-    return Array.from(types);
-  }, [graphData]);
+    const counts = new Map<string, number>();
+    for (const n of graphData.nodes) {
+      counts.set(n.type, (counts.get(n.type) ?? 0) + 1);
+    }
+    return Array.from(counts.entries()).map(([type, count]) => ({
+      type, count, color: NODE_COLORS[type as GraphNode["type"]],
+      label: categoryLabels[type] ?? type,
+    }));
+  }, [graphData, categoryLabels]);
 
   // ── Empty state ──
   if (!loading && graphData && graphData.nodes.length === 0) {
     return (
       <div className={cn("flex flex-col items-center justify-center py-16 text-center", className)}>
-        <div className="w-16 h-16 rounded-2xl bg-coral-500/10 border border-coral-500/20 flex items-center justify-center mb-4">
-          <Brain className="w-8 h-8 text-coral-400" />
+        <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4">
+          <Brain className="w-8 h-8 text-primary" />
         </div>
-        <h3 className="text-lg font-semibold text-white mb-2">Your memory graph will appear here.</h3>
-        <p className="text-sm text-slate-400 max-w-md mb-6">
+        <h3 className="text-lg font-semibold chat-text-primary mb-2">Your memory graph will appear here.</h3>
+        <p className="text-sm chat-text-muted max-w-md mb-6">
           As Conch learns your projects, decisions, memories, and relationships,
           this space will visualize how your context connects.
         </p>
@@ -413,8 +373,8 @@ export function MemoryGraph({ className }: MemoryGraphProps) {
   if (error) {
     return (
       <div className={cn("flex flex-col items-center justify-center py-16 text-center", className)}>
-        <AlertCircle className="w-8 h-8 text-red-400 mb-3" />
-        <p className="text-sm text-slate-400">Failed to load the memory graph.</p>
+        <AlertCircle className="w-8 h-8 text-destructive mb-3" />
+        <p className="text-sm chat-text-muted">Failed to load the memory graph.</p>
       </div>
     );
   }
@@ -423,16 +383,16 @@ export function MemoryGraph({ className }: MemoryGraphProps) {
     <div
       ref={containerRef}
       className={cn(
-        "relative rounded-2xl overflow-hidden bg-white/[0.02] border border-white/8",
-        isFullscreen ? "fixed inset-0 z-50 rounded-none" : "h-[400px] sm:h-[500px] md:h-[600px]",
+        "relative rounded-2xl overflow-hidden chat-code-bg",
+        isFullscreen ? "fixed inset-0 z-50 rounded-none" : "h-[350px] sm:h-[450px] md:h-[550px] lg:h-[600px]",
         className
       )}
     >
       {/* Loading */}
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center z-10">
-          <div className="flex items-center gap-2 text-sm text-slate-400">
-            <div className="w-4 h-4 border-2 border-coral-500 border-t-transparent rounded-full animate-spin" />
+          <div className="flex items-center gap-2 text-sm chat-text-muted">
+            <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             Building graph…
           </div>
         </div>
@@ -449,272 +409,74 @@ export function MemoryGraph({ className }: MemoryGraphProps) {
         onWheel={handleWheel}
       />
 
-      {/* ── Mobile Bottom Controls ──────────────────────────────────── */}
-      {isMobile ? (
-        <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1">
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-8 w-8 bg-white/10 backdrop-blur-sm"
-                onClick={() => setZoom((z) => Math.min(3, z * 1.3))}
-              >
-                <ZoomIn className="w-3.5 h-3.5" />
-              </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-8 w-8 bg-white/10 backdrop-blur-sm"
-                onClick={() => setZoom((z) => Math.max(0.2, z * 0.7))}
-              >
-                <ZoomOut className="w-3.5 h-3.5" />
-              </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-8 w-8 bg-white/10 backdrop-blur-sm"
-                onClick={resetView}
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-              </Button>
-            </div>
+      {/* ── Controls ──────────────────────────────────────────────── */}
+      <div className={cn(
+        "absolute flex items-center gap-1 z-10",
+        isMobile ? "bottom-14 left-3" : "top-3 left-3"
+      )}>
+        <button onClick={() => setZoom((z) => Math.min(3, z * 1.3))} className="w-8 h-8 rounded-lg bg-surface/80 backdrop-blur-sm border border-border flex items-center justify-center chat-text-muted hover:text-foreground transition-colors" aria-label="Zoom in">
+          <ZoomIn className="w-3.5 h-3.5" />
+        </button>
+        <button onClick={() => setZoom((z) => Math.max(0.2, z * 0.7))} className="w-8 h-8 rounded-lg bg-surface/80 backdrop-blur-sm border border-border flex items-center justify-center chat-text-muted hover:text-foreground transition-colors" aria-label="Zoom out">
+          <ZoomOut className="w-3.5 h-3.5" />
+        </button>
+        <button onClick={resetView} className="w-8 h-8 rounded-lg bg-surface/80 backdrop-blur-sm border border-border flex items-center justify-center chat-text-muted hover:text-foreground transition-colors" aria-label="Reset view">
+          <RotateCcw className="w-3.5 h-3.5" />
+        </button>
+        <button onClick={() => setIsFullscreen(!isFullscreen)} className="w-8 h-8 rounded-lg bg-surface/80 backdrop-blur-sm border border-border flex items-center justify-center chat-text-muted hover:text-foreground transition-colors" aria-label="Toggle fullscreen">
+          {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+        </button>
+      </div>
 
-            <div className="flex items-center gap-1">
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-8 w-8 bg-white/10 backdrop-blur-sm"
-                onClick={() => setIsFullscreen(!isFullscreen)}
-              >
-                {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
-              </Button>
-            </div>
-          </div>
-
-          {/* Filter chips (horizontal scroll) */}
-          <div className="flex gap-1.5 mt-2 overflow-x-auto pb-1 -mx-1 px-1">
-            <button
-              onClick={() => setFilter(null)}
-              className={cn(
-                "px-2.5 py-1 rounded-full text-[10px] font-medium shrink-0 transition-colors",
-                !filter ? "bg-coral-600/30 text-coral-200" : "bg-white/5 text-slate-400"
-              )}
-            >
-              All
-            </button>
-            {nodeTypes.map((type) => (
-              <button
-                key={type}
-                onClick={() => setFilter(filter === type ? null : type)}
-                className={cn(
-                  "px-2.5 py-1 rounded-full text-[10px] font-medium shrink-0 transition-colors capitalize",
-                  filter === type ? "bg-coral-600/30 text-coral-200" : "bg-white/5 text-slate-400"
-                )}
-              >
-                {type}
-              </button>
-            ))}
-          </div>
-        </div>
-      ) : (
-        /* ── Desktop Controls ──────────────────────────────────────── */
-        <div className="absolute top-3 left-3 right-3 flex items-start justify-between gap-3 pointer-events-none">
-          <div className="flex items-center gap-1.5 pointer-events-auto">
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-8 w-8 bg-black/40 backdrop-blur-sm border border-white/10"
-              onClick={() => setZoom((z) => Math.min(3, z * 1.3))}
-            >
-              <ZoomIn className="w-3.5 h-3.5" />
-            </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-8 w-8 bg-black/40 backdrop-blur-sm border border-white/10"
-              onClick={() => setZoom((z) => Math.max(0.2, z * 0.7))}
-            >
-              <ZoomOut className="w-3.5 h-3.5" />
-            </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-8 w-8 bg-black/40 backdrop-blur-sm border border-white/10"
-              onClick={resetView}
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-            </Button>
-
-            {/* Filter */}
-            <div className="flex items-center gap-1 ml-2 bg-black/40 backdrop-blur-sm border border-white/10 rounded-lg px-2 py-1">
-              <Filter className="w-3 h-3 text-slate-400" />
-              <select
-                value={filter ?? ""}
-                onChange={(e) => setFilter(e.target.value || null)}
-                className="bg-transparent text-xs text-slate-300 outline-none cursor-pointer"
-              >
-                <option value="">All types</option>
-                {nodeTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-1.5 pointer-events-auto">
-            {/* Search */}
-            <div className="relative">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-500" />
-              <Input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search nodes…"
-                className="h-8 w-40 pl-7 pr-2 text-xs bg-black/40 backdrop-blur-sm border-white/10 text-white placeholder:text-slate-500"
-              />
-            </div>
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-8 w-8 bg-black/40 backdrop-blur-sm border border-white/10"
-              onClick={() => setIsFullscreen(!isFullscreen)}
-            >
-              {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* ── Node count badge ─────────────────────────────────────────── */}
+      {/* ── Node count ─────────────────────────────────────────────── */}
       {graphData && (
-        <div className="absolute top-3 left-1/2 -translate-x-1/2 pointer-events-none">
-          <span className="text-[10px] text-slate-500 bg-black/40 backdrop-blur-sm px-2 py-1 rounded-full">
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 pointer-events-none z-10">
+          <span className="text-[10px] chat-text-muted bg-surface/80 backdrop-blur-sm px-2.5 py-1 rounded-full border border-border">
             {graphData.nodes.length} nodes · {graphData.edges.length} connections
           </span>
         </div>
       )}
 
-      {/* ── Mobile Bottom Sheet (node details) ──────────────────────── */}
-      {selectedNode && isMobile && (
-        <div className="absolute bottom-20 left-3 right-3 z-20">
-          <div className="bg-black/90 backdrop-blur-xl border border-white/10 rounded-2xl p-4">
+      {/* ── Selected node detail ───────────────────────────────────── */}
+      {selectedNode && (
+        <div className={cn(
+          "absolute z-20",
+          isMobile ? "bottom-14 left-3 right-3" : "top-14 right-3 w-72"
+        )}>
+          <div className="bg-surface/90 backdrop-blur-xl border border-border rounded-2xl p-4">
             <div className="flex items-start justify-between mb-2">
               <div className="flex items-center gap-2">
-                <div
-                  className="w-3 h-3 rounded-full shrink-0"
-                  style={{ backgroundColor: NODE_COLORS[selectedNode.type] }}
-                />
-                <Badge className="text-[10px] capitalize bg-white/10 text-slate-300 border-white/10">
-                  {selectedNode.type}
-                </Badge>
+                <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: NODE_COLORS[selectedNode.type] }} />
+                <span className="text-[10px] capitalize chat-text-muted font-medium">{categoryLabels[selectedNode.type] ?? selectedNode.type}</span>
               </div>
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-6 w-6"
-                onClick={() => setSelectedNode(null)}
-              >
-                <X className="w-3.5 h-3.5" />
-              </Button>
+              <button onClick={() => setSelectedNode(null)} className="w-6 h-6 rounded-lg flex items-center justify-center chat-btn-ghost" aria-label="Close">
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12" /></svg>
+              </button>
             </div>
-            <p className="text-sm text-white font-medium mb-1">{selectedNode.label}</p>
-            <div className="flex items-center gap-3 text-[11px] text-slate-400">
+            <p className="text-sm chat-text-primary font-medium mb-1 leading-snug">{selectedNode.label}</p>
+            <div className="flex items-center gap-3 text-[11px] chat-text-muted mb-2">
               <span>Importance: {Math.round(selectedNode.importance * 100)}%</span>
             </div>
-            {/* Related nodes */}
             {graphData && (
-              <div className="mt-3 pt-3 border-t border-white/10">
-                <p className="text-[10px] text-slate-500 uppercase tracking-wide mb-1.5">Connected to</p>
-                <div className="flex flex-wrap gap-1">
+              <div className="pt-3 border-t border-border">
+                <p className="text-[10px] chat-text-muted uppercase tracking-wide mb-1.5">Connected to</p>
+                <div className={cn("flex flex-wrap gap-1", !isMobile && "flex-col")}>
                   {graphData.edges
-                    .filter(
-                      (e) =>
-                        e.source === selectedNode.id || e.target === selectedNode.id
-                    )
-                    .slice(0, 6)
+                    .filter((e) => e.source === selectedNode.id || e.target === selectedNode.id)
+                    .slice(0, isMobile ? 6 : 8)
                     .map((e) => {
-                      const otherId =
-                        e.source === selectedNode.id ? e.target : e.source;
-                      const other = graphData.nodes.find((n) => n.id === otherId);
-                      if (!other) return null;
-                      return (
-                        <Badge
-                          key={otherId}
-                          className="text-[10px] bg-white/5 text-slate-400 border-white/10 cursor-pointer"
-                          onClick={() => setSelectedNode(other)}
-                        >
-                          {other.label.slice(0, 20)}
-                        </Badge>
-                      );
-                    })}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ── Desktop Side Panel (node details) ─────────────────────── */}
-      {selectedNode && !isMobile && (
-        <div className="absolute top-14 right-3 w-72 z-20">
-          <div className="bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl p-4">
-            <div className="flex items-start justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <div
-                  className="w-3 h-3 rounded-full shrink-0"
-                  style={{ backgroundColor: NODE_COLORS[selectedNode.type] }}
-                />
-                <Badge className="text-[10px] capitalize bg-white/10 text-slate-300 border-white/10">
-                  {selectedNode.type}
-                </Badge>
-              </div>
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-6 w-6"
-                onClick={() => setSelectedNode(null)}
-              >
-                <X className="w-3.5 h-3.5" />
-              </Button>
-            </div>
-            <p className="text-sm text-white font-medium mb-1">{selectedNode.label}</p>
-            <div className="flex items-center gap-3 text-[11px] text-slate-400 mb-2">
-              <span>Importance: {Math.round(selectedNode.importance * 100)}%</span>
-            </div>
-            {/* Related nodes */}
-            {graphData && (
-              <div className="pt-3 border-t border-white/10">
-                <p className="text-[10px] text-slate-500 uppercase tracking-wide mb-1.5">Connected to</p>
-                <div className="space-y-1">
-                  {graphData.edges
-                    .filter(
-                      (e) =>
-                        e.source === selectedNode.id || e.target === selectedNode.id
-                    )
-                    .slice(0, 8)
-                    .map((e) => {
-                      const otherId =
-                        e.source === selectedNode.id ? e.target : e.source;
+                      const otherId = e.source === selectedNode.id ? e.target : e.source;
                       const other = graphData.nodes.find((n) => n.id === otherId);
                       if (!other) return null;
                       return (
                         <button
                           key={otherId}
                           onClick={() => setSelectedNode(other)}
-                          className="flex items-center gap-2 w-full text-left p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+                          className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-card-hover transition-colors"
                         >
-                          <div
-                            className="w-2 h-2 rounded-full shrink-0"
-                            style={{ backgroundColor: NODE_COLORS[other.type] }}
-                          />
-                          <span className="text-xs text-slate-300 truncate">
-                            {other.label}
-                          </span>
-                          <span className="text-[10px] text-slate-600 ml-auto capitalize">
-                            {other.type}
-                          </span>
+                          <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: NODE_COLORS[other.type] }} />
+                          <span className="text-xs chat-text-primary truncate">{other.label}</span>
+                          <span className="text-[10px] chat-text-muted ml-auto capitalize shrink-0">{other.type}</span>
                         </button>
                       );
                     })}
@@ -726,13 +488,19 @@ export function MemoryGraph({ className }: MemoryGraphProps) {
       )}
 
       {/* ── Legend ─────────────────────────────────────────────────── */}
-      {!isMobile && !loading && graphData && graphData.nodes.length > 0 && (
-        <div className="absolute bottom-3 left-3 pointer-events-none">
-          <div className="flex flex-wrap gap-2 bg-black/40 backdrop-blur-sm rounded-lg px-2.5 py-1.5 border border-white/10">
-            {Object.entries(NODE_COLORS).map(([type, color]) => (
+      {!loading && graphData && graphData.nodes.length > 0 && (
+        <div className={cn(
+          "absolute pointer-events-none z-10",
+          isMobile ? "bottom-3 left-3 right-3" : "bottom-3 left-3"
+        )}>
+          <div className={cn(
+            "flex flex-wrap gap-2 bg-surface/80 backdrop-blur-sm rounded-lg px-2.5 py-1.5 border border-border",
+            isMobile && "justify-center"
+          )}>
+            {categoryStats.map(({ type, count, color, label }) => (
               <div key={type} className="flex items-center gap-1">
                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
-                <span className="text-[10px] text-slate-400 capitalize">{type}</span>
+                <span className="text-[10px] chat-text-muted capitalize">{label} ({count})</span>
               </div>
             ))}
           </div>

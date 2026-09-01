@@ -2,6 +2,9 @@
   "name": "conch",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "sdks/typescript"
+  ],
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -9,11 +12,14 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
+    "sdk:build": "npm run build -w sdks/typescript",
+    "sdk:publish": "npm run publish -w sdks/typescript",
     "postinstall": "echo ok"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.2.12",
     "@clerk/nextjs": "^7.4.2",
+    "@conch/sdk": "^1.0.0",
     "@ethereum-attestation-service/eas-sdk": "^2.9.1",
     "@radix-ui/react-accordion": "^1",
     "@radix-ui/react-avatar": "^1",
@@ -46,7 +52,6 @@
     "react-dom": "19.1.0",
     "react-markdown": "^9",
     "react-simple-maps": "^3.0.0",
-    "react-syntax-highlighter": "^16.1.1",
     "remark-gfm": "^4",
     "tailwind-merge": "^2",
     "viem": "^2",

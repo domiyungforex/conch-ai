@@ -30,8 +30,8 @@ export class ChatErrorBoundary extends Component<Props, State> {
             <MessageSquare className="w-7 h-7 text-red-400" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-white">Chat failed to load</h2>
-            <p className="text-sm text-slate-400 max-w-sm mt-2">{this.state.message}</p>
+            <h2 className="text-lg font-semibold chat-text-primary">Chat failed to load</h2>
+            <p className="text-sm chat-text-muted max-w-sm mt-2">{this.state.message}</p>
           </div>
           <Button variant="secondary" onClick={this.reset} className="gap-2">
             <RefreshCw className="w-4 h-4" /> Try again

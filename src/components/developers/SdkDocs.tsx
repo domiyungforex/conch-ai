@@ -535,7 +535,7 @@ export function SdkDocs() {
   const [activeSection, setActiveSection] = useState("installation");
 
   return (
-    <div className="max-w-6xl px-4 sm:px-6 flex gap-6">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 flex gap-6">
       {/* Sidebar */}
       <aside className="hidden lg:block w-48 shrink-0">
         <div className="sticky top-24">

@@ -13,13 +13,13 @@ import type { MemoryDoc, AppwriteDoc } from "@/lib/db";
 type Memory = AppwriteDoc<MemoryDoc>;
 
 const categoryConfig: Record<string, { label: string; color: string; bg: string }> = {
-  EPISODIC:   { label: "Episodic",   color: "text-coral-300", bg: "bg-coral-500/15 border-coral-500/30" },
-  SEMANTIC:   { label: "Semantic",   color: "text-teal-300",   bg: "bg-teal-500/15 border-teal-500/30" },
-  PREFERENCE: { label: "Preference", color: "text-amber-300",  bg: "bg-amber-500/15 border-amber-500/30" },
-  PROCEDURAL: { label: "Procedural", color: "text-emerald-300",bg: "bg-emerald-500/15 border-emerald-500/30" },
+  EPISODIC:   { label: "Episodic",   color: "text-coral-400", bg: "bg-coral-500/10" },
+  SEMANTIC:   { label: "Semantic",   color: "text-teal-400",   bg: "bg-teal-500/10" },
+  PREFERENCE: { label: "Preference", color: "text-gold-400",   bg: "bg-gold-500/10" },
+  PROCEDURAL: { label: "Procedural", color: "text-coral-400",  bg: "bg-coral-500/10" },
 };
 
-const DEFAULT_CFG = { label: "Memory", color: "text-slate-300", bg: "bg-slate-500/15 border-slate-500/30" };
+const DEFAULT_CFG = { label: "Memory", color: "text-slate-400", bg: "bg-white/5" };
 
 interface Props {
   memory: Memory;
@@ -44,7 +44,6 @@ export function MemoryCard({ memory, onEdit, onArchive, onDelete, onVerify, veri
     importance >= 0.5  ? "high" :
     importance >= 0.25 ? "medium" : "low";
 
-  // Tags must be an array of primitives — filter out any non-string values defensively.
   const rawTags = Array.isArray(memory.tags) ? memory.tags : [];
   const tags = rawTags
     .filter((t) => t !== null && t !== undefined)
@@ -56,7 +55,7 @@ export function MemoryCard({ memory, onEdit, onArchive, onDelete, onVerify, veri
   return (
     <GlassCard
       className={cn(
-        "p-4 flex flex-col gap-3 group hover:bg-white/6 transition-colors relative",
+        "p-4 flex flex-col gap-3",
         memory.isArchived && "opacity-50"
       )}
     >
@@ -64,12 +63,11 @@ export function MemoryCard({ memory, onEdit, onArchive, onDelete, onVerify, veri
       <div className="flex items-start justify-between gap-2">
         <div
           className={cn(
-            "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border",
+            "inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-medium",
             cfg.bg,
             cfg.color
           )}
         >
-          <Brain className="w-3 h-3" />
           {cfg.label}
         </div>
 
@@ -79,7 +77,7 @@ export function MemoryCard({ memory, onEdit, onArchive, onDelete, onVerify, veri
               variant="ghost"
               size="icon"
               className={cn(
-                "h-7 w-7 text-slate-500 hover:text-white opacity-100",
+                "h-7 w-7 text-slate-500 hover:text-foreground opacity-100",
                 !menuOpen && "md:opacity-0 md:group-hover:opacity-100"
               )}
             >
@@ -120,24 +118,24 @@ export function MemoryCard({ memory, onEdit, onArchive, onDelete, onVerify, veri
           {tags.slice(0, 4).map((tag, i) => (
             <span
               key={`${tag}-${i}`}
-              className="text-xs px-2 py-0.5 rounded-full bg-white/5 border border-white/8 text-slate-400"
+              className="text-[11px] px-2 py-0.5 rounded-lg bg-white/[0.04] text-slate-400 border border-white/[0.04]"
             >
               {tag}
             </span>
           ))}
           {tags.length > 4 && (
-            <span className="text-xs text-slate-600">+{tags.length - 4}</span>
+            <span className="text-[11px] text-slate-600">+{tags.length - 4}</span>
           )}
         </div>
       )}
 
-      {/* Related memories (relationship layer) */}
+      {/* Related memories */}
       {Array.isArray(memory.relatedSnippets) && memory.relatedSnippets.length > 0 && (
         <div className="flex flex-wrap gap-1">
           {memory.relatedSnippets.slice(0, 3).map((r) => (
             <span
               key={r.$id}
-              className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-coral-500/10 border border-coral-500/25 text-coral-300/90"
+              className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-lg bg-coral-500/10 text-coral-400 border border-coral-500/10"
               title={r.content}
             >
               <Link2 className="w-3 h-3 shrink-0" />
@@ -145,13 +143,13 @@ export function MemoryCard({ memory, onEdit, onArchive, onDelete, onVerify, veri
             </span>
           ))}
           {memory.relatedSnippets.length > 3 && (
-            <span className="text-xs text-slate-600">+{memory.relatedSnippets.length - 3} more</span>
+            <span className="text-[11px] text-slate-600">+{memory.relatedSnippets.length - 3} more</span>
           )}
         </div>
       )}
 
       {/* Footer */}
-      <div className="flex items-center justify-between pt-1 border-t border-white/5">
+      <div className="flex items-center justify-between pt-2 border-t border-white/5">
         <div className="flex items-center gap-2">
           <span className="text-xs text-slate-600">{formatRelativeTime(createdAt)}</span>
           {memory.verificationStatus === "verified" && memory.attestationUid && (
@@ -159,7 +157,7 @@ export function MemoryCard({ memory, onEdit, onArchive, onDelete, onVerify, veri
               href={`https://base.easscan.org/attestation/view/${memory.attestationUid}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-teal-400 hover:text-teal-300"
+              className="inline-flex items-center gap-1 text-xs text-teal-400 hover:text-teal-300 transition-colors"
               title="Verified on Base. View attestation"
             >
               <ShieldCheck className="w-3 h-3" /> Verified

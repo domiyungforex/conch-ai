@@ -3,94 +3,82 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme static {
-  /* Conch's identity: The Memory Archive — a light, editorial memory layer.
-     A shell is memory: it accretes a record of every day it lives. So Conch
-     is kept like a beautiful record — warm-white parchment, espresso-ink
-     words, molten amber for what matters, jade for what lives on, copper
-     for the craft. Token names (coral/teal/gold) are kept for compatibility
-     — each maps to an amber/jade/copper hue of the archive palette.
-     --color-white is remapped to espresso ink so the app's existing
-     `text-white` headings read as ink on the light background.
+  /* Modern AI Chatbot Theme — Deep purple/blue with glassmorphism.
+     Inspired by Dribbble's top AI chatbot designs (Ronas IT, etc.).
+     Dark-first design with aurora gradient backgrounds and frosted glass. */
 
-     The accent tokens below are the DEFAULTS (Smokey Amber). Users can pick
-     another colorway (violet / ocean / rose / forest) — the .theme-* classes
-     at the bottom override these same tokens in both light and dark, and
-     every plain-CSS accent (glows, gradients, particles, dividers) reads
-     from the tokens via color-mix, so the whole site re-colors as one. */
-  --color-background: #faf7f1;
-  --color-foreground: #241b10;
-  --color-muted: #f2eddf;
-  --color-muted-foreground: #83775f;
-  --color-border: rgba(146, 99, 30, 0.16);
-  --color-card: rgba(255, 255, 255, 0.55);
-  --color-card-hover: rgba(255, 255, 255, 0.85);
-  --color-primary: #c8891f;
-  --color-primary-hover: #b06f1b;
+  /* Core palette — deep dark with purple undertones */
+  --color-background: #0a0a12;
+  --color-foreground: #e8e6f0;
+  --color-muted: #12121e;
+  --color-muted-foreground: #8b87a0;
+  --color-border: rgba(139, 92, 246, 0.12);
+  --color-card: rgba(255, 255, 255, 0.04);
+  --color-card-hover: rgba(255, 255, 255, 0.07);
+  --color-primary: #8b5cf6;
+  --color-primary-hover: #7c3aed;
   --color-primary-foreground: #ffffff;
-  --color-secondary: #2e7f61;
-  --color-accent: #bd5f33;
-  --color-destructive: #c24032;
-  --color-success: #3e8a52;
-  --color-warning: #b8860b;
+  --color-secondary: #06b6d4;
+  --color-accent: #a855f7;
+  --color-destructive: #ef4444;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
 
-  --color-white: #241b10;
-  --color-surface: #ffffff;
-  --color-popover: #fdfaf4;
+  --color-white: #e8e6f0;
+  --color-surface: #111119;
+  --color-popover: #13131f;
 
-  /* coral — maps to molten amber, the primary accent */
-  --color-coral-50: #fdf6e7;
-  --color-coral-100: #fbeccd;
-  --color-coral-200: #f6d89a;
-  --color-coral-300: #c98a2a;
-  --color-coral-400: #b06f1b;
-  --color-coral-500: #9c5f12;
-  --color-coral-600: #874f0f;
-  --color-coral-700: #6f400e;
-  --color-coral-800: #58320c;
-  --color-coral-900: #43260a;
-  --color-coral-950: #271404;
+  /* Violet — primary accent (purple AI vibes) */
+  --color-coral-50: #1a1028;
+  --color-coral-100: #231538;
+  --color-coral-200: #2e1d4d;
+  --color-coral-300: #a78bfa;
+  --color-coral-400: #8b5cf6;
+  --color-coral-500: #7c3aed;
+  --color-coral-600: #6d28d9;
+  --color-coral-700: #5b21b6;
+  --color-coral-800: #4c1d95;
+  --color-coral-900: #3b1578;
+  --color-coral-950: #1a0a3e;
 
-  /* teal — maps to jade, the secondary accent */
-  --color-teal-50: #e8f5ef;
-  --color-teal-100: #c8e8da;
-  --color-teal-200: #98d2ba;
-  --color-teal-300: #358d6d;
-  --color-teal-400: #2e7f61;
-  --color-teal-500: #276a51;
-  --color-teal-600: #1f5a46;
-  --color-teal-700: #1b4a3a;
-  --color-teal-800: #173c30;
-  --color-teal-900: #122f26;
-  --color-teal-950: #091a14;
+  /* Cyan — secondary accent (tech/futuristic) */
+  --color-teal-50: #0a1a20;
+  --color-teal-100: #0e2430;
+  --color-teal-200: #133545;
+  --color-teal-300: #22d3ee;
+  --color-teal-400: #06b6d4;
+  --color-teal-500: #0891b2;
+  --color-teal-600: #0e7490;
+  --color-teal-700: #155e75;
+  --color-teal-800: #164e63;
+  --color-teal-900: #083344;
+  --color-teal-950: #041e2a;
 
-  /* gold — maps to copper, the tertiary accent */
-  --color-gold-50: #fdf3ee;
-  --color-gold-100: #f9e2d6;
-  --color-gold-200: #f2c5ad;
-  --color-gold-300: #cf7a4e;
-  --color-gold-400: #bd5f33;
-  --color-gold-500: #a94e24;
-  --color-gold-600: #8e3f1c;
-  --color-gold-700: #74331a;
-  --color-gold-800: #5c2917;
-  --color-gold-900: #482113;
-  --color-gold-950: #291107;
+  /* Rose — tertiary accent (warm highlights) */
+  --color-gold-50: #1a0f1e;
+  --color-gold-100: #261430;
+  --color-gold-200: #361a45;
+  --color-gold-300: #f472b6;
+  --color-gold-400: #ec4899;
+  --color-gold-500: #db2777;
+  --color-gold-600: #be185d;
+  --color-gold-700: #9d174d;
+  --color-gold-800: #831843;
+  --color-gold-900: #6b1537;
+  --color-gold-950: #3b0a1e;
 
-  /* slate — warm parchment greys, tuned for text on light surfaces.
-     The 300/400 steps are deliberately darker than the old values: muted
-     text needs to read clearly on warm-white parchment in light mode, and
-     the dark-mode overrides below brighten them for the night palette. */
-  --color-slate-50: #faf8f3;
-  --color-slate-100: #f3efe6;
-  --color-slate-200: #e6dfd0;
-  --color-slate-300: #b7a788;
-  --color-slate-400: #8d7c60;
-  --color-slate-500: #6f6350;
-  --color-slate-600: #4e4433;
-  --color-slate-700: #3a3225;
-  --color-slate-800: #2a241a;
-  --color-slate-900: #1c1710;
-  --color-slate-950: #141008;
+  /* Slate — cool grays for text and borders */
+  --color-slate-50: #0e0e18;
+  --color-slate-100: #151520;
+  --color-slate-200: #1e1e2e;
+  --color-slate-300: #a09cb8;
+  --color-slate-400: #8b87a0;
+  --color-slate-500: #6e6a85;
+  --color-slate-600: #524e6a;
+  --color-slate-700: #3d3a52;
+  --color-slate-800: #2a2840;
+  --color-slate-900: #1a1828;
+  --color-slate-950: #0e0d16;
 
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
@@ -103,9 +91,9 @@
   --font-mono: var(--font-geist-mono), monospace;
   --font-serif: var(--font-fraunces), "Iowan Old Style", Georgia, serif;
 
-  --shadow-glow-primary: 0 0 40px color-mix(in srgb, var(--color-coral-500) 18%, transparent);
-  --shadow-glow-secondary: 0 0 40px color-mix(in srgb, var(--color-teal-400) 14%, transparent);
-  --shadow-card: 0 4px 24px rgba(60, 40, 10, 0.08);
+  --shadow-glow-primary: 0 0 40px color-mix(in srgb, var(--color-coral-500) 25%, transparent);
+  --shadow-glow-secondary: 0 0 40px color-mix(in srgb, var(--color-teal-400) 20%, transparent);
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
 }
 
 *,
@@ -129,7 +117,7 @@ body {
   min-height: 100dvh;
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar — purple glow */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -138,20 +126,21 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--color-coral-500) 30%, transparent);
+  background: color-mix(in srgb, var(--color-coral-500) 35%, transparent);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in srgb, var(--color-coral-500) 55%, transparent);
+  background: color-mix(in srgb, var(--color-coral-400) 55%, transparent);
 }
 
 /* Selection */
 ::selection {
-  background: color-mix(in srgb, var(--color-coral-500) 30%, transparent);
+  background: color-mix(in srgb, var(--color-coral-500) 35%, transparent);
   color: var(--color-foreground);
 }
 
-/* Animated gradient background */
+/* ─── Animations ──────────────────────────────────────────────── */
+
 @keyframes gradient-shift {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -169,8 +158,16 @@ body {
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 16px color-mix(in srgb, var(--color-coral-500) 15%, transparent); }
-  50% { box-shadow: 0 0 24px color-mix(in srgb, var(--color-coral-500) 25%, transparent); }
+  0%, 100% { box-shadow: 0 0 16px color-mix(in srgb, var(--color-coral-500) 20%, transparent); }
+  50% { box-shadow: 0 0 28px color-mix(in srgb, var(--color-coral-400) 35%, transparent); }
+}
+
+@keyframes aurora {
+  0% { background-position: 0% 50%; }
+  25% { background-position: 50% 0%; }
+  50% { background-position: 100% 50%; }
+  75% { background-position: 50% 100%; }
+  100% { background-position: 0% 50%; }
 }
 
 @keyframes spin-slow {
@@ -188,42 +185,97 @@ body {
   100% { background-position: 200% 0; }
 }
 
-/* Utility classes */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+/* ─── Glassmorphism ───────────────────────────────────────────── */
+
 .glass {
-  background: rgba(255, 255, 255, 0.5);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-  border: 1px solid color-mix(in srgb, var(--color-border) 100%, transparent);
+  background: color-mix(in srgb, var(--color-surface) 85%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  backdrop-filter: blur(16px) saturate(1.5);
+  border: 1px solid var(--color-border);
 }
 
 .glass-strong {
-  background: rgba(255, 255, 255, 0.75);
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
-  border: 1px solid color-mix(in srgb, var(--color-border) 100%, transparent);
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8);
+  backdrop-filter: blur(24px) saturate(1.8);
+  border: 1px solid var(--color-border);
 }
 
+.glass-card {
+  background: var(--color-card);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+}
+
+.glass-input {
+  background: var(--color-card);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--color-border);
+}
+
+/* ─── Glow Effects ────────────────────────────────────────────── */
+
 .glow-primary {
-  box-shadow: 0 0 30px color-mix(in srgb, var(--color-coral-500) 12%, transparent);
+  box-shadow: 0 0 30px color-mix(in srgb, var(--color-coral-500) 18%, transparent);
 }
 
 .glow-secondary {
-  box-shadow: 0 0 30px color-mix(in srgb, var(--color-teal-400) 10%, transparent);
+  box-shadow: 0 0 30px color-mix(in srgb, var(--color-teal-400) 15%, transparent);
 }
 
+.glow-accent {
+  box-shadow: 0 0 30px color-mix(in srgb, var(--color-gold-400) 15%, transparent);
+}
+
+/* ─── Gradient Text ───────────────────────────────────────────── */
+
 .gradient-text {
-  background: linear-gradient(135deg, var(--color-coral-500), var(--color-secondary));
+  background: linear-gradient(135deg, var(--color-coral-400), var(--color-teal-400));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .gradient-text-full {
-  background: linear-gradient(135deg, var(--color-coral-600), var(--color-coral-400));
+  background: linear-gradient(135deg, var(--color-coral-300), var(--color-coral-500), var(--color-gold-400));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+.gradient-text-aurora {
+  background: linear-gradient(135deg, #a78bfa, #22d3ee, #f472b6, #a78bfa);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: aurora 8s ease-in-out infinite;
+}
+
+/* ─── Gradient Border ─────────────────────────────────────────── */
 
 .gradient-border {
   position: relative;
@@ -236,8 +288,9 @@ body {
   padding: 1px;
   background: linear-gradient(
     135deg,
-    color-mix(in srgb, var(--color-coral-400) 40%, transparent),
-    color-mix(in srgb, var(--color-secondary) 35%, transparent)
+    color-mix(in srgb, var(--color-coral-400) 50%, transparent),
+    color-mix(in srgb, var(--color-teal-400) 40%, transparent),
+    color-mix(in srgb, var(--color-gold-400) 30%, transparent)
   );
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -245,6 +298,8 @@ body {
   mask-composite: exclude;
   pointer-events: none;
 }
+
+/* ─── Utility Animations ──────────────────────────────────────── */
 
 .animate-float {
   animation: float 4s ease-in-out infinite;
@@ -264,69 +319,83 @@ body {
   animation: spin-slow 20s linear infinite;
 }
 
+.animate-aurora {
+  animation: aurora 12s ease-in-out infinite;
+}
+
 .shimmer {
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.06) 50%, transparent 100%);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
 
-/* Mesh gradient background for hero */
-.mesh-gradient {
+/* ─── Aurora Background ───────────────────────────────────────── */
+
+.aurora-bg {
   background:
-    radial-gradient(ellipse at 20% 50%, color-mix(in srgb, var(--color-coral-500) 8%, transparent) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, color-mix(in srgb, var(--color-teal-600) 5%, transparent) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 0%, color-mix(in srgb, var(--color-coral-500) 15%, transparent) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, color-mix(in srgb, var(--color-teal-500) 10%, transparent) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--color-gold-500) 5%, transparent) 0%, transparent 60%),
     var(--color-background);
 }
 
-/* Focus styles */
+.mesh-gradient {
+  background:
+    radial-gradient(ellipse at 10% 20%, color-mix(in srgb, var(--color-coral-500) 12%, transparent) 0%, transparent 40%),
+    radial-gradient(ellipse at 90% 80%, color-mix(in srgb, var(--color-teal-500) 8%, transparent) 0%, transparent 40%),
+    radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--color-gold-500) 4%, transparent) 0%, transparent 50%),
+    var(--color-background);
+}
+
+/* ─── Focus styles ────────────────────────────────────────────── */
+
 :focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--color-coral-500) 60%, transparent);
+  outline: 2px solid color-mix(in srgb, var(--color-coral-400) 60%, transparent);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-/* Prose overrides for markdown */
+/* ─── Prose overrides for markdown ────────────────────────────── */
+
 .prose-conch {
   color: var(--color-foreground);
 }
 .prose-conch p { margin: 0.75rem 0; }
 .prose-conch code {
-  background: color-mix(in srgb, var(--color-coral-500) 12%, transparent);
-  color: var(--color-coral-400);
+  background: color-mix(in srgb, var(--color-coral-500) 15%, transparent);
+  color: var(--color-coral-300);
   padding: 0.125rem 0.375rem;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 0.875em;
 }
 .prose-conch pre {
-  background: #181209;
-  color: #f0e9da;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--color-muted);
+  color: var(--color-foreground);
+  border: 1px solid var(--color-border);
   border-radius: 0.75rem;
   padding: 1rem;
   overflow-x: auto;
 }
-.prose-conch pre code { background: transparent; color: #f0e9da; }
-.prose-conch a { color: var(--color-coral-500); text-decoration: underline; }
+.prose-conch pre code { background: transparent; color: var(--color-foreground); }
+.prose-conch a { color: var(--color-coral-400); text-decoration: underline; }
 .prose-conch strong { color: var(--color-foreground); }
 .prose-conch ul { list-style: disc; padding-left: 1.5rem; }
 .prose-conch ol { list-style: decimal; padding-left: 1.5rem; }
 .prose-conch li { margin: 0.25rem 0; }
 .prose-conch h1, .prose-conch h2, .prose-conch h3 { color: var(--color-foreground); font-weight: 600; margin: 1rem 0 0.5rem; }
 
-/* ─── Refined interface layer ────────────────────────────────────── */
+/* ─── Refined interface layer ─────────────────────────────────── */
 
-/* Importance dot tiers */
 .importance-dot {
   width: 0.5rem;
   height: 0.5rem;
   border-radius: 9999px;
 }
-.importance-dot--low    { background: color-mix(in srgb, var(--color-coral-500) 35%, transparent); }
-.importance-dot--medium { background: color-mix(in srgb, var(--color-coral-500) 55%, transparent); }
-.importance-dot--high   { background: color-mix(in srgb, var(--color-coral-500) 75%, transparent); }
-.importance-dot--max    { background: color-mix(in srgb, var(--color-coral-500) 95%, transparent); }
+.importance-dot--low    { background: color-mix(in srgb, var(--color-coral-500) 40%, transparent); }
+.importance-dot--medium { background: color-mix(in srgb, var(--color-coral-400) 60%, transparent); }
+.importance-dot--high   { background: color-mix(in srgb, var(--color-coral-400) 80%, transparent); }
+.importance-dot--max    { background: color-mix(in srgb, var(--color-coral-400) 100%, transparent); }
 
-/* Smooth transitions */
 .glow-transition {
   transition: box-shadow 0.4s ease;
 }
@@ -334,333 +403,31 @@ body {
   transition: box-shadow 0.3s ease;
 }
 
-/* ─── Dark mode — the archive at night ───────────────────────────── */
-/* The whole app is built on the semantic --color-* tokens, so flipping
-   them under .dark re-themes every page (landing, dashboard, auth) with
-   no per-component dark: utilities. --color-white is the big lever: it's
-   ink in light mode and parchment-cream here, so text-white / bg-white/x
-   / border-white/x all adapt automatically. All the accent-driven plain
-   CSS above reads the tokens via color-mix, so it follows both dark mode
-   and the user's chosen accent. */
-.dark {
-  --color-background: #17120b;
-  --color-foreground: #f0e9da;
-  --color-muted: #221c11;
-  --color-muted-foreground: #a89c84;
-  --color-border: rgba(224, 163, 78, 0.16);
-  --color-card: rgba(255, 255, 255, 0.045);
-  --color-card-hover: rgba(255, 255, 255, 0.075);
-  --color-primary: #e0a34e;
-  --color-primary-hover: #cf8f36;
-  --color-primary-foreground: #17120b;
-  --color-secondary: #4faa87;
-  --color-accent: #d97a56;
-  --color-destructive: #f0887a;
-  --color-success: #6cc98a;
-  --color-warning: #e0b559;
+/* (chat bubbles defined below in chat system section) */
 
-  --color-white: #f0e9da;
-  --color-surface: #221c11;
-  --color-popover: #241d12;
+/* ─── Sidebar active indicator ────────────────────────────────── */
 
-  /* coral — brighter archive amber for dark surfaces */
-  --color-coral-50: #2b1c08;
-  --color-coral-100: #3d2a0d;
-  --color-coral-200: #55390f;
-  --color-coral-300: #e0a34e;
-  --color-coral-400: #eab964;
-  --color-coral-500: #f2cd8a;
-  --color-coral-600: #d99a3e;
-  --color-coral-700: #b07a28;
-  --color-coral-800: #8a601f;
-  --color-coral-900: #5f4518;
-  --color-coral-950: #2b1c08;
-
-  /* teal — brighter jade */
-  --color-teal-50: #0b1f18;
-  --color-teal-100: #102b21;
-  --color-teal-200: #1a4534;
-  --color-teal-300: #3f9374;
-  --color-teal-400: #4faa87;
-  --color-teal-500: #64bd9c;
-  --color-teal-600: #7fcdb2;
-  --color-teal-700: #a0dbc7;
-  --color-teal-800: #c2eadb;
-  --color-teal-900: #e0f5ec;
-  --color-teal-950: #f1fbf7;
-
-  /* gold — brighter copper */
-  --color-gold-50: #2a1510;
-  --color-gold-100: #3a1f16;
-  --color-gold-200: #4f2c1f;
-  --color-gold-300: #7a462f;
-  --color-gold-400: #a86240;
-  --color-gold-500: #c97852;
-  --color-gold-600: #d98f6b;
-  --color-gold-700: #e7ab8d;
-  --color-gold-800: #f1c8b4;
-  --color-gold-900: #f9e3d9;
-  --color-gold-950: #fdf4ef;
-
-  /* slate — warm parchment greys for dark surfaces (muted text becomes
-     light, borders/dividers become deep warm tones). slate-300 was kept
-     near-black which made text-slate-300 labels invisible on the dark
-     archive; it now sits at a readable warm mid-tone (and still works as
-     a subtle border), with 400/500 bumped brighter on top of it. */
-  --color-slate-50: #1a150d;
-  --color-slate-100: #211b12;
-  --color-slate-200: #2c2519;
-  --color-slate-300: #b7a788;
-  --color-slate-400: #c9bda6;
-  --color-slate-500: #a49784;
-  --color-slate-600: #6f6350;
-  --color-slate-700: #4e4433;
-  --color-slate-800: #2c2519;
-  --color-slate-900: #f3efe6;
-  --color-slate-950: #faf8f3;
-
-  --shadow-glow-primary: 0 0 40px color-mix(in srgb, var(--color-coral-500) 22%, transparent);
-  --shadow-glow-secondary: 0 0 40px color-mix(in srgb, var(--color-teal-400) 18%, transparent);
-  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.45);
+.nav-active {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--color-coral-500) 15%, transparent), color-mix(in srgb, var(--color-coral-600) 8%, transparent));
+  border-left: 2px solid var(--color-coral-400);
 }
 
-/* Dark surface treatments for the plain-CSS (unlayered) classes —
-   structural values only; everything accent-driven reads the tokens. */
-.dark .glass {
-  background: rgba(30, 23, 13, 0.6);
+/* ─── Stat card hover ─────────────────────────────────────────── */
+
+.stat-card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  transition: all 0.3s ease;
 }
-.dark .glass-strong {
-  background: rgba(26, 20, 12, 0.85);
-}
-.dark .prose-conch pre {
-  background: #100c06;
-  border-color: rgba(255, 255, 255, 0.1);
+.stat-card:hover {
+  background: var(--color-card-hover);
+  border-color: color-mix(in srgb, var(--color-border) 200%, transparent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px color-mix(in srgb, var(--color-background) 50%, transparent);
 }
 
-/* ─── Accent colorways — user-selectable themes (light + dark) ────── */
-/* Each colorway overrides the same accent tokens in both modes. The base
-   @theme values are Smokey Amber; picking another adds a .theme-<id>
-   class to <html>. :root.theme-x:not(.dark) scoping keeps the light
-   values from leaking into dark mode. */
-:root.theme-amber:not(.dark) {
-  --color-primary: #c8891f;
-  --color-primary-hover: #b06f1b;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: #2e7f61;
-  --color-accent: #bd5f33;
-  --color-border: rgba(146, 99, 30, 0.16);
-  --color-coral-300: #c98a2a;
-  --color-coral-400: #b06f1b;
-  --color-coral-500: #9c5f12;
-  --color-coral-600: #874f0f;
-  --color-coral-700: #6f400e;
-  --color-teal-300: #358d6d;
-  --color-teal-400: #2e7f61;
-  --color-gold-400: #bd5f33;
-  --color-gold-500: #a94e24;
-  --color-gold-600: #8e3f1c;
-  --shadow-glow-primary: 0 0 40px color-mix(in srgb, var(--color-coral-500) 18%, transparent);
-  --shadow-glow-secondary: 0 0 40px color-mix(in srgb, var(--color-teal-400) 14%, transparent);
-}
-.dark.theme-amber {
-  --color-primary: #e0a34e;
-  --color-primary-hover: #cf8f36;
-  --color-primary-foreground: #17120b;
-  --color-secondary: #4faa87;
-  --color-accent: #d97a56;
-  --color-border: rgba(224, 163, 78, 0.16);
-  --color-coral-300: #e0a34e;
-  --color-coral-400: #eab964;
-  --color-coral-500: #f2cd8a;
-  --color-coral-600: #d99a3e;
-  --color-coral-700: #b07a28;
-  --color-teal-300: #3f9374;
-  --color-teal-400: #4faa87;
-  --color-gold-400: #a86240;
-  --color-gold-500: #c97852;
-  --color-gold-600: #d98f6b;
-  --shadow-glow-primary: 0 0 40px color-mix(in srgb, var(--color-coral-500) 22%, transparent);
-  --shadow-glow-secondary: 0 0 40px color-mix(in srgb, var(--color-teal-400) 18%, transparent);
-}
+/* ─── Typography ──────────────────────────────────────────────── */
 
-:root.theme-violet:not(.dark) {
-  --color-primary: #6d5cff;
-  --color-primary-hover: #5a48f0;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: #0e9f8a;
-  --color-accent: #c026d3;
-  --color-border: rgba(109, 92, 255, 0.18);
-  --color-coral-300: #7c6bf5;
-  --color-coral-400: #6d5cff;
-  --color-coral-500: #5a48e8;
-  --color-coral-600: #4a3bd0;
-  --color-coral-700: #3f33b8;
-  --color-teal-300: #2aa79a;
-  --color-teal-400: #0e9f8a;
-  --color-gold-400: #d946ef;
-  --color-gold-500: #c026d3;
-  --color-gold-600: #a21caf;
-  --shadow-glow-primary: 0 0 40px color-mix(in srgb, var(--color-coral-500) 20%, transparent);
-  --shadow-glow-secondary: 0 0 40px color-mix(in srgb, var(--color-teal-400) 16%, transparent);
-}
-.dark.theme-violet {
-  --color-primary: #9d8bff;
-  --color-primary-hover: #8773ff;
-  --color-primary-foreground: #151127;
-  --color-secondary: #3ec6b0;
-  --color-accent: #e879f9;
-  --color-border: rgba(157, 139, 255, 0.2);
-  --color-coral-300: #c4b5fd;
-  --color-coral-400: #a99bff;
-  --color-coral-500: #9d8bff;
-  --color-coral-600: #8773ff;
-  --color-coral-700: #6f5cf0;
-  --color-teal-300: #3fc4ae;
-  --color-teal-400: #3ec6b0;
-  --color-gold-400: #e879f9;
-  --color-gold-500: #d946ef;
-  --color-gold-600: #c026d3;
-  --shadow-glow-primary: 0 0 40px color-mix(in srgb, var(--color-coral-500) 24%, transparent);
-  --shadow-glow-secondary: 0 0 40px color-mix(in srgb, var(--color-teal-400) 20%, transparent);
-}
-
-:root.theme-ocean:not(.dark) {
-  --color-primary: #0e7490;
-  --color-primary-hover: #0c667e;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: #0f766e;
-  --color-accent: #2563eb;
-  --color-border: rgba(14, 116, 144, 0.18);
-  --color-coral-300: #0e7490;
-  --color-coral-400: #0c667e;
-  --color-coral-500: #0a5268;
-  --color-coral-600: #094556;
-  --color-coral-700: #073a49;
-  --color-teal-300: #0d9488;
-  --color-teal-400: #0f766e;
-  --color-gold-400: #3b82f6;
-  --color-gold-500: #2563eb;
-  --color-gold-600: #1d4ed8;
-  --shadow-glow-primary: 0 0 40px color-mix(in srgb, var(--color-coral-500) 20%, transparent);
-  --shadow-glow-secondary: 0 0 40px color-mix(in srgb, var(--color-teal-400) 16%, transparent);
-}
-.dark.theme-ocean {
-  --color-primary: #22d3ee;
-  --color-primary-hover: #38bdf8;
-  --color-primary-foreground: #081418;
-  --color-secondary: #2dd4bf;
-  --color-accent: #60a5fa;
-  --color-border: rgba(34, 211, 238, 0.18);
-  --color-coral-300: #67e8f9;
-  --color-coral-400: #22d3ee;
-  --color-coral-500: #38bdf8;
-  --color-coral-600: #06b6d4;
-  --color-coral-700: #0e96b3;
-  --color-teal-300: #5eead4;
-  --color-teal-400: #2dd4bf;
-  --color-gold-400: #60a5fa;
-  --color-gold-500: #3b82f6;
-  --color-gold-600: #2563eb;
-  --shadow-glow-primary: 0 0 40px color-mix(in srgb, var(--color-coral-500) 24%, transparent);
-  --shadow-glow-secondary: 0 0 40px color-mix(in srgb, var(--color-teal-400) 20%, transparent);
-}
-
-:root.theme-rose:not(.dark) {
-  --color-primary: #d4546f;
-  --color-primary-hover: #c04460;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: #2e7f61;
-  --color-accent: #bd5f33;
-  --color-border: rgba(212, 84, 111, 0.18);
-  --color-coral-300: #c94d6a;
-  --color-coral-400: #d4546f;
-  --color-coral-500: #c13e5c;
-  --color-coral-600: #ab3450;
-  --color-coral-700: #932c45;
-  --color-teal-300: #358d6d;
-  --color-teal-400: #2e7f61;
-  --color-gold-400: #c96a3a;
-  --color-gold-500: #bd5f33;
-  --color-gold-600: #a94e24;
-  --shadow-glow-primary: 0 0 40px color-mix(in srgb, var(--color-coral-500) 20%, transparent);
-  --shadow-glow-secondary: 0 0 40px color-mix(in srgb, var(--color-teal-400) 16%, transparent);
-}
-.dark.theme-rose {
-  --color-primary: #f4728d;
-  --color-primary-hover: #e05774;
-  --color-primary-foreground: #1a0d11;
-  --color-secondary: #4faa87;
-  --color-accent: #e07a50;
-  --color-border: rgba(244, 114, 141, 0.2);
-  --color-coral-300: #fda4b5;
-  --color-coral-400: #f4728d;
-  --color-coral-500: #fb8ba1;
-  --color-coral-600: #e05774;
-  --color-coral-700: #c94363;
-  --color-teal-300: #3f9374;
-  --color-teal-400: #4faa87;
-  --color-gold-400: #e07a50;
-  --color-gold-500: #c96a3a;
-  --color-gold-600: #bd5f33;
-  --shadow-glow-primary: 0 0 40px color-mix(in srgb, var(--color-coral-500) 24%, transparent);
-  --shadow-glow-secondary: 0 0 40px color-mix(in srgb, var(--color-teal-400) 20%, transparent);
-}
-
-:root.theme-forest:not(.dark) {
-  --color-primary: #3f8f5f;
-  --color-primary-hover: #357c52;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: #0f766e;
-  --color-accent: #9c7a1c;
-  --color-border: rgba(63, 143, 95, 0.18);
-  --color-coral-300: #34794f;
-  --color-coral-400: #3f8f5f;
-  --color-coral-500: #357a50;
-  --color-coral-600: #2c6742;
-  --color-coral-700: #245636;
-  --color-teal-300: #0d9488;
-  --color-teal-400: #0f766e;
-  --color-gold-400: #b8860b;
-  --color-gold-500: #9c7a1c;
-  --color-gold-600: #856a17;
-  --shadow-glow-primary: 0 0 40px color-mix(in srgb, var(--color-coral-500) 20%, transparent);
-  --shadow-glow-secondary: 0 0 40px color-mix(in srgb, var(--color-teal-400) 16%, transparent);
-}
-.dark.theme-forest {
-  --color-primary: #6fc38d;
-  --color-primary-hover: #57b27c;
-  --color-primary-foreground: #0c150f;
-  --color-secondary: #2dd4bf;
-  --color-accent: #d9a53a;
-  --color-border: rgba(111, 195, 141, 0.2);
-  --color-coral-300: #8fd6a5;
-  --color-coral-400: #6fc38d;
-  --color-coral-500: #7fcf9a;
-  --color-coral-600: #57b27c;
-  --color-coral-700: #459a68;
-  --color-teal-300: #5eead4;
-  --color-teal-400: #2dd4bf;
-  --color-gold-400: #d9a53a;
-  --color-gold-500: #c4922c;
-  --color-gold-600: #b8860b;
-  --shadow-glow-primary: 0 0 40px color-mix(in srgb, var(--color-coral-500) 24%, transparent);
-  --shadow-glow-secondary: 0 0 40px color-mix(in srgb, var(--color-teal-400) 20%, transparent);
-}
-
-/* ─── Muted text legibility — thicker, clearer in both themes ────── */
-/* Secondary text (slate-400/500) now renders at a heavier weight so it
-   reads clearly on parchment in light mode and on the dark archive at
-   night. Zero-specificity :where() means explicit font-medium/semibold/
-   bold utilities still win where a component chose its own weight. */
-@layer utilities {
-  :where(.text-slate-400, .text-slate-500) {
-    font-weight: 500;
-  }
-}
-
-/* ─── Bulletproof typography ─────────────────────────────────────── */
-/* Plain CSS, unlayered — survives any build pipeline (webpack or
-   Turbopack) without relying on generated utility classes. */
 .font-display {
   font-family: var(--font-fraunces), "Iowan Old Style", Georgia, "Times New Roman", serif;
   letter-spacing: -0.015em;
@@ -672,4 +439,211 @@ body {
   line-height: 1.4;
   letter-spacing: 0.25em;
   text-transform: uppercase;
+}
+
+/* ─── Muted text legibility ───────────────────────────────────── */
+
+@layer utilities {
+  :where(.text-slate-400, .text-slate-500) {
+    font-weight: 500;
+  }
+}
+
+/* ─── Light mode glass overrides ──────────────────────────────────── */
+/* The base .glass/.glass-strong/.glass-card use hardcoded dark rgba values.
+   These overrides swap them to light backgrounds when in light mode.
+   CSS variable overrides are handled by the inline script in layout.tsx. */
+
+.ui-theme-warm-parchment:not(.dark) .glass {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(12px);
+}
+.ui-theme-warm-parchment:not(.dark) .glass-strong {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px);
+}
+.ui-theme-warm-parchment:not(.dark) .glass-card {
+  background: rgba(255, 255, 255, 0.45);
+  border-color: rgba(146, 99, 30, 0.1);
+}
+
+.ui-theme-ocean-blue:not(.dark) .glass {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(12px);
+}
+.ui-theme-ocean-blue:not(.dark) .glass-strong {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px);
+}
+.ui-theme-ocean-blue:not(.dark) .glass-card {
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(59, 130, 246, 0.1);
+}
+
+.ui-theme-midnight-rose:not(.dark) .glass {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(12px);
+}
+.ui-theme-midnight-rose:not(.dark) .glass-strong {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px);
+}
+.ui-theme-midnight-rose:not(.dark) .glass-card {
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(244, 114, 182, 0.1);
+}
+
+.ui-theme-forest-night:not(.dark) .glass {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(12px);
+}
+.ui-theme-forest-night:not(.dark) .glass-strong {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px);
+}
+.ui-theme-forest-night:not(.dark) .glass-card {
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(16, 185, 129, 0.1);
+}
+
+.ui-theme-dark-ai:not(.dark) .glass {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(12px);
+}
+.ui-theme-dark-ai:not(.dark) .glass-strong {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px);
+}
+.ui-theme-dark-ai:not(.dark) .glass-card {
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(139, 92, 246, 0.08);
+}
+
+/* ─── Chat system — clean, modern, theme-aware ─────────────────── */
+
+/* Backgrounds */
+.chat-bg {
+  background-color: var(--color-background);
+}
+
+.chat-surface {
+  background-color: var(--color-surface);
+}
+
+/* Text */
+.chat-text-muted {
+  color: var(--color-muted-foreground);
+}
+
+.chat-text-primary {
+  color: var(--color-foreground);
+}
+
+/* Borders */
+.chat-border {
+  border-color: var(--color-border);
+}
+
+/* Input */
+.chat-input-bg {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.chat-input-bg:focus-within {
+  border-color: color-mix(in srgb, var(--color-primary) 50%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 8%, transparent);
+}
+
+/* Chat bubbles */
+.chat-bubble-user {
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+}
+
+.chat-bubble-assistant {
+  background: var(--color-card);
+  color: var(--color-foreground);
+  border: 1px solid var(--color-border);
+}
+
+.chat-bubble-error {
+  background: color-mix(in srgb, var(--color-destructive) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-destructive) 20%, transparent);
+  color: var(--color-foreground);
+}
+
+/* Buttons */
+.chat-btn-primary {
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+}
+
+.chat-btn-primary:hover {
+  background: var(--color-primary-hover);
+}
+
+.chat-btn-ghost {
+  color: var(--color-muted-foreground);
+}
+
+.chat-btn-ghost:hover {
+  color: var(--color-foreground);
+  background: var(--color-card);
+}
+
+/* Code blocks */
+.chat-code-bg {
+  background: var(--color-muted);
+  border: 1px solid var(--color-border);
+}
+
+.chat-code-header {
+  background: var(--color-card);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Quick actions */
+.chat-quick-action {
+  border: 1px solid var(--color-border);
+  background: var(--color-card);
+  color: var(--color-muted-foreground);
+}
+
+.chat-quick-action:hover {
+  color: var(--color-foreground);
+  background: var(--color-card-hover);
+  border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
+}
+
+/* Skeleton loading */
+.chat-skeleton {
+  background: var(--color-card);
+}
+
+/* Inline code */
+.chat-inline-code {
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  color: var(--color-primary);
+  padding: 0.125rem 0.375rem;
+  border-radius: 6px;
+  font-size: 0.85em;
+  font-family: var(--font-mono);
+}
+
+/* Streaming cursor */
+.chat-cursor {
+  background: var(--color-primary);
+}
+
+/* Scrollbar for chat area */
+.chat-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.chat-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.chat-scroll::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-primary) 20%, transparent);
+  border-radius: 9999px;
 }

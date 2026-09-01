@@ -100,7 +100,7 @@ onError: () => toast({ title: "Delete failed", description: "Could not delete th
         <div className="flex items-start sm:items-center justify-between gap-3">
           <div>
             <h1 className="font-display text-xl sm:text-2xl font-normal text-foreground">Memory</h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">Everything you&apos;ve shared, recalled when needed</p>
+            <p className="text-xs sm:text-sm chat-text-muted mt-0.5">Everything you&apos;ve shared, recalled when needed</p>
           </div>
           <Button onClick={() => setCreateOpen(true)} size="sm" className="gap-1.5 shrink-0">
             <Plus className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Add Memory</span><span className="sm:hidden">Add</span>
@@ -109,13 +109,13 @@ onError: () => toast({ title: "Delete failed", description: "Could not delete th
 
         {/* Filters */}
         <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-1 bg-white/5 rounded-lg p-0.5">
+          <div className="flex items-center gap-1 bg-card rounded-lg p-0.5">
             <button
               type="button"
               onClick={() => setView("list")}
               className={cn(
                 "px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors",
-                view === "list" ? "bg-white/10 text-foreground" : "text-slate-500 hover:text-foreground"
+                view === "list" ? "bg-card-hover text-foreground" : "chat-text-muted hover:text-foreground"
               )}
             >
               List
@@ -125,7 +125,7 @@ onError: () => toast({ title: "Delete failed", description: "Could not delete th
               onClick={() => setView("graph")}
               className={cn(
                 "px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors",
-                view === "graph" ? "bg-white/10 text-foreground" : "text-slate-500 hover:text-foreground"
+                view === "graph" ? "bg-card-hover text-foreground" : "chat-text-muted hover:text-foreground"
               )}
             >
               Graph
@@ -140,12 +140,12 @@ onError: () => toast({ title: "Delete failed", description: "Could not delete th
                 clearSearch();
               }}
             >
-              <TabsList className="bg-white/5 h-8">
+              <TabsList className="bg-card h-8">
                 {CATEGORIES.map((c) => (
                   <TabsTrigger
                     key={c}
                     value={c}
-                    className="text-[11px] px-2.5 whitespace-nowrap data-[state=active]:bg-white/10 data-[state=active]:text-foreground"
+                    className="text-[11px] px-2.5 whitespace-nowrap data-[state=active]:bg-card-hover data-[state=active]:text-foreground"
                   >
                     {c === "ALL" ? "All" : c[0] + c.slice(1).toLowerCase()}
                   </TabsTrigger>
@@ -156,7 +156,7 @@ onError: () => toast({ title: "Delete failed", description: "Could not delete th
 
           <div className="flex gap-2 flex-1">
             <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 chat-text-muted" />
               <Input
                 value={search}
                 onChange={(e) => {
@@ -186,7 +186,7 @@ onError: () => toast({ title: "Delete failed", description: "Could not delete th
         </div>
 
         {searchResults !== null && !searchError && (
-          <p className="text-sm text-slate-400">
+          <p className="text-sm chat-text-muted">
             {searchResults.length} semantic result{searchResults.length !== 1 ? "s" : ""} for &quot;{searchQuery}&quot;
           </p>
         )}
@@ -197,7 +197,7 @@ onError: () => toast({ title: "Delete failed", description: "Could not delete th
             <AlertCircle className="w-8 h-8 text-red-400" />
             <div>
               <p className="text-sm font-medium text-foreground">Failed to load memories</p>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs chat-text-muted mt-1">
                 {(error as Error)?.message ?? "An unexpected error occurred."}
               </p>
             </div>
@@ -218,7 +218,7 @@ onError: () => toast({ title: "Delete failed", description: "Could not delete th
             {isLoading ? (
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <Skeleton key={i} className="h-40 rounded-xl bg-white/[0.03]" />
+                  <Skeleton key={i} className="h-40 rounded-xl chat-skeleton" />
                 ))}
               </div>
             ) : displayed.length === 0 ? (

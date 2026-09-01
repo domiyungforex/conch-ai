@@ -21,7 +21,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
               <Topbar />
               <RenewalBanner />
-              <main className="flex-1 overflow-y-auto">
+              <main className="flex-1 w-full overflow-y-auto">
                 {children}
               </main>
             </div>

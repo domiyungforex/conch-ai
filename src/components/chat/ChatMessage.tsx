@@ -1,13 +1,10 @@
 "use client";
 
+import React, { memo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Brain, RefreshCw, AlertCircle } from "lucide-react";
-import { motion } from "framer-motion";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { CodeBlock } from "@/components/chat/CodeBlock";
-import { TradingViewChart } from "@/components/chat/TradingViewChart";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import type { ChatMessage as ChatMessageType } from "@/hooks/useChat";
 
@@ -15,72 +12,55 @@ const markdownComponents = {
   pre: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
   code: ({ className, children }: { className?: string; children?: React.ReactNode }) => {
     const match = /language-(\w+)/.exec(className ?? "");
-    if (match?.[1] === "tradingview") {
-      return <TradingViewChart symbol={String(children).replace(/\n$/, "").trim()} />;
-    }
     if (match) {
       return <CodeBlock language={match[1]} code={String(children).replace(/\n$/, "")} />;
     }
-    return (
-      <code className="px-1 py-0.5 rounded bg-white/10 text-coral-300 text-[0.85em] font-mono">
-        {children}
-      </code>
-    );
+    return <code className="chat-inline-code">{children}</code>;
   },
 };
 
 interface Props {
   message: ChatMessageType;
-  isStreaming?: boolean;
-  streamingContent?: string;
   onRetry?: () => void;
 }
 
-export function ChatMessage({ message, isStreaming, streamingContent, onRetry }: Props) {
+export const ChatMessage = memo(function ChatMessage({ message, onRetry }: Props) {
   const isUser = message.role === "user";
-  const content = isStreaming ? streamingContent ?? "" : message.content;
+  const isStreaming = message.isStreaming === true;
+  const content = message.content;
   const hasMemories = !isUser && message.memoryIds && message.memoryIds.length > 0;
   const memoryCount = message.memoryIds?.length ?? 0;
   const isError = !isUser && message.isError === true;
 
   return (
-    <div className={cn("flex gap-3 max-w-3xl", isUser ? "ml-auto flex-row-reverse" : "mr-auto")}>
-      {/* Avatar */}
+    <div className={cn("flex gap-3 mb-5", isUser ? "justify-end" : "justify-start")}>
+      {/* Assistant avatar */}
       {!isUser && (
-        <div className="w-8 h-8 rounded-xl bg-linear-to-br from-coral-600 to-gold-600 flex items-center justify-center shrink-0 mt-1">
-          <Brain className="w-4 h-4 text-white" />
+        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center shrink-0 mt-0.5">
+          <Brain className="w-3.5 h-3.5 text-white" />
         </div>
       )}
-      {isUser && (
-        <Avatar className="w-8 h-8 shrink-0 mt-1">
-          <AvatarFallback className="bg-white/10 text-white text-xs font-semibold">U</AvatarFallback>
-        </Avatar>
-      )}
 
-      {/* Bubble */}
-      <div className={cn("max-w-[80%] space-y-1", isUser ? "items-end" : "items-start", "flex flex-col")}>
+      {/* Message */}
+      <div className={cn("max-w-[80%] flex flex-col", isUser ? "items-end" : "items-start")}>
+        {/* Bubble */}
         <div
           className={cn(
-            "rounded-2xl px-4 py-3 text-sm leading-relaxed",
+            "rounded-2xl px-4 py-2.5 text-[14px] leading-relaxed",
             isUser
-              ? "bg-coral-600/30 border border-coral-500/30 text-white rounded-tr-sm"
+              ? "chat-bubble-user rounded-br-md"
               : isError
-              ? "glass border border-red-500/30 text-slate-300 rounded-tl-sm border-l-2 border-l-red-500/50"
-              : "glass border border-white/8 text-slate-100 rounded-tl-sm border-l-2 border-l-coral-500/50"
+              ? "chat-bubble-error rounded-bl-md"
+              : "chat-bubble-assistant rounded-bl-md"
           )}
         >
           {isUser ? (
             <>
               {message.images && message.images.length > 0 && (
-                <div className="flex gap-2 mb-2 flex-wrap justify-end">
+                <div className="flex gap-2 mb-2 flex-wrap">
                   {message.images.map((img, i) => (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      key={i}
-                      src={`data:${img.mediaType};base64,${img.data}`}
-                      alt="Attached"
-                      className="w-20 h-20 rounded-lg object-cover border border-white/10"
-                    />
+                    <img key={i} src={`data:${img.mediaType};base64,${img.data}`} alt="Attached" className="w-20 h-20 rounded-xl object-cover" />
                   ))}
                 </div>
               )}
@@ -89,16 +69,10 @@ export function ChatMessage({ message, isStreaming, streamingContent, onRetry }:
           ) : (
             <div className="prose-conch">
               {isStreaming ? (
-                <motion.p
-                  key="streaming"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.2 }}
-                  className="whitespace-pre-wrap"
-                >
+                <p className="whitespace-pre-wrap">
                   {content}
-                  <span className="inline-block w-0.5 h-4 bg-coral-400 ml-0.5 align-middle animate-pulse" />
-                </motion.p>
+                  <span className="chat-cursor inline-block w-0.5 h-4 ml-0.5 align-middle animate-pulse rounded-full" />
+                </p>
               ) : content ? (
                 <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>{content}</ReactMarkdown>
               ) : null}
@@ -106,46 +80,37 @@ export function ChatMessage({ message, isStreaming, streamingContent, onRetry }:
           )}
         </div>
 
-        <div className="flex items-center gap-2 px-1">
-          <span className="text-xs text-slate-600">{formatRelativeTime(message.createdAt)}</span>
+        {/* Meta */}
+        <div className="flex items-center gap-2 px-1 mt-1">
+          <span className="text-[11px] chat-text-muted">{formatRelativeTime(message.createdAt)}</span>
 
           {isError && onRetry && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onRetry}
-              className="h-6 px-2 text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 gap-1"
-            >
-              <RefreshCw className="w-3 h-3" />
-              Retry
-            </Button>
+            <button onClick={onRetry} className="flex items-center gap-1 text-[11px] text-destructive hover:text-destructive/80 transition-colors">
+              <RefreshCw className="w-3 h-3" /> Retry
+            </button>
           )}
 
           {isError && !onRetry && (
-            <span className="flex items-center gap-1 text-xs text-red-400">
-              <AlertCircle className="w-3 h-3" />
-              Error
+            <span className="flex items-center gap-1 text-[11px] text-destructive">
+              <AlertCircle className="w-3 h-3" /> Error
             </span>
           )}
 
           {hasMemories && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.35, duration: 0.4 }}
-              className="flex items-center gap-1.5 text-xs text-coral-500"
-            >
-              <motion.div
-                animate={{ scale: [1, 1.5, 1] }}
-                transition={{ duration: 1.2, repeat: 3, ease: "easeInOut" }}
-                className="w-1.5 h-1.5 rounded-full bg-coral-400"
-              />
-              <Brain className="w-3 h-3" />
-              <span>{memoryCount} {memoryCount === 1 ? "memory" : "memories"} recalled</span>
-            </motion.div>
+            <span className="flex items-center gap-1 text-[11px] chat-text-muted">
+              <Brain className="w-3 h-3 text-primary" />
+              {memoryCount}
+            </span>
           )}
         </div>
       </div>
+
+      {/* User avatar */}
+      {isUser && (
+        <div className="w-7 h-7 rounded-lg bg-primary/15 flex items-center justify-center shrink-0 mt-0.5">
+          <span className="text-[11px] font-semibold text-primary">U</span>
+        </div>
+      )}
     </div>
   );
-}
+});

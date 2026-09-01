@@ -14,6 +14,7 @@ export interface ChatMessage {
   memoryIds?: string[];
   createdAt: Date;
   isError?: boolean;
+  isStreaming?: boolean;
   images?: ChatImage[];
 }
 
@@ -52,8 +53,15 @@ export function useChat({ conversationId, agentId, onConversationCreated }: UseC
     if ((!content.trim() && !images?.length) || isLoading) return;
 
     lastUserMsgRef.current = { content, images };
+
+    // Add user message
     const userMsg: ChatMessage = { id: crypto.randomUUID(), role: "user", content, createdAt: new Date(), images };
-    setMessages((prev) => [...prev, userMsg]);
+
+    // Add streaming placeholder immediately with a stable ID
+    const streamId = crypto.randomUUID();
+    const streamMsg: ChatMessage = { id: streamId, role: "assistant", content: "", createdAt: new Date(), isStreaming: true };
+
+    setMessages((prev) => [...prev, userMsg, streamMsg]);
     setInput("");
     setIsLoading(true);
     setStreamingContent("");
@@ -73,7 +81,6 @@ export function useChat({ conversationId, agentId, onConversationCreated }: UseC
         throw new Error(errorText);
       }
 
-      // Capture conversation ID but don't navigate yet — wait until stream finishes.
       const newConvId = res.headers.get("X-Conversation-Id");
 
       const reader = res.body?.getReader();
@@ -82,9 +89,6 @@ export function useChat({ conversationId, agentId, onConversationCreated }: UseC
 
       if (!reader) throw new Error("No response from AI. Please try again.");
 
-      // lineBuffer holds an incomplete line that spans a chunk boundary.
-      // Without this, a JSON value split across two network packets would fail
-      // to parse and be silently dropped, truncating the response.
       let lineBuffer = "";
 
       while (true) {
@@ -93,23 +97,23 @@ export function useChat({ conversationId, agentId, onConversationCreated }: UseC
 
         lineBuffer += decoder.decode(value, { stream: true });
         const lines = lineBuffer.split("\n");
-        // Last element may be an incomplete line — keep it for the next iteration.
         lineBuffer = lines.pop() ?? "";
 
         for (const line of lines) {
           if (line.startsWith("0:")) {
-            // Text delta chunk
             try {
               const text = JSON.parse(line.slice(2));
               if (typeof text === "string") {
                 accumulated += text;
-                setStreamingContent(accumulated);
+                // Update the streaming message in-place (stable ID, no unmount)
+                setMessages((prev) =>
+                  prev.map((m) => m.id === streamId ? { ...m, content: accumulated } : m)
+                );
               }
             } catch {
               // skip malformed chunk
             }
           } else if (line.startsWith("3:")) {
-            // Error chunk from AI SDK — map the SDK's generic message to something actionable
             try {
               const errText = JSON.parse(line.slice(2));
               const isGeneric = typeof errText !== "string" || errText === GENERIC_AI_ERROR || errText.trim() === "";
@@ -125,7 +129,7 @@ export function useChat({ conversationId, agentId, onConversationCreated }: UseC
         }
       }
 
-      // Flush any complete line left in the buffer after the stream ends.
+      // Flush remaining buffer
       if (lineBuffer.startsWith("0:")) {
         try {
           const text = JSON.parse(lineBuffer.slice(2));
@@ -135,21 +139,15 @@ export function useChat({ conversationId, agentId, onConversationCreated }: UseC
         }
       }
 
-      // If we got an empty response, show a safe fallback instead of blank bubble.
       if (!accumulated.trim()) {
         accumulated = "I wasn't able to generate a response. Please try again.";
       }
 
-      const assistantMsg: ChatMessage = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content: accumulated,
-        createdAt: new Date(),
-      };
-      setMessages((prev) => [...prev, assistantMsg]);
+      // Finalize the message in-place — mark streaming complete
+      setMessages((prev) =>
+        prev.map((m) => m.id === streamId ? { ...m, content: accumulated, isStreaming: false } : m)
+      );
 
-      // Navigate only AFTER the stream is fully consumed so the assistant
-      // message is already persisted to DB before the new page fetches it.
       if (newConvId && !conversationId && onConversationCreated) {
         onConversationCreated(newConvId);
       }
@@ -162,7 +160,8 @@ export function useChat({ conversationId, agentId, onConversationCreated }: UseC
           createdAt: new Date(),
           isError: true,
         };
-        setMessages((prev) => [...prev, errorMsg]);
+        // Remove the streaming placeholder and add the error
+        setMessages((prev) => [...prev.filter((m) => m.id !== streamId), errorMsg]);
       }
     } finally {
       setIsLoading(false);
@@ -182,7 +181,6 @@ export function useChat({ conversationId, agentId, onConversationCreated }: UseC
   const retryLast = useCallback(() => {
     if (!lastUserMsgRef.current.content && !lastUserMsgRef.current.images?.length) return;
     if (isLoading) return;
-    // Remove the error message; also remove the user message so sendMessage can re-add it cleanly
     setMessages((prev) => {
       const withoutError = prev[prev.length - 1]?.isError ? prev.slice(0, -1) : prev;
       return withoutError[withoutError.length - 1]?.role === "user"

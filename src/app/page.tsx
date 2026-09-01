@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/landing/Navbar";
+import { CmdKSearchDialog } from "@/components/shared/CmdKSearchDialog";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { InteractiveMemoryDemo } from "@/components/landing/InteractiveMemoryDemo";
 import { BenefitsSection } from "@/components/landing/BenefitsSection";
@@ -32,6 +33,7 @@ export default function LandingPage() {
         <FAQSection />
       </main>
       <Footer />
+      <CmdKSearchDialog />
     </div>
   );
 }

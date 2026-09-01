@@ -1,5 +1,6 @@
-// Lightweight force-directed graph layout — no external dependencies.
-// Runs a simple velocity Verlet simulation to position nodes.
+// Force-directed graph layout — improved with category clustering.
+// Nodes of the same type cluster together, connected nodes attract,
+// and unrelated nodes repel — producing a meaningful layout.
 
 export interface GraphNode {
   id: string;
@@ -10,7 +11,7 @@ export interface GraphNode {
   y: number;
   vx: number;
   vy: number;
-  fx?: number; // fixed position (user dragging)
+  fx?: number;
   fy?: number;
 }
 
@@ -26,11 +27,11 @@ export interface GraphData {
 }
 
 const NODE_RADIUS: Record<GraphNode["type"], number> = {
-  memory: 8,
-  project: 12,
+  memory: 7,
+  project: 13,
   decision: 10,
   constraint: 9,
-  agent: 11,
+  agent: 12,
   task: 7,
 };
 
@@ -38,67 +39,101 @@ export function getNodeRadius(type: GraphNode["type"]): number {
   return NODE_RADIUS[type] ?? 8;
 }
 
-// Colors for each node type
 export const NODE_COLORS: Record<GraphNode["type"], string> = {
-  memory: "#c8891f",     // coral/gold
-  project: "#6366f1",    // indigo
-  decision: "#10b981",   // emerald
-  constraint: "#ef4444", // red
-  agent: "#8b5cf6",      // purple
-  task: "#06b6d4",       // cyan
+  memory: "#c8891f",
+  project: "#6366f1",
+  decision: "#10b981",
+  constraint: "#ef4444",
+  agent: "#8b5cf6",
+  task: "#06b6d4",
 };
 
-// Initialize random positions in a circle
+// Category center positions — arranged in a circle for clear grouping
+const CATEGORY_ANGLES: Record<string, number> = {
+  memory: 0,
+  project: Math.PI / 3,
+  decision: (2 * Math.PI) / 3,
+  constraint: Math.PI,
+  agent: (4 * Math.PI) / 3,
+  task: (5 * Math.PI) / 3,
+};
+
+// Initialize positions based on category — place nodes near their category center
 export function initializePositions(data: GraphData, width: number, height: number): GraphData {
   const cx = width / 2;
   const cy = height / 2;
-  const radius = Math.min(width, height) * 0.35;
+  const clusterRadius = Math.min(width, height) * 0.28;
+  const spreadRadius = Math.min(width, height) * 0.08;
 
-  const nodes = data.nodes.map((node, i) => {
-    const angle = (i / data.nodes.length) * Math.PI * 2;
-    return {
-      ...node,
-      x: cx + Math.cos(angle) * radius + (Math.random() - 0.5) * 40,
-      y: cy + Math.sin(angle) * radius + (Math.random() - 0.5) * 40,
-      vx: 0,
-      vy: 0,
-    };
-  });
+  // Group nodes by type
+  const groups = new Map<string, GraphNode[]>();
+  for (const node of data.nodes) {
+    if (!groups.has(node.type)) groups.set(node.type, []);
+    groups.get(node.type)!.push(node);
+  }
+
+  const nodes: GraphNode[] = [];
+  for (const [type, group] of groups) {
+    const angle = CATEGORY_ANGLES[type] ?? 0;
+    const groupCx = cx + Math.cos(angle) * clusterRadius;
+    const groupCy = cy + Math.sin(angle) * clusterRadius;
+
+    for (let i = 0; i < group.length; i++) {
+      const nodeAngle = (i / Math.max(group.length, 1)) * Math.PI * 2;
+      const r = spreadRadius * Math.sqrt(Math.random()) * 0.8;
+      nodes.push({
+        ...group[i],
+        x: groupCx + Math.cos(nodeAngle) * r,
+        y: groupCy + Math.sin(nodeAngle) * r,
+        vx: 0,
+        vy: 0,
+      });
+    }
+  }
 
   return { nodes, edges: data.edges };
 }
 
-// Run force simulation for N iterations
+// Run force simulation with category clustering
 export function simulate(
   data: GraphData,
   width: number,
   height: number,
-  iterations: number = 150
+  iterations: number = 200
 ): GraphData {
   const nodes = data.nodes.map((n) => ({ ...n }));
   const nodeMap = new Map(nodes.map((n) => [n.id, n]));
   const edges = data.edges;
 
-  const repulsionForce = 800;
-  const attractionForce = 0.005;
-  const centerForce = 0.01;
-  const damping = 0.9;
-  const minDist = 30;
+  const repulsionForce = 600;
+  const attractionForce = 0.015;
+  const centerForce = 0.008;
+  const clusterForce = 0.025; // Pull nodes toward their category center
+  const damping = 0.85;
+  const minDist = 25;
+  const padding = 50;
+
+  const cx = width / 2;
+  const cy = height / 2;
+  const clusterRadius = Math.min(width, height) * 0.28;
 
   for (let iter = 0; iter < iterations; iter++) {
-    const temp = 1 - iter / iterations; // cooling
+    const temp = Math.max(0.1, 1 - iter / iterations);
 
-    // Repulsion between all pairs
+    // Repulsion between all pairs (stronger at close range)
     for (let i = 0; i < nodes.length; i++) {
       for (let j = i + 1; j < nodes.length; j++) {
         const a = nodes[i];
         const b = nodes[j];
-      const dx = a.x - b.x;
-      const dy = a.y - b.y;
+        const dx = a.x - b.x;
+        const dy = a.y - b.y;
         let dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < minDist) dist = minDist;
 
-        const force = (repulsionForce * temp) / (dist * dist);
+        // Nodes of same type repel less (stay closer)
+        const sameType = a.type === b.type;
+        const forceMultiplier = sameType ? 0.5 : 1.2;
+        const force = (repulsionForce * temp * forceMultiplier) / (dist * dist);
         const fx = (dx / dist) * force;
         const fy = (dy / dist) * force;
 
@@ -118,7 +153,8 @@ export function simulate(
       const dist = Math.sqrt(dx * dx + dy * dy);
       if (dist === 0) continue;
 
-      const force = dist * attractionForce * temp;
+      const idealDist = 80;
+      const force = (dist - idealDist) * attractionForce * temp;
       const fx = (dx / dist) * force;
       const fy = (dy / dist) * force;
 
@@ -126,15 +162,26 @@ export function simulate(
       if (b.fx === undefined) { b.vx -= fx; b.vy -= fy; }
     }
 
-    // Center gravity
+    // Category cluster gravity — pull each node toward its category center
     for (const node of nodes) {
       if (node.fx !== undefined) continue;
-      node.vx += (width / 2 - node.x) * centerForce;
-      node.vy += (height / 2 - node.y) * centerForce;
+
+      const angle = CATEGORY_ANGLES[node.type] ?? 0;
+      const targetX = cx + Math.cos(angle) * clusterRadius;
+      const targetY = cy + Math.sin(angle) * clusterRadius;
+
+      node.vx += (targetX - node.x) * clusterForce * temp;
+      node.vy += (targetY - node.y) * clusterForce * temp;
     }
 
-    // Apply velocities
-    const padding = 40;
+    // Mild center gravity to prevent drift
+    for (const node of nodes) {
+      if (node.fx !== undefined) continue;
+      node.vx += (cx - node.x) * centerForce;
+      node.vy += (cy - node.y) * centerForce;
+    }
+
+    // Apply velocities with bounds
     for (const node of nodes) {
       if (node.fx !== undefined) {
         node.x = node.fx;
@@ -149,7 +196,6 @@ export function simulate(
       node.x += node.vx;
       node.y += node.vy;
 
-      // Bounds
       node.x = Math.max(padding, Math.min(width - padding, node.x));
       node.y = Math.max(padding, Math.min(height - padding, node.y));
     }
@@ -170,7 +216,7 @@ export function hitTest(
     const r = getNodeRadius(node.type) * zoom;
     const dx = x - node.x;
     const dy = y - node.y;
-    if (dx * dx + dy * dy <= (r + 4) * (r + 4)) {
+    if (dx * dx + dy * dy <= (r + 6) * (r + 6)) {
       return node;
     }
   }
