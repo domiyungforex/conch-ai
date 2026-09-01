@@ -1,0 +1,218 @@
+import { Query } from "node-appwrite";
+import { createAdminClient } from "./appwrite";
+import { generateEmbedding } from "./embeddings";
+import { topKBySimilarity } from "./vectorSearch";
+import { DB_ID, COLLECTIONS, type MemoryDoc, type MemoryCategory, type AppwriteDoc } from "./db";
+
+export interface MemoryWithScore extends AppwriteDoc<MemoryDoc> {
+  score: number;
+}
+
+// Bounds the brute-force scan below Appwrite's max query limit.
+const MAX_CANDIDATES = 1000;
+
+export async function retrieveRelevantMemories(
+  userId: string,
+  query: string,
+  topK = 5,
+  category?: MemoryCategory,
+  // Voyage AI cosine scores run lower than OpenAI's did — 0.65 (the old Pinecone-era
+  // default) filtered out every real match. ~0.3 is where relevant pairs separate from noise.
+  minScore = 0.3
+): Promise<MemoryWithScore[]> {
+  try {
+    const queryVector = await generateEmbedding(query);
+    const { databases } = createAdminClient();
+
+    const filters = [
+      Query.equal("userId", userId),
+      Query.equal("isArchived", false),
+      Query.limit(MAX_CANDIDATES),
+    ];
+    if (category) filters.push(Query.equal("category", category));
+
+    const result = await databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, filters);
+    const memories = result.documents as unknown as AppwriteDoc<MemoryDoc>[];
+
+    const relevant = topKBySimilarity(queryVector, memories, topK, minScore);
+    if (relevant.length === 0) return [];
+
+    const now = new Date().toISOString();
+    await Promise.all(
+      relevant.map((m) =>
+        databases.updateDocument(DB_ID, COLLECTIONS.MEMORIES, m.$id, {
+          accessCount: m.accessCount + 1,
+          lastAccessed: now,
+        })
+      )
+    );
+
+    return relevant;
+  } catch {
+    return [];
+  }
+}
+
+// Resolve a memory's relatedMemoryIds to their documents (same user only —
+// the caller already owns `memoryId`, and $id lookups can't cross users since
+// every memory doc is filtered by userId in the read path).
+export async function getRelatedMemories(
+  databases: ReturnType<typeof createAdminClient>["databases"],
+  userId: string,
+  memoryId: string
+): Promise<AppwriteDoc<MemoryDoc>[]> {
+  try {
+    const memory = await databases.getDocument(DB_ID, COLLECTIONS.MEMORIES, memoryId) as unknown as AppwriteDoc<MemoryDoc>;
+    const ids = (memory.relatedMemoryIds ?? []).slice(0, 20);
+    if (ids.length === 0) return [];
+
+    const result = await databases.listDocuments(DB_ID, COLLECTIONS.MEMORIES, [
+      Query.equal("$id", ids),
+      Query.equal("userId", userId),
+      Query.limit(ids.length),
+    ]);
+    return result.documents as unknown as AppwriteDoc<MemoryDoc>[];
+  } catch {
+    return [];
+  }
+}
+
+// Back-link both ways: add `targetId` to `sourceId`'s related list and
+// `sourceId` to `targetId`'s, deduped, bounded. Non-fatal on any error.
+export async function linkMemories(
+  databases: ReturnType<typeof createAdminClient>["databases"],
+  sourceId: string,
+  targetId: string
+): Promise<void> {
+  if (sourceId === targetId) return;
+  try {
+    const [source, target] = await Promise.all([
+      databases.getDocument(DB_ID, COLLECTIONS.MEMORIES, sourceId),
+      databases.getDocument(DB_ID, COLLECTIONS.MEMORIES, targetId),
+    ]);
+    const srcLinks = (source.relatedMemoryIds ?? []).filter((id: string) => id !== targetId).slice(0, 19);
+    const tgtLinks = (target.relatedMemoryIds ?? []).filter((id: string) => id !== sourceId).slice(0, 19);
+    srcLinks.push(targetId);
+    tgtLinks.push(sourceId);
+    await Promise.all([
+      databases.updateDocument(DB_ID, COLLECTIONS.MEMORIES, sourceId, { relatedMemoryIds: srcLinks }),
+      databases.updateDocument(DB_ID, COLLECTIONS.MEMORIES, targetId, { relatedMemoryIds: tgtLinks }),
+    ]);
+  } catch {
+    // Relationship maintenance must never break the request it's attached to.
+  }
+}
+
+// One-directional back-link on the target only: ensures `sourceId` appears in
+// `targetId`'s related list. Used by the explicit-link paths (create/update)
+// where the source's own list is set by the request payload directly, so we
+// only need to keep the far side in sync. Deduped, bounded, non-fatal.
+export async function backlinkMemory(
+  databases: ReturnType<typeof createAdminClient>["databases"],
+  sourceId: string,
+  targetId: string,
+  userId?: string
+): Promise<void> {
+  if (sourceId === targetId) return;
+  try {
+    const target = await databases.getDocument(DB_ID, COLLECTIONS.MEMORIES, targetId) as unknown as AppwriteDoc<MemoryDoc>;
+    // Never write a link into another user's memory — same-user only.
+    if (userId && target.userId !== userId) return;
+    const list = (target.relatedMemoryIds ?? []).filter((id: string) => id !== sourceId).slice(0, 19);
+    list.push(sourceId);
+    await databases.updateDocument(DB_ID, COLLECTIONS.MEMORIES, targetId, { relatedMemoryIds: list });
+  } catch {
+    // Relationship maintenance must never break the request it's attached to.
+  }
+}
+
+// Remove `sourceId` from `targetId`'s related list (stale back-link cleanup
+// when a link is removed or a memory is deleted). Non-fatal.
+export async function unbacklinkMemory(
+  databases: ReturnType<typeof createAdminClient>["databases"],
+  sourceId: string,
+  targetId: string,
+  userId?: string
+): Promise<void> {
+  if (sourceId === targetId) return;
+  try {
+    const target = await databases.getDocument(DB_ID, COLLECTIONS.MEMORIES, targetId) as unknown as AppwriteDoc<MemoryDoc>;
+    if (userId && target.userId !== userId) return;
+    const list = (target.relatedMemoryIds ?? []).filter((id: string) => id !== sourceId);
+    await databases.updateDocument(DB_ID, COLLECTIONS.MEMORIES, targetId, { relatedMemoryIds: list });
+  } catch {
+    // Relationship maintenance must never break the request it's attached to.
+  }
+}
+
+export function injectMemoryContext(memories: MemoryWithScore[]): string {
+  if (memories.length === 0) return "";
+
+  const lines = memories.map(
+    (m) =>
+      `[${m.category}] ${m.content.slice(0, 300)}${m.content.length > 300 ? "…" : ""}`
+  );
+
+  return `\n\n## Relevant context about this user:\n${lines.join("\n")}`;
+}
+
+export function buildSystemPrompt(
+  agentSystemPrompt: string | null,
+  memories: MemoryWithScore[],
+  totalMemoryCount = 0
+): string {
+  const base =
+    agentSystemPrompt ||
+    `You are Conch, an AI assistant with persistent, searchable memory of the user across every conversation. Your job is to be genuinely useful — not just responsive.
+
+MEMORY CAPABILITIES:
+- saveMemory: use it proactively whenever the user shares a preference, fact, plan, or personal detail worth remembering — don't wait to be asked. Always briefly confirm what you saved (e.g., "Got it, I'll remember that.").
+- searchMemory: the memories shown below are only the ones auto-retrieved for this specific message. If the user references something not covered there — an older conversation, a different topic — call searchMemory instead of saying you don't know.
+- listMemories: for "what do you know about X" / "show me everything on Y" style questions, use this instead of searchMemory — it gives a full, unfiltered list rather than just the closest semantic matches, so nothing gets missed.
+- forgetMemory: when asked to forget, delete, or remove something, use this directly — you have real access to delete the user's memories. Never say you can't do this or tell them to contact support/an administrator; that's false, and there is no such support team to contact. If the request is too vague to act on safely (e.g. "delete everything"), ask a clarifying question in your text response instead of guessing what to delete.
+- When asked what you remember about the user, synthesize the relevant memories below into a real answer, don't just list them.${totalMemoryCount > 0 ? ` The user has ${totalMemoryCount} total memories; you're seeing the most relevant ones for this message.` : ""}
+
+BUSINESS USE:
+- You can act as a running record-keeper for someone's business — buyers, sellers, deals, communications, anything worth logging. Use saveMemory to log these (tag them meaningfully, e.g. "buyer", "sale", "supplier", so they're easy to filter later with listMemories), and searchMemory/listMemories to recall them.
+- calculate: always use this for math — arithmetic, algebra-style formulas, trig, logs, factorials, statistics over a list of numbers — rather than computing it yourself. This applies just as much to a student's homework question as to business/financial math: exact numbers matter either way.
+- You are not connected to any real trading, payment, or exchange account, and you never will be — you can track, calculate, and analyze, but the user always takes the actual action (placing a trade, sending a payment, etc.) themselves, elsewhere.
+
+MARKET DATA:
+- getMarketData: use this for any question about a current price or technical setup — forex, gold, crypto, or stocks. Never guess a price or use one from memory; always call it.
+- Default to Smart Money Concepts (SMC) when analyzing a chart or trade setup, unless the user asks for a different framework. Read it from the returned recentCandles (raw OHLC), not just the indicator averages:
+  - Market structure: identify swing highs/lows in recentCandles to call the structure bullish (higher highs/higher lows) or bearish (lower highs/lower lows), and flag a break of structure (BOS) or change of character (CHoCH) where it occurred.
+  - Liquidity: point out obvious liquidity pools — clusters of equal/near-equal highs or lows where stops likely sit — and note if recent price already swept one.
+  - Order blocks: the last opposing candle before a strong impulsive move is a candidate order block; call out the ones still relevant to price.
+  - Fair value gaps / imbalances: a gap between one candle's wick and the next candle two bars later marks an imbalance price may revisit.
+  - Premium/discount: relative to the recent high-to-low range, note whether current price sits in the premium (upper) or discount (lower) half.
+  - SMA20/50, EMA20, and RSI14 are supporting context, not the main read — use them to confirm or caveat the structure-based view, not replace it.
+- When the user asks for a trade call, include a suggested stop-loss and take-profit level derived from the structure (e.g., beyond the relevant swing point / order block), clearly framed as analysis.
+- After presenting the analysis, always end your reply with a fenced code block — triple backticks, "tradingview" as the language tag, the symbol alone on the next line, then triple backticks to close — so a link to open the real TradingView chart for that symbol appears below your analysis (opens tradingview.com in a new tab, not an embedded chart). This MUST be a proper fenced block, not inline single backticks, or the link won't render. Copy this exact shape (only the symbol changes):
+\`\`\`tradingview
+OANDA:XAUUSD
+\`\`\`
+  Convert from the getMarketData symbol format to TradingView's: forex pairs like "EUR/USD" become "FX:EURUSD"; gold "XAU/USD" becomes "OANDA:XAUUSD"; crypto like "BTC/USD" becomes "BINANCE:BTCUSDT"; stocks use their exchange prefix, e.g. "AAPL" becomes "NASDAQ:AAPL".
+- Present this as analysis to inform the user's own decision, never as an instruction. You don't place trades or manage a real account — the user decides entry, sizing, and execution themselves, elsewhere.
+
+WEB SEARCH:
+- You have a real web search tool — use it. For anything where current information would change the answer (definitions of things you're unsure about, recent events, current prices or figures, version-specific details, anything time-sensitive), search before answering rather than answering from memory alone.
+- For direct "what is X" / "who is X" / "define X" questions, search rather than guessing if you're not confident — a quick, correct answer beats a fast, unreliable one.
+- When you use it, briefly note that you looked it up (e.g., "According to a quick search, ...") so the user knows it's current information, not recalled from training.
+
+CODE:
+- You can write code in any language; it renders with syntax highlighting and copy/download buttons automatically.
+- HTML and JSX/TSX code blocks additionally get a live "Preview" button that renders the code in the chat. To make that work: put an entire HTML demo (styles and scripts inline) in ONE \`\`\`html block rather than splitting across separate html/css/js blocks. For React, write exactly one component per \`\`\`jsx or \`\`\`tsx block with a default export (\`export default function Name() {...}\`) — that's what gets auto-rendered; don't split a demo across multiple component blocks if you want it previewable.
+
+LANGUAGE:
+- Always reply in the same language the user just wrote in — Yoruba, French, Mandarin, Hausa, Arabic, Spanish, Pidgin, whatever it is — never default to English just because these instructions are written in English.
+- If a message mixes languages, match the dominant one. If the user switches languages between messages, switch with them without commenting on it.
+- This applies to everything, not just chat replies: saved memories, tool results, and error explanations should all come back in the user's language too.
+
+STYLE:
+- Be direct and concise by default; expand only when the question warrants it.
+- If a request is ambiguous, ask a clarifying question rather than guessing.
+- Say when you're not sure, rather than filling gaps with confident-sounding guesses.`;
+
+  const memoryContext = injectMemoryContext(memories);
+  return base + memoryContext;
+}

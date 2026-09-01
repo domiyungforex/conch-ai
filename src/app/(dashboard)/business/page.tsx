@@ -1,0 +1,70 @@
+"use client";
+
+import Link from "next/link";
+import { ResourcePanel } from "@/components/modules/ResourcePanel";
+import { UpgradeGate } from "@/components/shared/UpgradeGate";
+import { BUSINESS_TEMPLATES } from "@/lib/businessTemplates";
+import type { AppwriteDoc, BusinessDoc } from "@/lib/db";
+
+type Business = AppwriteDoc<BusinessDoc>;
+
+export default function BusinessPage() {
+  return (
+    <UpgradeGate>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-xl font-bold text-white">Business Memory</h1>
+        <p className="text-sm text-slate-400 mt-1">
+          Every customer, supplier, product, order, inventory, expense, and revenue, remembered and queryable.
+        </p>
+      </div>
+
+      <ResourcePanel<Business>
+        basePath="/api/business"
+        title="Your businesses"
+        emptyLabel="No businesses yet. Add one to get started."
+        fields={[
+          { key: "name", label: "Name", type: "text", placeholder: "Acme Inc." },
+          {
+            key: "template",
+            label: "Industry template",
+            type: "select",
+            placeholder: "Pick what to track",
+            options: BUSINESS_TEMPLATES.map((t) => ({ value: t.id, label: `${t.icon} ${t.label}` })),
+          },
+          { key: "industry", label: "Industry", type: "text", placeholder: "Retail" },
+          { key: "description", label: "Description", type: "textarea" },
+          { key: "website", label: "Website", type: "text", placeholder: "https://" },
+          {
+            key: "region",
+            label: "Region",
+            type: "select",
+            defaultValue: "global",
+            options: [
+              { value: "global", label: "Global" },
+              { value: "CA", label: "Canada" },
+              { value: "NG", label: "Nigeria" },
+              { value: "US", label: "United States" },
+              { value: "UK", label: "United Kingdom" },
+            ],
+          },
+        ]}
+        columns={[
+          {
+            key: "name",
+            label: "Name",
+            render: (b) => (
+              <Link href={`/business/${b.$id}`} className="text-coral-300 hover:text-coral-200 font-medium">
+                {b.name}
+              </Link>
+            ),
+          },
+          { key: "industry", label: "Industry", render: (b) => b.industry ?? "" },
+          { key: "region", label: "Region" },
+          { key: "currency", label: "Currency" },
+        ]}
+      />
+    </div>
+    </UpgradeGate>
+  );
+}

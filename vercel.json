@@ -1,8 +1,7 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": ".next",
-  "framework": "nextjs",
-  "installCommand": "npm install",
-  "regions": ["iad1"],
-  "crons": []
+  "functions": {
+    "src/app/api/chat/route.ts": {
+      "maxDuration": 60
+    }
+  }
 }
