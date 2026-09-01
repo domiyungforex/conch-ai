@@ -1,0 +1,235 @@
+/* Conch Challenge — Custom theme overrides for /challenge routes */
+
+@layer base {
+  .dark {
+    --conch-purple: #7c3aed;
+    --conch-purple-light: #a78bfa;
+    --conch-purple-dark: #5b21b6;
+    --conch-violet: #8b5cf6;
+    --conch-bg: #050508;
+    --conch-surface: #0a0a10;
+    --conch-surface-2: #12121c;
+    --conch-surface-3: #1a1a2a;
+    --conch-border: rgba(124, 58, 237, 0.15);
+    --conch-border-hover: rgba(124, 58, 237, 0.3);
+    --conch-glow: rgba(124, 58, 237, 0.25);
+    --conch-text: #e8e8ec;
+    --conch-text-muted: #8888a0;
+    --conch-text-dim: #55556a;
+  }
+}
+
+/* Animated gradient background for challenge sections */
+.conch-gradient-bg {
+  background: radial-gradient(
+      ellipse 80% 60% at 50% -20%,
+      rgba(124, 58, 237, 0.15) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 80% 50%,
+      rgba(139, 92, 246, 0.08) 0%,
+      transparent 50%
+    ),
+    #050508;
+}
+
+/* Glass card effect */
+.conch-glass {
+  background: rgba(10, 10, 16, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(124, 58, 237, 0.12);
+  transition: border-color 0.3s ease, background 0.3s ease, transform 0.2s ease;
+}
+
+.conch-glass:hover {
+  border-color: rgba(124, 58, 237, 0.25);
+  background: rgba(10, 10, 16, 0.75);
+}
+
+/* Glow effect for buttons */
+.conch-glow {
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.3),
+    0 0 60px rgba(124, 58, 237, 0.1);
+}
+
+.conch-glow-subtle {
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.15);
+}
+
+.conch-glow:hover {
+  box-shadow: 0 0 25px rgba(124, 58, 237, 0.4),
+    0 0 80px rgba(124, 58, 237, 0.15);
+}
+
+/* Neural network animation */
+@keyframes node-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+@keyframes line-flow {
+  0% { stroke-dashoffset: 100; opacity: 0; }
+  50% { opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+@keyframes text-reveal {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes fade-in-up {
+  0% { opacity: 0; transform: translateY(24px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in-scale {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slide-in-right {
+  0% { opacity: 0; transform: translateX(20px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes counter-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.animate-node-pulse { animation: node-pulse 3s ease-in-out infinite; }
+.animate-float { animation: float 4s ease-in-out infinite; }
+.animate-gradient-shift { background-size: 200% 200%; animation: gradient-shift 6s ease infinite; }
+.animate-text-reveal { animation: text-reveal 0.6s ease-out forwards; }
+.animate-fade-in-up { animation: fade-in-up 0.6s ease-out forwards; }
+.animate-fade-in-scale { animation: fade-in-scale 0.5s ease-out forwards; }
+.animate-slide-in-right { animation: slide-in-right 0.5s ease-out forwards; }
+
+/* Hover micro-interactions */
+.conch-card-hover {
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+.conch-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(124, 58, 237, 0.1);
+}
+
+/* Button press effect */
+.conch-btn-press:active {
+  transform: scale(0.97);
+}
+
+/* Focus ring for accessibility */
+.conch-focus:focus-visible {
+  outline: 2px solid #7c3aed;
+  outline-offset: 2px;
+}
+
+/* Gradient text shimmer */
+.conch-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--conch-purple) 0%,
+    var(--conch-purple-light) 25%,
+    #c084fc 50%,
+    var(--conch-purple-light) 75%,
+    var(--conch-purple) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 4s linear infinite;
+}
+
+/* Countdown styling */
+.countdown-digit {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Scrollbar styling */
+.conch-scroll::-webkit-scrollbar { width: 6px; }
+.conch-scroll::-webkit-scrollbar-track { background: transparent; }
+.conch-scroll::-webkit-scrollbar-thumb {
+  background: rgba(124, 58, 237, 0.3);
+  border-radius: 3px;
+}
+
+/* Mobile sticky CTA */
+.conch-mobile-cta {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  padding: 12px 16px;
+  background: rgba(5, 5, 8, 0.95);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(124, 58, 237, 0.15);
+}
+
+@media (min-width: 768px) {
+  .conch-mobile-cta { display: none; }
+}
+
+/* Loading skeleton */
+.conch-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--conch-surface-2) 25%,
+    var(--conch-surface-3) 50%,
+    var(--conch-surface-2) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 0.5rem;
+}
+
+/* Tooltip */
+.conch-tooltip {
+  position: relative;
+}
+.conch-tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  padding: 4px 8px;
+  background: var(--conch-surface-3);
+  border: 1px solid var(--conch-border);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  color: var(--conch-text-muted);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.conch-tooltip:hover::after {
+  opacity: 1;
+}
