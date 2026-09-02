@@ -51,13 +51,14 @@ export const COLLECTIONS = {
   PUSH_SUBSCRIPTIONS: "push_subscriptions",
   REMINDERS: "reminders",
   // ── Creator Challenge ──────────────────────────────────────────────
-  CHALLENGE_WAITLIST: "challenge_waitlist",
-  CHALLENGE: "challenge",
-  CHALLENGE_PARTICIPANTS: "challenge_participants",
-  CHALLENGE_PROJECTS: "challenge_projects",
-  CHALLENGE_SUBMISSIONS: "challenge_submissions",
-  CHALLENGE_WINNERS: "challenge_winners",
-  CHALLENGE_EVENTS: "challenge_events",
+  // IDs from Appwrite setup — update if collections are recreated
+  CHALLENGE_WAITLIST: "6a9777f5002c873440b7",
+  CHALLENGE: "6a9778000023dedc45c9",
+  CHALLENGE_PARTICIPANTS: "6a97780f002f66dac3e2",
+  CHALLENGE_PROJECTS: "6a97781c0015f8c637c6",
+  CHALLENGE_SUBMISSIONS: "6a977833002bde741d59",
+  CHALLENGE_WINNERS: "6a9778380037e4289c84",
+  CHALLENGE_EVENTS: "6a9778400001dd65946d",
 } as const;
 
 export type MemoryCategory = "EPISODIC" | "SEMANTIC" | "PREFERENCE" | "PROCEDURAL";
