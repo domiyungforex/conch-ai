@@ -3,22 +3,22 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/lib/auth/client";
+import { useSession } from "@clerk/nextjs";
 import { ArrowLeft, Clock, CheckCircle, Circle, Loader2 } from "lucide-react";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { data: session, isPending } = useSession();
+  const { user, isLoaded } = useUser();
   const [challengeStatus] = useState("Joined");
   const [submissionStatus] = useState("In Progress");
 
   useEffect(() => {
-    if (!isPending && !session) {
+    if (isLoaded && !user) {
       router.push("/sign-in");
     }
-  }, [session, isPending, router]);
+  }, [user, isLoaded, router]);
 
-  if (isPending) {
+  if (!isLoaded) {
     return (
       <div className="conch-gradient-bg min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-[var(--conch-purple)] animate-spin" />
@@ -26,7 +26,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (!session) return null;
+  if (!user) return null;
 
   return (
     <div className="conch-gradient-bg min-h-screen">
@@ -68,12 +68,12 @@ export default function DashboardPage() {
             <div className="w-10 h-10 rounded-full flex items-center justify-center"
               style={{ background: "linear-gradient(135deg, #7c3aed, #a78bfa)" }}>
               <span className="text-white text-sm font-bold">
-                {session.user.name?.charAt(0) || session.user.email?.charAt(0) || "U"}
+                {user?.firstName?.charAt(0) || user?.emailAddresses?.[0]?.emailAddress?.charAt(0) || "U"}
               </span>
             </div>
             <div>
-              <p className="text-sm font-medium text-[var(--conch-text)]">{session.user.name || "User"}</p>
-              <p className="text-xs text-[var(--conch-text-dim)]">{session.user.email}</p>
+              <p className="text-sm font-medium text-[var(--conch-text)]">{user?.firstName || "User"}</p>
+              <p className="text-xs text-[var(--conch-text-dim)]">{user?.emailAddresses?.[0]?.emailAddress}</p>
             </div>
           </div>
         </div>

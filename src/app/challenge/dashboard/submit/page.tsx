@@ -3,12 +3,12 @@
 import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/lib/auth/client";
+import { useSession } from "@clerk/nextjs";
 import { ArrowLeft, Save, Send, AlertTriangle, Loader2 } from "lucide-react";
 
 export default function SubmitPage() {
   const router = useRouter();
-  const { data: session, isPending } = useSession();
+  const { user, isLoaded } = useUser();
   const [saving, setSaving] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [lastSaved, setLastSaved] = useState<string | null>(null);
@@ -29,10 +29,10 @@ export default function SubmitPage() {
   });
 
   useEffect(() => {
-    if (!isPending && !session) {
+    if (isLoaded && !user) {
       router.push("/sign-in");
     }
-  }, [session, isPending, router]);
+  }, [user, isLoaded, router]);
 
   // Autosave with debounce
   useEffect(() => {
@@ -76,7 +76,7 @@ export default function SubmitPage() {
       const res = await fetch("/api/challenge/submissions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ projectId: null, participantEmail: session?.user.email }),
+        body: JSON.stringify({ projectId: null, participantEmail: user?.emailAddresses?.[0]?.emailAddress }),
       });
       // For now, just simulate success
       await new Promise((r) => setTimeout(r, 1500));
@@ -90,7 +90,7 @@ export default function SubmitPage() {
     }
   };
 
-  if (isPending) {
+  if (!isLoaded) {
     return (
       <div className="conch-gradient-bg min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-[var(--conch-purple)] animate-spin" />
@@ -98,7 +98,7 @@ export default function SubmitPage() {
     );
   }
 
-  if (!session) return null;
+  if (!user) return null;
 
   if (submitted) {
     return (
