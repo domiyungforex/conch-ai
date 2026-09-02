@@ -18,7 +18,7 @@ const links = {
     { label: "About", href: "/about" },
     { label: "Blog", href: "/blog" },
     { label: "Careers", href: "/careers" },
-    { label: "Contact", href: "mailto:hello@conch.ai" },
+    { label: "Contact", href: "mailto:support@conchportal.com" },
   ],
   Legal: [
     { label: "Privacy Policy", href: "/privacy" },
