@@ -1,27 +1,12 @@
 import { NextResponse } from "next/server";
-import { db } from "@/db";
-import { challengeEvents } from "@/db/schema/challenge";
-import { desc } from "drizzle-orm";
-import { requireAdmin } from "@/lib/auth/server";
+import { createAdminClient } from "@/lib/appwrite";
+import { DB_ID, COLLECTIONS } from "@/lib/db";
+import { Query } from "appwrite";
 
-// GET — Fetch challenge audit log events (admin only)
 export async function GET() {
-  const auth = await requireAdmin();
-  if (auth.error) return auth.error;
-
   try {
-    const events = await db
-      .select()
-      .from(challengeEvents)
-      .orderBy(desc(challengeEvents.createdAt))
-      .limit(200);
-
-    return NextResponse.json({ events });
-  } catch (error) {
-    console.error("Events fetch error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch events." },
-      { status: 500 }
-    );
-  }
+    const { databases } = createAdminClient();
+    const r = await databases.listDocuments(DB_ID, COLLECTIONS.CHALLENGE_EVENTS, [Query.orderDesc("$createdAt"), Query.limit(200)]);
+    return NextResponse.json({ events: r.documents });
+  } catch { return NextResponse.json({ events: [] }); }
 }

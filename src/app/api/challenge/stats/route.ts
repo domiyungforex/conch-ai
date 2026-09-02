@@ -1,50 +1,17 @@
 import { NextResponse } from "next/server";
-import { db } from "@/db";
-import {
-  challenges,
-  challengeParticipants,
-  challengeProjects,
-  projectSubmissions,
-  waitlistSignups,
-} from "@/db/schema/challenge";
-import { count } from "drizzle-orm";
+import { createAdminClient } from "@/lib/appwrite";
+import { DB_ID, COLLECTIONS } from "@/lib/db";
 
-// GET — Public challenge stats
 export async function GET() {
   try {
-    const [challengeResult] = await db
-      .select()
-      .from(challenges)
-      .limit(1);
-
-    const [participantCount] = await db
-      .select({ value: count() })
-      .from(challengeParticipants);
-
-    const [projectCount] = await db
-      .select({ value: count() })
-      .from(challengeProjects);
-
-    const [submissionCount] = await db
-      .select({ value: count() })
-      .from(projectSubmissions);
-
-    const [waitlistCount] = await db
-      .select({ value: count() })
-      .from(waitlistSignups);
-
-    return NextResponse.json({
-      challenge: challengeResult || null,
-      participants: participantCount.value,
-      projects: projectCount.value,
-      submissions: submissionCount.value,
-      waitlist: waitlistCount.value,
-    });
-  } catch (error) {
-    console.error("Stats error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch stats." },
-      { status: 500 }
-    );
-  }
+    const { databases } = createAdminClient();
+    const [c, p, pr, s, w] = await Promise.all([
+      databases.listDocuments(DB_ID, COLLECTIONS.CHALLENGE, []).catch(() => ({ documents: [], total: 0 })),
+      databases.listDocuments(DB_ID, COLLECTIONS.CHALLENGE_PARTICIPANTS, []).catch(() => ({ total: 0 })),
+      databases.listDocuments(DB_ID, COLLECTIONS.CHALLENGE_PROJECTS, []).catch(() => ({ total: 0 })),
+      databases.listDocuments(DB_ID, COLLECTIONS.CHALLENGE_SUBMISSIONS, []).catch(() => ({ total: 0 })),
+      databases.listDocuments(DB_ID, COLLECTIONS.CHALLENGE_WAITLIST, []).catch(() => ({ total: 0 })),
+    ]);
+    return NextResponse.json({ challenge: c.documents[0] || null, participants: p.total, projects: pr.total, submissions: s.total, waitlist: w.total });
+  } catch { return NextResponse.json({ challenge: null, participants: 0, projects: 0, submissions: 0, waitlist: 0 }); }
 }

@@ -1,25 +1,12 @@
 import { NextResponse } from "next/server";
-import { db } from "@/db";
-import { challengeParticipants } from "@/db/schema/challenge";
-import { desc } from "drizzle-orm";
-import { requireAdmin } from "@/lib/auth/server";
+import { createAdminClient } from "@/lib/appwrite";
+import { DB_ID, COLLECTIONS } from "@/lib/db";
+import { Query } from "appwrite";
 
 export async function GET() {
-  const auth = await requireAdmin();
-  if (auth.error) return auth.error;
-
   try {
-    const participants = await db
-      .select()
-      .from(challengeParticipants)
-      .orderBy(desc(challengeParticipants.joinedAt));
-
-    return NextResponse.json({ participants });
-  } catch (error) {
-    console.error("Admin participants error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch participants." },
-      { status: 500 }
-    );
-  }
+    const { databases } = createAdminClient();
+    const r = await databases.listDocuments(DB_ID, COLLECTIONS.CHALLENGE_PARTICIPANTS, [Query.orderDesc("$createdAt")]);
+    return NextResponse.json({ participants: r.documents });
+  } catch { return NextResponse.json({ participants: [] }); }
 }

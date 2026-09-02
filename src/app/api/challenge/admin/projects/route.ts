@@ -6,11 +6,7 @@ import { Query } from "appwrite";
 export async function GET() {
   try {
     const { databases } = createAdminClient();
-    const result = await databases.listDocuments(DB_ID, COLLECTIONS.CHALLENGE_PROJECTS, [
-      Query.orderDesc("$createdAt"),
-    ]);
-    return NextResponse.json({ projects: result.documents });
-  } catch (error) {
-    return NextResponse.json({ error: "Failed." }, { status: 500 });
-  }
+    const r = await databases.listDocuments(DB_ID, COLLECTIONS.CHALLENGE_PROJECTS, [Query.orderDesc("$createdAt")]);
+    return NextResponse.json({ projects: r.documents });
+  } catch { return NextResponse.json({ projects: [] }); }
 }
