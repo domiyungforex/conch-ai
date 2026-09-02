@@ -67,7 +67,7 @@ export function WaitlistHero({ onJoinClick }: WaitlistHeroProps) {
             Join the Waitlist
           </button>
           <a
-            href="https://conch.ai"
+            href="/"
             target="_blank"
             rel="noopener noreferrer"
             className="px-8 py-4 rounded-xl font-semibold text-[var(--conch-text)] text-lg border border-[var(--conch-border)] hover:border-[var(--conch-border-hover)] transition-all conch-card-hover"

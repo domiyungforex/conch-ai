@@ -4,19 +4,19 @@ import Link from "next/link";
 
 const footerLinks = {
   Product: [
-    { label: "Memory", href: "https://conch.ai" },
-    { label: "Agents", href: "https://conch.ai" },
-    { label: "SDK/API", href: "https://conch.ai" },
+    { label: "Memory", href: "/" },
+    { label: "Agents", href: "/" },
+    { label: "SDK/API", href: "/developers" },
   ],
   Challenge: [
-    { label: "Documentation", href: "/challenge" },
-    { label: "Terms", href: "#" },
-    { label: "Privacy", href: "#" },
+    { label: "Documentation", href: "/documentation" },
+    { label: "Terms", href: "/terms" },
+    { label: "Privacy", href: "/privacy" },
   ],
   Connect: [
     { label: "X / Twitter", href: "https://x.com/conch_ai" },
     { label: "Discord", href: "#" },
-    { label: "Contact", href: "#" },
+    { label: "Contact", href: "mailto:support@conchportal.com" },
   ],
 };
 

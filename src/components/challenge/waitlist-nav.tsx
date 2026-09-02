@@ -28,7 +28,7 @@ export function WaitlistNav({ onJoinClick }: WaitlistNavProps) {
           <Link href="/challenge/waitlist" className="text-[var(--conch-purple-light)] font-medium">
             Waitlist
           </Link>
-          <a href="https://conch.ai" target="_blank" rel="noopener noreferrer"
+          <a href="/" target="_blank" rel="noopener noreferrer"
             className="hover:text-[var(--conch-text)] transition-colors">
             Product
           </a>
