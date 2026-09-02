@@ -113,7 +113,7 @@ export function WaitlistSignup({ onClose }: WaitlistSignupProps) {
 
   const shareOnX = () => {
     const text = encodeURIComponent(
-      `I just joined the @ConchAI Creator Challenge waitlist! 🐚\n\nConch gives AI persistent memory and agents.\n\n$5,000 Creator Challenge coming soon.\n\n${window.location.origin}/challenge/waitlist?ref=${referralCode}`
+      `I just joined the @Conch Creator Challenge waitlist! 🐚\n\nConch gives AI persistent memory and agents.\n\n$5,000 Creator Challenge coming soon.\n\n${window.location.origin}/challenge/waitlist?ref=${referralCode}`
     );
     window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank");
   };
