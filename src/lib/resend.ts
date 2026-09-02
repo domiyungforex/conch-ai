@@ -20,6 +20,7 @@ export const resend = {
 };
 
 export const CHALLENGE_EMAILS = {
-  from: "Conch Challenge <challenge@conchportal.com>",
+  // Once conchportal.com is verified in Resend dashboard, switch to: Conch Challenge <challenge@conchportal.com>
+  from: "Conch Challenge <onboarding@resend.dev>",
   replyTo: "challenge@conchportal.com",
 } as const;
