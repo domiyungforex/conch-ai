@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 const BASE_URL = 'https://raw.githubusercontent.com/aruljohn/Bible-kjv/master';
 
 // Maps: display name -> GitHub filename
@@ -72,7 +73,7 @@ const BOOKS = [
 
 async function main() {
   console.log('Fetching KJV from GitHub (aruljohn/Bible-kjv)...\n');
-  const allBooks: any[] = [];
+  const allBooks: unknown[] = [];
   let totalVerses = 0;
 
   for (const book of BOOKS) {
@@ -82,7 +83,7 @@ async function main() {
       const res = await fetch(url);
       if (!res.ok) { console.log(`✗ (${res.status})`); continue; }
       const data = await res.json();
-      const chapters: any[] = [];
+      const chapters: unknown[] = [];
       const rawChapters = data.chapters || [];
       for (const ch of rawChapters) {
         const verses = (ch.verses || []).map((v: any) => ({ verse: parseInt(v.verse), text: v.text }));

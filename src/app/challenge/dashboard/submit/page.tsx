@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useSession } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import { ArrowLeft, Save, Send, AlertTriangle, Loader2 } from "lucide-react";
 
 export default function SubmitPage() {

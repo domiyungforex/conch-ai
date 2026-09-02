@@ -18,6 +18,8 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.2.12",
+    "@ai-sdk/openai": "^4.0.55",
+    "@base-ui/react": "^1.7.0",
     "@clerk/nextjs": "^7.4.2",
     "@conch/sdk": "^1.0.0",
     "@ethereum-attestation-service/eas-sdk": "^2.9.1",
@@ -42,6 +44,7 @@
     "bcryptjs": "^2",
     "class-variance-authority": "^0.7",
     "clsx": "^2",
+    "cmdk": "^1.1.1",
     "ethers": "^6.17.0",
     "framer-motion": "^12",
     "i18n-iso-countries": "^7.14.0",
